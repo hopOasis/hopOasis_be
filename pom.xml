@@ -9,6 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.example</groupId>
+
     <artifactId>hop_oasis</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>hop_oasis</name>
