@@ -1,0 +1,19 @@
+version: '3.9'
+services:
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=hop_oasis
+      - MYSQL_USER=oasis
+      - MYSQL_PASSWORD=oasis
+  hop_oasis:
+    build: .
+    ports:
+      - "8080:8080"
+    container_name: hop_oasis
+    depends_on:
+      - mysql
+    environment:
+        - MYSQL_URL=jdbc:mysql://mysql:3306/hop_oasis
