@@ -8,6 +8,8 @@ services:
       - MYSQL_DATABASE=hop_oasis
       - MYSQL_USER=oasis
       - MYSQL_PASSWORD=oasis
+      - MYSQL_ROOT_PASSWORD=root
+
   hop_oasis:
     build: .
     ports:
