@@ -32,10 +32,10 @@ jobs:
         run: |
           docker build . --file Dockerfile --tag hop_oasis:latest
 
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
+      # - name: Install Docker Compose
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y docker-compose
 
-      - name: Run Docker Compose
-        run: docker-compose up -d
+      # - name: Run Docker Compose
+      #   run: docker-compose up -d
