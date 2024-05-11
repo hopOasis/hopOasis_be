@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS payment_data
+( id INTEGER NOT NULL AUTO_INCREMENT,
+  card_number INTEGER NOT NULL,
+  cvc INTEGER NOT NULL,
+  card_date DATE NOT NULL,
+  PRIMARY KEY (id)
+);
+
+
