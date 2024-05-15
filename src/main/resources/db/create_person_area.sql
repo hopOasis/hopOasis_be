@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS person_area
-( id INTEGER NOT NULL AUTO_INCREMENT,
-  delete_area VARCHAR(256) NOT NULL,
-  user VARCHAR(256) NOT NULL,
-  user_details VARCHAR(500) NOT NULL,
-  PRIMARY KEY (id)
-);
-
