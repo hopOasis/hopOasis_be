@@ -1,4 +1,4 @@
-CREATE TABLE payment_data (
+CREATE TABLE IF NOT EXISTS payment_data (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_details_id INT,
     card_number INTEGER NOT NULL,
