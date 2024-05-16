@@ -4,3 +4,9 @@ CREATE TABLE IF NOT EXISTS users (
     password VARCHAR(100) NOT NULL,
     role VARCHAR(256) NOT NULL
 );
+
+
+
+
+
+
