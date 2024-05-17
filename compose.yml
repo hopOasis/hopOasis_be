@@ -17,5 +17,4 @@ services:
     container_name: hop_oasis
     depends_on:
       - mysql
-    environment:
-        - MYSQL_URL=jdbc:mysql://mysql:3306/hop_oasis
+
