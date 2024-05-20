@@ -7,5 +7,3 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/003-create-payment-data.sql
   - include:
       file: classpath:/db/changelog/changes/004-create-personal-area.sql
-
-
