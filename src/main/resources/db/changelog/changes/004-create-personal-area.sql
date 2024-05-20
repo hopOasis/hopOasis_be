@@ -1,6 +1,6 @@
-CREATE TABLE personal_area (
+CREATE TABLE IF NOT EXISTS personal_area (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    delete_area VARCHAR(256) NOT NULL,
+    delete_area BOOLEAN,
     user_id INT,
     user_details_id INT,
     FOREIGN KEY (user_id) REFERENCES users(id),
