@@ -19,5 +19,5 @@ public class PaymentDataDto {
     @Pattern(regexp = "^(0[1-9]|1[0-2])([\\/])([2-9][0-9])$",
             message = "Повинен бути формат MM/YY")
     private String expiryDate;
-    private UserProfileDto userProfile;
+    private UserProfileDto userProfileDto;
 }

@@ -4,11 +4,12 @@ import lombok.*;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class PersonalAreaDto {
     private Long id;
     private boolean deleteArea;
-    private UserDto user;
-    private UserProfileDto userProfile;
+    private UserDto userDto;
+    private UserProfileDto userProfileDto;
 
 
 }

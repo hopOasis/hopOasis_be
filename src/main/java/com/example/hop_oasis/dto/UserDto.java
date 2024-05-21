@@ -14,7 +14,7 @@ import lombok.Setter;
 public class UserDto {
     private Long id;
     @NotBlank(message = "Будь ласка, заповніть поле")
-    @Email
+    @Email(regexp = "^[a-zA-Z0-9_!#$%&’*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     private String email;
     @NotBlank(message = "Будь ласка, заповніть поле")
     private String password;
