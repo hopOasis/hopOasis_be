@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS payment_data (
-    user_details_id INT,
+    user_details_id INT NOT NULL,
     card_number INTEGER NOT NULL,
     cvv INTEGER NOT NULL,
     expiry_date DATE NOT NULL,
