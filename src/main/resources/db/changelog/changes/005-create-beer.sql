@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS beer (
     price_small DECIMAL(7, 2) NOT NULL,
     description VARCHAR(500) NOT NULL,
     bear_color VARCHAR(100) NOT NULL,
-    image BLOB NOT NULL
+    image VARCHAR(100) NOT NULL
 );
 
 
