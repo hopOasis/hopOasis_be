@@ -14,7 +14,7 @@ import java.util.List;
 @Table(name = "user_details")
 public class UserProfile {
     @Id
-    @Column(name = "user_id")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "first_name")
@@ -32,9 +32,8 @@ public class UserProfile {
     @OneToMany(mappedBy = "userProfile")
     private List<PaymentData> paymentData;
 
-
     @OneToOne(fetch = FetchType.LAZY)
     @MapsId
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "id")
     private User user;
 }
