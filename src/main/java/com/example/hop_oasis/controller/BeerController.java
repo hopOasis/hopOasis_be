@@ -19,14 +19,15 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/beers")
 @MultipartConfig
 public class BeerController {
     private final BeerServiceImpl service;
-    @GetMapping("/all")
+    @GetMapping
     private List<BeerInfoDto> getAllBeers() {
         return service.getAllBeers();
     }
-    @PostMapping("/save")
+    @PostMapping("/beer")
     public String save(@RequestParam("name") String name,
                        @RequestParam("volume_large") double volumeLarge,
                        @RequestParam("volume_small") double volumeSmall,
@@ -47,7 +48,7 @@ public class BeerController {
         service.save(image, beerDto);
         return "Done";
     }
-    @PostMapping("/add_image")
+    @PostMapping("/beer/add/image")
     public String addImageToBeer(@RequestParam("beerId") Long beerId,
                                  @RequestParam("image") MultipartFile image) throws IOException {
         service.addImageToBeer(beerId, image);
@@ -57,7 +58,7 @@ public class BeerController {
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(service.getBeerById(id));
     }
-    @GetMapping("image/{name}")
+    @GetMapping("/beer/image/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) throws MalformedURLException {
         ImageDto imajeDto = service.getImageByName(name);
 
@@ -65,12 +66,12 @@ public class BeerController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imajeDto.getImage());
     }
-    @PutMapping("/update/{id}")
+    @PutMapping("/beer/{id}")
     public ResponseEntity<String>updateBeer(@RequestParam("id") Long id,@RequestBody BeerInfoDto beerInfo) {
         service.update(beerInfo, id);
         return ResponseEntity.ok().body("Done");
     }
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/beer/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
         service.delete(id);
         return ResponseEntity.ok().body("Done");
