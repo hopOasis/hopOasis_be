@@ -33,6 +33,6 @@ public class Beer {
     @Column(name = "beer_color")
     private String bearColor;
 
-    @OneToMany(mappedBy = "beer")
+    @OneToMany(mappedBy = "beer",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<Image> image;
 }

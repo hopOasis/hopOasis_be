@@ -24,8 +24,8 @@ import java.util.List;
 public class BeerController {
     private final BeerServiceImpl service;
     @GetMapping
-    private List<BeerInfoDto> getAllBeers() {
-        return service.getAllBeers();
+    private ResponseEntity<List<BeerInfoDto>> getAllBeers() {
+        return ResponseEntity.ok().body(service.getAllBeers());
     }
     @PostMapping("/beer")
     public String save(@RequestParam("name") String name,
