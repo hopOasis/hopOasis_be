@@ -1,3 +1,5 @@
-#databaseChangeLog:
-#  - include:
-#      file: classpath:/db/changelog/changes/005-create-beer.sql
+databaseChangeLog:
+  - include:
+      file: classpath:/db/changelog/changes/005-create-beer.sql
+  - include:
+      file: classpath:/db/changelog/changes/006-create-image.sql
