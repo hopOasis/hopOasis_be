@@ -5,6 +5,7 @@ import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
 
 import com.example.hop_oasis.service.data.BeerServiceImpl;
+import com.example.hop_oasis.service.data.ImageServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -12,8 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 
 
@@ -22,10 +21,11 @@ import java.util.List;
 @RequestMapping("/beers")
 @MultipartConfig
 public class BeerController {
-    private final BeerServiceImpl service;
+    private final BeerServiceImpl beerService;
+    private final ImageServiceImpl imageService;
     @GetMapping
     private ResponseEntity<List<BeerInfoDto>> getAllBeers() {
-        return ResponseEntity.ok().body(service.getAllBeers());
+        return ResponseEntity.ok().body(beerService.getAllBeers());
     }
     @PostMapping("/beer")
     public String save(@RequestParam("name") String name,
@@ -35,7 +35,7 @@ public class BeerController {
                        @RequestParam("price_small") double priceSmall,
                        @RequestParam("description") String description,
                        @RequestParam("color_beer") String colorBeer,
-                       @RequestParam("image") MultipartFile image) throws IOException {
+                       @RequestParam("image") MultipartFile image) {
         BeerDto beerDto = new BeerDto();
         beerDto.setBeerName(name);
         beerDto.setVolumeLarge(volumeLarge);
@@ -45,22 +45,22 @@ public class BeerController {
         beerDto.setDescription(description);
         beerDto.setBearColor(colorBeer);
 
-        service.save(image, beerDto);
+        beerService.save(image, beerDto);
         return "Done";
     }
     @PostMapping("/beer/add/image")
     public String addImageToBeer(@RequestParam("beerId") Long beerId,
-                                 @RequestParam("image") MultipartFile image) throws IOException {
-        service.addImageToBeer(beerId, image);
+                                 @RequestParam("image") MultipartFile image){
+        imageService.addImageToBeer(beerId, image);
         return "Done";
     }
     @GetMapping("/beer/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body(service.getBeerById(id));
+        return ResponseEntity.ok().body(beerService.getBeerById(id));
     }
     @GetMapping("/beer/image/{name}")
-    public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) throws MalformedURLException {
-        ImageDto imajeDto = service.getImageByName(name);
+    public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
+        ImageDto imajeDto = imageService.getImageByName(name);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
@@ -68,12 +68,17 @@ public class BeerController {
     }
     @PutMapping("/beer/{id}")
     public ResponseEntity<String>updateBeer(@RequestParam("id") Long id,@RequestBody BeerInfoDto beerInfo) {
-        service.update(beerInfo, id);
+        beerService.update(beerInfo, id);
         return ResponseEntity.ok().body("Done");
     }
     @DeleteMapping("/beer/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        service.delete(id);
+        beerService.delete(id);
+        return ResponseEntity.ok().body("Done");
+    }
+    @DeleteMapping("beer/image/{name}")
+    public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
+        imageService.deleteImage(name);
         return ResponseEntity.ok().body("Done");
     }
 }

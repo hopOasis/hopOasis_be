@@ -18,10 +18,8 @@ public class Image {
     @Lob
     @Column(name = "image",length = 100000)
     private byte[] image;
-
     @Column(name = "name")
     private String name;
-
     @ManyToOne
     @JoinColumn(name = "beer_id")
     private Beer beer;
