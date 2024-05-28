@@ -35,10 +35,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Make docker_group.sh executable
-        run: chmod +x docker_group.sh  
-      - name: Add current user to docker group
-        run: ./docker_group.sh
       - name: Pull Image from docker hub
         run: docker pull roananik/hopoasis:latest
       - name: Delete old container
