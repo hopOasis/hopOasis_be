@@ -5,8 +5,8 @@ on:
 
 jobs:
   build:
-   runs-on: [ubuntu-latest]
-   steps:
+    runs-on: ubuntu-latest
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up JDK 21
@@ -39,3 +39,4 @@ jobs:
         run: docker rm -f hopoasis_be-container
       - name: Run docker container
         run: docker run -d -p 8080:8080 --name hopoasis_be-container integrationninjas/hopoasis_be
+
