@@ -33,6 +33,8 @@ jobs:
     needs: build
     runs-on: [aws-ec2]
     steps:
+      - name: Add current user to docker group
+        run: ./docker_group.sh
       - name: Pull Image from docker hub
         run: docker pull roananik/hopoasis:latest
       - name: Delete old container
