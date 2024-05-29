@@ -106,7 +106,7 @@ class ImageServiceImplTest {
     }
 
     @Test
-    void addImageToBeerException() throws IOException {
+    void addImageToBeerException() {
         Long beerId = 1L;
         String fileName = "example.jpg";
         byte[] compressedFileData = new byte[]{/*Compressed data*/};
