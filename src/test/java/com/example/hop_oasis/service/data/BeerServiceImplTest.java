@@ -12,13 +12,13 @@ import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.dto.ImageDto;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.InjectMocks;
 import org.springframework.web.multipart.MultipartFile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.*;
@@ -32,6 +32,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class BeerServiceImplTest {
+    private static Long id = 1L;
+
+    @InjectMocks
+    private BeerServiceImpl beerServiceImpl;
+
     @Mock
     private ImageCompressor imageCompressor;
 
@@ -46,15 +51,26 @@ class BeerServiceImplTest {
 
     @Mock
     private BeerMapper beerMapper;
+
     @Mock
     private BeerInfoMapper beerInfoMapper;
-    @InjectMocks
-    private BeerServiceImpl beerServiceImpl;
+
+    @Mock
+    private Beer beer;
+
+    private BeerInfoDto beerInfoDto;
+
+    private BeerDto beerDto;
+
+    @BeforeEach
+    void setUp() {
+        beerDto = new BeerDto();
+        beerInfoDto = new BeerInfoDto();
+    }
 
     @Test
-    void save() throws IOException {
+    void shouldSaveObject() throws IOException {
         MultipartFile multipartFile = mock(MultipartFile.class);
-        BeerDto beerDto = new BeerDto();
         byte[] compressedImageData = "Test compressed image data".getBytes();
         byte[] originalImageData = "Test original image data".getBytes();
 
@@ -74,59 +90,60 @@ class BeerServiceImplTest {
 
 
     @Test
-    void getBeerById() {
-        Long beerId = 2L;
-        Beer beer = new Beer();
-        when(beerRepository.findById(beerId)).thenReturn(Optional.of(beer));
-        BeerInfoDto beerInfoDto = new BeerInfoDto();
+    void shouldReturnBeerById() {
+
+        when(beerRepository.findById(id)).thenReturn(Optional.of(beer));
         when(beerInfoMapper.toDto(beer)).thenReturn(beerInfoDto);
 
-        BeerInfoDto result = beerServiceImpl.getBeerById(beerId);
+        BeerInfoDto result = beerServiceImpl.getBeerById(id);
 
         assertNotNull(result);
         assertSame(beerInfoDto, result);
-        verify(beerRepository, times(1)).findById(beerId);
+        verify(beerRepository, times(1)).findById(id);
         verify(beerInfoMapper, times(1)).toDto(beer);
     }
 
     @Test
-    void beerNotFoundException() {
-        Long beerId = 1L;
-        when(beerRepository.findById(beerId)).thenReturn(Optional.empty());
+    void shouldThrowBeerNotFoundException() {
+        when(beerRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(BeerNotFoundException.class, () -> beerServiceImpl.getBeerById(beerId), "Expected BeerNotFoundException to be thrown");
-        verify(beerRepository, times(1)).findById(beerId);
+        assertThrows(BeerNotFoundException.class, () -> beerServiceImpl.getBeerById(id),
+                "Expected BeerNotFoundException to be thrown");
+        verify(beerRepository, times(1)).findById(id);
         verifyNoInteractions(beerInfoMapper);
 
     }
 
     @Test
-    void getAllBeers() {
+    void shouldReturnAllBeers() {
         List<Beer> beers = new ArrayList<>();
         when(beerRepository.findAll()).thenReturn(beers);
 
-        assertThrows(BeerNotFoundException.class, () -> beerServiceImpl.getAllBeers(), "Expected BeerNotFoundException to be thrown");
+        assertThrows(BeerNotFoundException.class, () -> beerServiceImpl.getAllBeers(),
+                "Expected BeerNotFoundException to be thrown");
         verify(beerRepository, times(1)).findAll();
         verifyNoInteractions(beerInfoMapper);
 
     }
 
+    @BeforeEach
+    void init() {
+        beer = new Beer();
+    }
+
     @Test
-    void update() {
-        Long id = 1L;
-        BeerInfoDto beerInfo = new BeerInfoDto();
-        beerInfo.setBeerName("UpdatedBeer");
-        beerInfo.setVolumeLarge(500.0);
-        beerInfo.setVolumeSmall(300.0);
-        beerInfo.setPriceLarge(10.0);
-        beerInfo.setPriceSmall(7.0);
-        beerInfo.setDescription("Updated description");
-        beerInfo.setBearColor("Updated color");
-        Beer beer = new Beer();
+    void shouldUpdateObject() {
+        beerInfoDto.setBeerName("UpdatedBeer");
+        beerInfoDto.setVolumeLarge(500.0);
+        beerInfoDto.setVolumeSmall(300.0);
+        beerInfoDto.setPriceLarge(10.0);
+        beerInfoDto.setPriceSmall(7.0);
+        beerInfoDto.setDescription("Updated description");
+        beerInfoDto.setBearColor("Updated color");
         beer.setId(id);
         when(beerRepository.findById(id)).thenReturn(Optional.of(beer));
 
-        beerServiceImpl.update(beerInfo, id);
+        beerServiceImpl.update(beerInfoDto, id);
 
         verify(beerRepository, times(1)).findById(id);
         verify(beerRepository, times(1)).save(beer);
@@ -140,29 +157,25 @@ class BeerServiceImplTest {
     }
 
     @Test
-    void beerNotUpdated() {
-        Long beerId = 3L;
-        Beer beer = new Beer();
-        beer.setId(beerId);
-        BeerInfoDto beerInfoDto = new BeerInfoDto();
-        when(beerRepository.findById(beerId)).thenReturn(Optional.empty());
+    void shouldThrowException() {
+        beer.setId(id);
+        when(beerRepository.findById(id)).thenReturn(Optional.empty());
 
-        assertThrows(BeerNotFoundException.class, () -> beerServiceImpl.update(beerInfoDto, beerId), "Expected BeerNotFoundException to be thrown");
+        assertThrows(BeerNotFoundException.class, () -> beerServiceImpl.update(beerInfoDto, id),
+                "Expected BeerNotFoundException to be thrown");
         verify(beerRepository, never()).save(any());
         verifyNoInteractions(beerInfoMapper);
     }
 
     @Test
-    void delete() {
-        Long beerId = 1L;
-        Beer beer = new Beer();
-        beer.setId(beerId);
-        when(beerRepository.findById(beerId)).thenReturn(Optional.of(beer));
+    void shouldDeleteObjectById() {
+        beer.setId(id);
+        when(beerRepository.findById(id)).thenReturn(Optional.of(beer));
 
-        beerServiceImpl.delete(beerId);
+        beerServiceImpl.delete(id);
 
-        verify(beerRepository).findById(beerId);
-        verify(beerRepository).deleteById(beerId);
+        verify(beerRepository).findById(id);
+        verify(beerRepository).deleteById(id);
     }
 
 }

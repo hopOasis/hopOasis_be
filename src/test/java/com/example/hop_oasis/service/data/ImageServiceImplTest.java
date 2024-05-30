@@ -8,6 +8,7 @@ import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.repository.ImageRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,29 +25,49 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ImageServiceImplTest {
-    @Mock
-    private ImageRepository imageRepository;
-    @Mock
-    private ImageCompressor imageCompressor;
-    @Mock
-    private ImageMapper imageMapper;
-    @Mock
-    private BeerRepository beerRepository;
+    private static final String imageName = "image.jpg";
+    private static final Long beerId = 1L;
+    private static final byte[] compressedImageData = new byte[]{/* Compressed data*/};
+
     @InjectMocks
     private ImageServiceImpl imageService;
 
+    @Mock
+    private ImageRepository imageRepository;
+
+    @Mock
+    private ImageCompressor imageCompressor;
+
+    @Mock
+    private ImageMapper imageMapper;
+
+    @Mock
+    private BeerRepository beerRepository;
+
+    @Mock
+    private Beer beer;
+
+    @Mock
+    private Image image;
+
+    @Mock
+    private MockMultipartFile multipartFile;
+
+    @BeforeEach
+    void setUp() {
+        multipartFile = new MockMultipartFile("file", imageName, "image/jpeg", compressedImageData);
+    }
+
     @Test
-    void getImageByName() {
-        String imageName = "image.jpg";
-        byte[] compressedImageData = new byte[]{/* Compressed data*/};
+    void shouldReturnImageByName() {
         byte[] decompressedImageData = new byte[]{/* Decompressed data*/};
         Image image = new Image();
-        image.setName(imageName);
         image.setImage(compressedImageData);
+        image.setName(imageName);
         ImageDto imageDto = new ImageDto();
 
-        when(imageRepository.findByName(eq(imageName))).thenReturn(Optional.of(image));
         when(imageCompressor.decompressImage(eq(compressedImageData), eq(imageName))).thenReturn(decompressedImageData);
+        when(imageRepository.findByName(eq(imageName))).thenReturn(Optional.of(image));
         when(imageMapper.toDto(eq(image))).thenReturn(imageDto);
 
         ImageDto returnedImageDto = imageService.getImageByName(imageName);
@@ -59,8 +80,7 @@ class ImageServiceImplTest {
     }
 
     @Test
-    void imageByNameNotFoundException() {
-        String imageName = "non_existent_image.jpg";
+    void shouldThrowImageFoundException() {
         when(imageRepository.findByName(imageName)).thenReturn(Optional.empty());
         assertThrows(ImageNotFoundException.class, () -> {
             imageService.getImageByName(imageName);
@@ -76,46 +96,36 @@ class ImageServiceImplTest {
     }
 
     @Test
-    void addImageToBeer() throws IOException {
-        Long beerId = 1L;
-        String fileName = "example.jpg";
-        byte[] compressedFileData = new byte[]{/* Compressed data */};
-        MockMultipartFile file = new MockMultipartFile("file", fileName, "image/jpeg", compressedFileData);
-        Beer beer = new Beer();
+    void shouldAddImageToBeer() throws IOException {
         Image image = Image.builder()
-                .image(compressedFileData)
-                .name(fileName)
+                .image(compressedImageData)
+                .name(imageName)
                 .build();
 
-        when(imageCompressor.compressImage(file.getBytes())).thenReturn(compressedFileData);
+        when(imageCompressor.compressImage(multipartFile.getBytes())).thenReturn(compressedImageData);
         when(beerRepository.findById(beerId)).thenReturn(Optional.of(beer));
 
-        imageService.addImageToBeer(beerId, file);
+        imageService.addImageToBeer(beerId, multipartFile);
 
-        verify(imageCompressor, times(1)).compressImage(file.getBytes());
+        verify(imageCompressor, times(1)).compressImage(multipartFile.getBytes());
         verify(beerRepository, times(1)).findById(beerId);
 
         ArgumentCaptor<Image> argumentCaptor = ArgumentCaptor.forClass(Image.class);
         verify(imageRepository, times(1)).save(argumentCaptor.capture());
 
         Image savedImage = argumentCaptor.getValue();
-        assertEquals(fileName, savedImage.getName());
+        assertEquals(imageName, savedImage.getName());
         assertEquals(beer, savedImage.getBeer());
-        assertEquals(compressedFileData, savedImage.getImage());
+        assertEquals(compressedImageData, savedImage.getImage());
 
     }
 
     @Test
-    void addImageToBeerException() {
-        Long beerId = 1L;
-        String fileName = "example.jpg";
-        byte[] compressedFileData = new byte[]{/*Compressed data*/};
-        MockMultipartFile multipartFile = new MockMultipartFile("file", fileName, "image/jpeg", compressedFileData);
-        Beer beer = new Beer();
-        when(imageCompressor.compressImage(any(byte[].class))).thenReturn(compressedFileData);
+    void shouldThrowImageToBeerException() {
+        when(imageCompressor.compressImage(any(byte[].class))).thenReturn(compressedImageData);
         when(beerRepository.findById(beerId)).thenReturn(Optional.of(beer));
 
-        doThrow(new ImageNotFoundException("Failed to save image to the database", compressedFileData)).when(imageRepository).save(any(Image.class));
+        doThrow(new ImageNotFoundException("Failed to save image to the database", compressedImageData)).when(imageRepository).save(any(Image.class));
         assertThrows(ImageNotFoundException.class, () -> imageService.addImageToBeer(beerId, multipartFile));
 
         verify(imageCompressor, times(1)).compressImage(any(byte[].class));
@@ -124,9 +134,7 @@ class ImageServiceImplTest {
     }
 
     @Test
-    void deleteImage() {
-        String imageName = "image.jpg";
-        Image image = new Image();
+    void shouldDeleteImage() {
         image.setName(imageName);
 
         when(imageRepository.findByName(imageName)).thenReturn(Optional.of(image));
