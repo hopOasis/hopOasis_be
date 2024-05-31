@@ -32,11 +32,14 @@ jobs:
   deploy:
     needs: build
     runs-on: [aws-ec2]
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Delete old container
-        run: docker rm -f hopoasis-container
-      - name: Run docker container
-        run: docker run -d -p 8080:8080 --name hopoasis-container roananik/hopoasis
 
+      - name: Copy docker-compose.yml to EC2
+        run: scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@<secrets.AWS_EC2_INSTANS_IP>:~/docker-compose.yml
+
+      - name: Run Docker Compose on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@<secrets.AWS_EC2_INSTANS_IP> 'docker-compose -f ~/docker-compose.yml up -d'
