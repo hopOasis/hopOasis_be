@@ -21,6 +21,10 @@ jobs:
           server-password: ${{ secrets.GITHUB_TOKEN }}
           overwrite-settings: true
           job-status: success
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'  
       - name: Build Project
         run: mvn clean install -DskipTests
       - name: Login to docker hub
