@@ -31,7 +31,7 @@ jobs:
         run: docker push roananik/hopoasis:latest
   deploy:
     needs: build
-    runs-on: [aws-ec2]
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
