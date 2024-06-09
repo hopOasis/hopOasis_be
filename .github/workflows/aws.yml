@@ -10,7 +10,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Set up JDK 21
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v2
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -31,12 +31,15 @@ jobs:
         run: docker push roananik/hopoasis:latest
   deploy:
     needs: build
-    runs-on: [aws-ec2]
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Delete old container
-        run: docker rm -f hopoasis-container
-      - name: Run docker container
-        run: docker run -d -p 8080:8080 --name hopoasis-container roananik/hopoasis
+      - name: Pull docker image from Docker Hub on EC2 instance
+        run: ssh -o StrictHostKeyChecking=no ec2-user@<EC2_INSTANCE_IP> 'docker pull roananik/hopoasis:latest'
+      - name: Copy docker-compose.yml to EC2
+        run: scp -o StrictHostKeyChecking=no docker-compose.yml ec2-user@<secrets.AWS_EC2_INSTANS_IP>:~/docker-compose.yml
 
+      - name: Run Docker Compose on EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@<secrets.AWS_EC2_INSTANS_IP> 'docker-compose -f ~/docker-compose.yml up -d'
