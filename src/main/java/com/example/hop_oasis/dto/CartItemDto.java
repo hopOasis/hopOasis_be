@@ -13,5 +13,5 @@ public class CartItemDto {
     private String beerTitle;
     private double pricePerBeer;
     private int quantity;
-    private BigDecimal value;
+    private BigDecimal totalCost;
 }

@@ -12,5 +12,5 @@ import java.util.List;
 @Setter
 public class CartDto {
     private List<CartItemDto> items;
-    private BigDecimal totalCost;
+    private BigDecimal priceForAll;
 }

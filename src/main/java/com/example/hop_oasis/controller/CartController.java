@@ -2,9 +2,8 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.dto.CartDto;
 import com.example.hop_oasis.service.CartService;
-import com.example.hop_oasis.service.data.CartServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,27 +17,26 @@ public class CartController {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
-    public CartDto find() {
-        return cartService.find();
+    public ResponseEntity<CartDto> find() {
+        return ResponseEntity.ok().body(cartService.getAllItems());
     }
 
     @PutMapping
-    @ResponseStatus(HttpStatus.OK)
-    public void add(@RequestParam("beerId") Long beerId) {
+    public String add(@RequestParam("beerId") Long beerId) {
         cartService.add(beerId);
+        return "Done";
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.OK)
-    public void updateQuantity(@RequestParam("beerId") Long beerId,
-                               @RequestParam("quantity") int quantity) {
+    public ResponseEntity<String> updateQuantity(@RequestParam("beerId") Long beerId,
+                                                 @RequestParam("quantity") int quantity) {
         cartService.updateQuantity(beerId, quantity);
+        return ResponseEntity.ok().body("Done");
     }
 
     @DeleteMapping
-    @ResponseStatus(HttpStatus.OK)
-    public void delete() {
+    public ResponseEntity<String> delete() {
         cartService.delete();
+        return ResponseEntity.ok().body("Done");
     }
 }
