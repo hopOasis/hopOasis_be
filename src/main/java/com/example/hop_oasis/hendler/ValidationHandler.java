@@ -32,7 +32,8 @@ public class ValidationHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BeerNotFoundException.class, ImageNotFoundException.class, SnackNotFoundException.class})
+    @ExceptionHandler({BeerNotFoundException.class, ImageNotFoundException.class, SnackNotFoundException.class,
+                      ProductBundleNotFoundException.class})
     public ResponseEntity<ErrorDetails> handleNotFoundExceptions(HttpServletRequest request,
                                                                  Exception ex) {
         return getResponseEntityErrorMap(request.getRequestURI(),makeMapFromException (ex));
