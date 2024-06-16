@@ -24,10 +24,10 @@ public class BeerController {
     private final BeerServiceImpl beerService;
     private final ImageServiceImpl imageService;
     @GetMapping
-    private ResponseEntity<List<BeerInfoDto>> getAllBeers() {
+    public ResponseEntity<List<BeerInfoDto>> getAllBeers() {
         return ResponseEntity.ok().body(beerService.getAllBeers());
     }
-    @PostMapping("/beer")
+    @PostMapping
     public String save(@RequestParam("name") String name,
                        @RequestParam("volume_large") double volumeLarge,
                        @RequestParam("volume_small") double volumeSmall,
@@ -48,17 +48,17 @@ public class BeerController {
         beerService.save(image, beerDto);
         return "Done";
     }
-    @PostMapping("/beer/add/image")
+    @PostMapping("/add/image")
     public String addImageToBeer(@RequestParam("beerId") Long beerId,
                                  @RequestParam("image") MultipartFile image){
         imageService.addImageToBeer(beerId, image);
         return "Done";
     }
-    @GetMapping("/beer/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.getBeerById(id));
     }
-    @GetMapping("/beer/image/{name}")
+    @GetMapping("/image/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
         ImageDto imajeDto = imageService.getImageByName(name);
 
@@ -66,17 +66,17 @@ public class BeerController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imajeDto.getImage());
     }
-    @PutMapping("/beer/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<String>updateBeer(@RequestParam("id") Long id,@RequestBody BeerInfoDto beerInfo) {
         beerService.update(beerInfo, id);
         return ResponseEntity.ok().body("Done");
     }
-    @DeleteMapping("/beer/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
         beerService.delete(id);
         return ResponseEntity.ok().body("Done");
     }
-    @DeleteMapping("beer/image/{name}")
+    @DeleteMapping("/image/{name}")
     public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
         imageService.deleteImage(name);
         return ResponseEntity.ok().body("Done");
