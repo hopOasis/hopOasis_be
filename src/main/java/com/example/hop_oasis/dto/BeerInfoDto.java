@@ -1,5 +1,6 @@
 package com.example.hop_oasis.dto;
 
+import com.example.hop_oasis.model.Beer;
 import lombok.*;
 
 import java.util.List;
