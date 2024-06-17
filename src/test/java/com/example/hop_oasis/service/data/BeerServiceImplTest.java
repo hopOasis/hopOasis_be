@@ -2,7 +2,6 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.BeerInfoDto;
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.repository.ImageRepository;
 import com.example.hop_oasis.convertor.BeerMapper;

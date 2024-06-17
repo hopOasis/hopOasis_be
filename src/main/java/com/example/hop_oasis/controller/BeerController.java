@@ -4,8 +4,9 @@ import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
 
-import com.example.hop_oasis.service.data.BeerServiceImpl;
-import com.example.hop_oasis.service.data.ImageServiceImpl;
+import com.example.hop_oasis.service.BeerService;
+import com.example.hop_oasis.service.ImageService;
+
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -21,20 +22,20 @@ import java.util.List;
 @RequestMapping("/beers")
 @MultipartConfig
 public class BeerController {
-    private final BeerServiceImpl beerService;
-    private final ImageServiceImpl imageService;
+    private final BeerService beerService;
+    private final ImageService imageService;
     @GetMapping
     public ResponseEntity<List<BeerInfoDto>> getAllBeers() {
         return ResponseEntity.ok().body(beerService.getAllBeers());
     }
     @PostMapping
-    public String save(@RequestParam("name") String name,
-                       @RequestParam("volume_large") double volumeLarge,
-                       @RequestParam("volume_small") double volumeSmall,
-                       @RequestParam("price_large") double priceLarge,
-                       @RequestParam("price_small") double priceSmall,
+    public ResponseEntity<Void> save(@RequestParam("name") String name,
+                       @RequestParam("volumeLarge") double volumeLarge,
+                       @RequestParam("volumeSmall") double volumeSmall,
+                       @RequestParam("priceLarge") double priceLarge,
+                       @RequestParam("priceSmall") double priceSmall,
                        @RequestParam("description") String description,
-                       @RequestParam("color_beer") String colorBeer,
+                       @RequestParam("colorBeer") String colorBeer,
                        @RequestParam("image") MultipartFile image) {
         BeerDto beerDto = new BeerDto();
         beerDto.setBeerName(name);
@@ -46,19 +47,19 @@ public class BeerController {
         beerDto.setBearColor(colorBeer);
 
         beerService.save(image, beerDto);
-        return "Done";
+        return ResponseEntity.ok().build();
     }
     @PostMapping("/add/image")
-    public String addImageToBeer(@RequestParam("beerId") Long beerId,
+    public ResponseEntity<Void> addImageToBeer(@RequestParam("beerId") Long beerId,
                                  @RequestParam("image") MultipartFile image){
         imageService.addImageToBeer(beerId, image);
-        return "Done";
+        return ResponseEntity.ok().build();
     }
     @GetMapping("/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.getBeerById(id));
     }
-    @GetMapping("/image/{name}")
+    @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
         ImageDto imajeDto = imageService.getImageByName(name);
 
@@ -67,19 +68,20 @@ public class BeerController {
                 .body(imajeDto.getImage());
     }
     @PutMapping("/{id}")
-    public ResponseEntity<String>updateBeer(@RequestParam("id") Long id,@RequestBody BeerInfoDto beerInfo) {
+    public ResponseEntity<Void>updateBeer(@RequestParam("id") Long id,
+                                          @RequestBody BeerInfoDto beerInfo) {
         beerService.update(beerInfo, id);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         beerService.delete(id);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
-    @DeleteMapping("/image/{name}")
-    public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
+    @DeleteMapping("/images/{name}")
+    public ResponseEntity<Void> deleteImage(@PathVariable("name") String name) {
         imageService.deleteImage(name);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
 }
 

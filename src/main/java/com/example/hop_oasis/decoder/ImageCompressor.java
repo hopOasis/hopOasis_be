@@ -1,6 +1,5 @@
 package com.example.hop_oasis.decoder;
 
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;

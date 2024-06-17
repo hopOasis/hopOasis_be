@@ -6,8 +6,7 @@ import com.example.hop_oasis.convertor.ProductBundleMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
-import com.example.hop_oasis.hendler.exception.ProductBundleNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleImage;
 import com.example.hop_oasis.repository.ProductBundleImageRepository;
@@ -37,7 +36,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
         } catch (IOException e) {
-            throw new ImageNotFoundException(IMAGE_COMPRESS_EXCEPTION, "");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         ProductBundleImage image = ProductBundleImage.builder()
                 .image(bytesIm)
@@ -52,26 +51,22 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     }
     @Override
     public ProductBundleInfoDto getProductBundleById(Long id) {
-        ProductBundle productBundle = productBundleRepository.findById(id).orElse(null);
-        if (productBundle == null) {
-            throw new ProductBundleNotFoundException(PRODUCT_BUNDLE_NOT_FOUND, id);
-        }
+        ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return productBundleInfoMapper.toDto(productBundle);
     }
     @Override
     public List<ProductBundleInfoDto> getAllProductBundle() {
         List<ProductBundle> productBundles = productBundleRepository.findAll();
         if (productBundles.isEmpty()) {
-            throw new ProductBundleNotFoundException(PRODUCTS_BUNDLE_NOT_FOUND, "");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         return productBundleInfoMapper.toDtos(productBundles);
     }
     @Override
     public void update(ProductBundleInfoDto productDto, Long id) {
-        ProductBundle productBundle = productBundleRepository.findById(id).orElse(null);
-        if (productBundle == null) {
-            throw new ProductBundleNotFoundException(PRODUCT_BUNDLE_NOT_FOUND, id);
-        }
+        ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_DELETED, id));
         if (!productDto.getName().isEmpty()) {
             productBundle.setName(productDto.getName());
         }
@@ -85,10 +80,8 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     }
     @Override
     public void deleteProductBundle(Long id) {
-        ProductBundle productBundle = productBundleRepository.findById(id).orElse(null);
-        if (productBundle == null) {
-            throw new ProductBundleNotFoundException(PRODUCT_BUNDLE_DELETED, id);
-        }
+        ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_DELETED, id));
         productBundleRepository.deleteById(id);
     }
 }

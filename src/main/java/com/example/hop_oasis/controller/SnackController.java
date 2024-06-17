@@ -3,8 +3,8 @@ package com.example.hop_oasis.controller;
 import com.example.hop_oasis.dto.SnackDto;
 import com.example.hop_oasis.dto.SnackImageDto;
 import com.example.hop_oasis.dto.SnackInfoDto;
-import com.example.hop_oasis.service.data.SnackImageServiceImpl;
-import com.example.hop_oasis.service.data.SnackServiceImpl;
+import com.example.hop_oasis.service.SnackImageService;
+import com.example.hop_oasis.service.SnackService;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -16,22 +16,22 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("snacks")
+@RequestMapping("/snacks")
 @MultipartConfig
 public class SnackController {
-    private final SnackServiceImpl snackService;
-    private final SnackImageServiceImpl imageService;
+    private final SnackService snackService;
+    private final SnackImageService imageService;
 
     @GetMapping
     public ResponseEntity<List<SnackInfoDto>> getAllSnacks(){
         return ResponseEntity.ok().body(snackService.getAllSnacks());
     }
     @PostMapping
-    public String save(@RequestParam("name") String name,
-                       @RequestParam("weight_large") double weightLarge,
-                       @RequestParam("weight_small") double weightSmall,
-                       @RequestParam("price_large") double priceLarge,
-                       @RequestParam("price_small")double priceSmall,
+    public ResponseEntity<Void> save(@RequestParam("name") String name,
+                       @RequestParam("weightLarge") double weightLarge,
+                       @RequestParam("weightSmall") double weightSmall,
+                       @RequestParam("priceLarge") double priceLarge,
+                       @RequestParam("priceSmall")double priceSmall,
                        @RequestParam("description") String description,
                        @RequestParam("image") MultipartFile image){
         SnackDto snackDto = new SnackDto();
@@ -43,19 +43,19 @@ public class SnackController {
         snackDto.setDescription(description);
 
         snackService.saveSnack(image, snackDto);
-        return "Done";
+        return ResponseEntity.ok().build();
     }
     @GetMapping("/{id}")
     public ResponseEntity<SnackInfoDto> getSnackById(@PathVariable("id") Long id){
         return ResponseEntity.ok().body(snackService.getSnackById(id));
     }
     @PostMapping("/add/image")
-    public String addImageToSnack(@RequestParam("snackId") Long snackId,
+    public ResponseEntity<Void> addImageToSnack(@RequestParam("snackId") Long snackId,
                                   @RequestParam("image") MultipartFile image){
         imageService.addSnackImageToSnack(snackId, image);
-        return "Done";
+        return ResponseEntity.ok().build();
     }
-    @GetMapping("/image/{name}")
+    @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getSnackImageByName(@PathVariable("name")String name){
         SnackImageDto imageDto = imageService.getSnackImageByName(name);
 
@@ -64,19 +64,19 @@ public class SnackController {
                 .body(imageDto.getImage());
     }
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateSnack(@RequestParam("id")Long id,@RequestBody SnackInfoDto snackInfoDto){
+    public ResponseEntity<Void> updateSnack(@RequestParam("id")Long id,@RequestBody SnackInfoDto snackInfoDto){
         snackService.updateSnack(snackInfoDto, id);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteSnack(@PathVariable("id")Long id){
+    public ResponseEntity<Void> deleteSnack(@PathVariable("id")Long id){
         snackService.deleteSnack(id);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
-    @DeleteMapping("/image/{name}")
-    public ResponseEntity<String>deleteSnackImage(@PathVariable("name")String name){
+    @DeleteMapping("/images/{name}")
+    public ResponseEntity<Void>deleteSnackImage(@PathVariable("name")String name){
         imageService.deleteSnackImage(name);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
 
 }

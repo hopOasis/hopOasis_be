@@ -7,8 +7,7 @@ import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.SnackDto;
 import com.example.hop_oasis.dto.SnackImageDto;
 import com.example.hop_oasis.dto.SnackInfoDto;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
-import com.example.hop_oasis.hendler.exception.SnackNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.repository.SnackImageRepository;
@@ -39,7 +38,7 @@ public class SnackServiceImpl implements SnackService {
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
         } catch (IOException e) {
-            throw new ImageNotFoundException(IMAGE_COMPRESS_EXCEPTION, "");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         SnackImage image = SnackImage.builder()
                 .image(bytesIm)
@@ -55,26 +54,23 @@ public class SnackServiceImpl implements SnackService {
     }
     @Override
     public SnackInfoDto getSnackById(Long id) {
-        Snack snack = snackRepository.findById(id).orElse(null);
-        if (snack == null) {
-            throw new SnackNotFoundException(SNACK_NOT_FOUND, id);
-        }
+        Snack snack = snackRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return snackInfoMapper.toDto(snack);
     }
     @Override
     public List<SnackInfoDto> getAllSnacks() {
         List<Snack> snacks = snackRepository.findAll();
         if (snacks.isEmpty()) {
-            throw new SnackNotFoundException(SNACKS_NOT_FOUND, "");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         return snackInfoMapper.toDtos(snacks);
     }
     @Override
     public void updateSnack(SnackInfoDto snackInfo, Long id) {
-        Snack snack = snackRepository.findById(id).orElse(null);
-        if (snack == null) {
-            throw new SnackNotFoundException(SNACK_NOT_FOUND, id);
-        }
+        Snack snack = snackRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
+
         if (!snackInfo.getSnackName().isEmpty()) {
             snack.setSnackName(snackInfo.getSnackName());
         }
@@ -97,10 +93,8 @@ public class SnackServiceImpl implements SnackService {
     }
     @Override
     public void deleteSnack(Long id) {
-        Snack snack = snackRepository.findById(id).orElse(null);
-        if (snack == null) {
-            throw new SnackNotFoundException(SNACK_DELETED, id);
-        }
+        Snack snack = snackRepository.findById(id).orElseThrow(()->
+                new ResourceNotFoundException(RESOURCE_DELETED, id));
         snackRepository.deleteById(id);
     }
 }

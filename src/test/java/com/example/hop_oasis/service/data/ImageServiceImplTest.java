@@ -3,8 +3,6 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.ImageDto;
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.repository.BeerRepository;

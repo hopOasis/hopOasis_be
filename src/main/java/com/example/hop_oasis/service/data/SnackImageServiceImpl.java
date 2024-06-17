@@ -3,7 +3,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.SnackImageMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.SnackImageDto;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.repository.SnackImageRepository;
@@ -16,8 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.IMAGE_COMPRESS_EXCEPTION;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.IMAGE_NOT_FOUND;
+import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +29,7 @@ public class SnackImageServiceImpl implements SnackImageService {
     public SnackImageDto getSnackImageByName(String name) {
         Optional<SnackImage> imageOp = snackImageRepository.findByName(name);
         if (imageOp.isEmpty()) {
-            throw new ImageNotFoundException(IMAGE_NOT_FOUND, name);
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
         SnackImage image = imageOp.get();
         image.setImage(imageCompressor.decompressImage(image.getImage(), name));
@@ -43,16 +42,14 @@ public class SnackImageServiceImpl implements SnackImageService {
             image = imageCompressor.compressImage(file.getBytes());
 
         } catch (IOException e) {
-            throw new ImageNotFoundException(IMAGE_COMPRESS_EXCEPTION, "");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         SnackImage image1 = SnackImage.builder()
                 .image(image)
                 .name(file.getOriginalFilename())
                 .build();
-        Snack snack = snackRepository.findById(snackId).orElse(null);
-        if (snack == null) {
-            throw new ImageNotFoundException(IMAGE_NOT_FOUND, "");
-        }
+        Snack snack = snackRepository.findById(snackId).orElseThrow(()->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));
         image1.setSnack(snack);
         snackImageRepository.save(image1);
     }
@@ -60,7 +57,7 @@ public class SnackImageServiceImpl implements SnackImageService {
     public void deleteSnackImage(String name) {
         Optional<SnackImage> imageOp = snackImageRepository.findByName(name);
         if (imageOp.isEmpty()) {
-            throw new ImageNotFoundException(IMAGE_NOT_FOUND, name);
+            throw new ResourceNotFoundException(RESOURCE_DELETED, name);
         }
         snackImageRepository.delete(imageOp.get());
     }

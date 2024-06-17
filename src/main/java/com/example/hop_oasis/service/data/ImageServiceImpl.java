@@ -3,8 +3,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.ImageDto;
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.repository.BeerRepository;
@@ -30,7 +29,7 @@ public class ImageServiceImpl implements ImageService {
     public ImageDto getImageByName(String name) {
         Optional<Image> imageOp = imageRepository.findByName(name);
         if (imageOp.isEmpty()) {
-            throw new ImageNotFoundException(IMAGE_NOT_FOUND, name);
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
         Image image = imageOp.get();
         image.setImage(imageCompressor.decompressImage(image.getImage(), name));
@@ -42,16 +41,15 @@ public class ImageServiceImpl implements ImageService {
         try {
             image = imageCompressor.compressImage(file.getBytes());
         } catch (IOException e) {
-            throw new ImageNotFoundException(IMAGE_COMPRESS_EXCEPTION,"");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND,"");
         }
         Image image1 = Image.builder()
                 .image(image)
                 .name(file.getOriginalFilename())
                 .build();
-        Beer beer = beerRepository.findById(beerId).orElse(null);
-        if (beer == null) {
-            throw new BeerNotFoundException(BEER_NOT_FOUND, beerId);
-        }
+        Beer beer = beerRepository.findById(beerId).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));
+
         image1.setBeer(beer);
         imageRepository.save(image1);
 
@@ -60,7 +58,7 @@ public class ImageServiceImpl implements ImageService {
     public void deleteImage(String name) {
         Optional<Image> imageOp = imageRepository.findByName(name);
         if (imageOp.isEmpty()) {
-            throw new ImageNotFoundException(IMAGE_NOT_FOUND, name);
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
         imageRepository.delete(imageOp.get());
     }

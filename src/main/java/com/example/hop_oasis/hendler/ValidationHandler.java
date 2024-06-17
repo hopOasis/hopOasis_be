@@ -1,8 +1,6 @@
 package com.example.hop_oasis.hendler;
 
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
-import com.example.hop_oasis.hendler.exception.SnackNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -32,8 +30,7 @@ public class ValidationHandler {
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler({BeerNotFoundException.class, ImageNotFoundException.class, SnackNotFoundException.class,
-                      ProductBundleNotFoundException.class})
+    @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleNotFoundExceptions(HttpServletRequest request,
                                                                  Exception ex) {
         return getResponseEntityErrorMap(request.getRequestURI(),makeMapFromException (ex));
