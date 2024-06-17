@@ -3,8 +3,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.ImageDto;
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.repository.BeerRepository;
@@ -77,11 +76,11 @@ class ImageServiceImplTest {
     void shouldThrowImageFoundException() {
         when(imageRepository.findByName(IMAGE_NAME)).thenReturn(Optional.empty());
 
-        ImageNotFoundException exception = assertThrows(ImageNotFoundException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             imageService.getImageByName(IMAGE_NAME);
         });
 
-        String expectedMessage = String.format(IMAGE_NOT_FOUND, IMAGE_NAME);
+        String expectedMessage = String.format(RESOURCE_NOT_FOUND, IMAGE_NAME);
         assertEquals(expectedMessage, exception.getMessage());
         verify(imageRepository).findByName(IMAGE_NAME);
         verify(imageCompressor, never()).decompressImage(any(byte[].class), eq(IMAGE_NAME));
@@ -114,10 +113,10 @@ class ImageServiceImplTest {
     void shouldThrowImageToCompressException() throws IOException {
         when(multipartFile.getBytes()).thenThrow(new IOException());
 
-        ImageNotFoundException exception = assertThrows(ImageNotFoundException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             imageService.addImageToBeer(ID, multipartFile);
         });
-        String expectedMessage = String.format(IMAGE_COMPRESS_EXCEPTION, "");
+        String expectedMessage = String.format(RESOURCE_NOT_FOUND, "");
         assertEquals(expectedMessage, exception.getMessage());
         verify(multipartFile).getBytes();
         verify(imageCompressor, never()).compressImage(any(byte[].class));
@@ -132,11 +131,11 @@ class ImageServiceImplTest {
         when(multipartFile.getOriginalFilename()).thenReturn(IMAGE_NAME);
         when(beerRepository.findById(BEER_ID)).thenReturn(Optional.empty());
 
-        BeerNotFoundException exception = assertThrows(BeerNotFoundException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             imageService.addImageToBeer(BEER_ID, multipartFile);
         });
 
-        assertEquals(String.format(BEER_NOT_FOUND, BEER_ID), exception.getMessage());
+        assertEquals(String.format(RESOURCE_NOT_FOUND, BEER_ID), exception.getMessage());
         verify(beerRepository).findById(BEER_ID);
         verify(imageRepository, never()).save(any(Image.class));
     }

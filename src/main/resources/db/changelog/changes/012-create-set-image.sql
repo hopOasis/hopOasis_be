@@ -1,8 +1,0 @@
-CREATE TABLE IF NOT EXISTS snacks_images(
-    id INT  PRIMARY KEY AUTO_INCREMENT,
-    image LONGBLOB NOT NULL,
-    name VARCHAR(500) NOT NULL,
-    set_id INT,
-    CONSTRAINT fk_sets FOREIGN KEY (set_id) REFERENCES sets(id) ON DELETE CASCADE
-
-);

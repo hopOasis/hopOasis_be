@@ -1,14 +1,13 @@
 package com.example.hop_oasis.decoder;
 
-import com.example.hop_oasis.hendler.exception.ImageNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.IMAGE_COMPRESS_EXCEPTION;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.IMAGE_DECOMPRESS_EXCEPTION;
+import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
 @Component
 public class ImageCompressor {
@@ -27,7 +26,7 @@ public class ImageCompressor {
             }
             outputStream.close();
         } catch (Exception e) {
-            throw new ImageNotFoundException(IMAGE_COMPRESS_EXCEPTION, "");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         return outputStream.toByteArray();
     }
@@ -44,7 +43,7 @@ public class ImageCompressor {
             }
             outputStream.close();
         } catch (Exception e) {
-            throw new ImageNotFoundException(IMAGE_DECOMPRESS_EXCEPTION, name);
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
         return outputStream.toByteArray();
     }

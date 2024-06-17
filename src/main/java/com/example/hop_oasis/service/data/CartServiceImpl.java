@@ -7,7 +7,7 @@ import com.example.hop_oasis.dto.CartItemDto;
 
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -59,9 +59,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void add(Long beerId) {
         BeerInfoDto beer = beerService.getBeerById(beerId);
-        if (beer == null) {
-            throw new BeerNotFoundException(BEER_NOT_FOUND, beerId);
-        }
+
         log.debug("Add beer to cart {}", beer);
         cart.add(beerId);
     }
@@ -69,9 +67,7 @@ public class CartServiceImpl implements CartService {
     @Override
     public void updateQuantity(Long beerId, int quantity) {
         BeerInfoDto beer = beerService.getBeerById(beerId);
-        if (beer == null) {
-            throw new BeerNotFoundException(BEER_NOT_FOUND, beerId);
-        }
+
         log.debug("Updated beer {} ,new quantity is {}", beer.getBeerName(), quantity);
         cart.updateQuantity(beerId, quantity);
     }

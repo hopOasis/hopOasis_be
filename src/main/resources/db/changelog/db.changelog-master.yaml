@@ -3,3 +3,11 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/005-create-beer.sql
   - include:
       file: classpath:/db/changelog/changes/006-create-image.sql
+  - include:
+      file: classpath:/db/changelog/changes/009-create-snacks.sql
+  - include:
+      file: classpath:/db/changelog/changes/010-create-snack-image.sql
+  - include:
+      file: classpath:/db/changelog/changes/011-create-product-bundle.sql
+  - include:
+      file: classpath:/db/changelog/changes/012-create-products-images.sql

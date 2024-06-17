@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.BeerInfoDto;
-import com.example.hop_oasis.hendler.exception.BeerNotFoundException;
+import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.repository.ImageRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
@@ -21,8 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.BEERS_NOT_FOUND;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.BEER_NOT_FOUND;
+import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -94,11 +93,11 @@ class BeerServiceImplTest {
     void shouldThrowBeerNotFoundException() {
         when(beerRepository.findById(ID)).thenReturn(Optional.empty());
 
-        BeerNotFoundException exception = assertThrows(BeerNotFoundException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             beerServiceImpl.getBeerById(ID);
         });
 
-        String expectedMessage = String.format(BEER_NOT_FOUND, ID);
+        String expectedMessage = String.format(RESOURCE_NOT_FOUND, ID);
         assertEquals(expectedMessage, exception.getMessage());
         verify(beerRepository).findById(ID);
         verify(beerInfoMapper, never()).toDto(any(Beer.class));
@@ -122,11 +121,11 @@ class BeerServiceImplTest {
     void shouldReturnBeerNotFoundException() {
         when(beerRepository.findAll()).thenReturn(Collections.emptyList());
 
-        BeerNotFoundException exception = assertThrows(BeerNotFoundException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             beerServiceImpl
                     .getAllBeers();
         });
-        String expectedMessage = String.format(BEERS_NOT_FOUND, "");
+        String expectedMessage = String.format(RESOURCE_NOT_FOUND, "");
         assertEquals(expectedMessage, exception.getMessage());
         verify(beerRepository).findAll();
         verify(beerInfoMapper, never()).toDtos(anyList());
@@ -161,11 +160,11 @@ class BeerServiceImplTest {
     void shouldThrowException() {
         when(beerRepository.findById(ID)).thenReturn(Optional.empty());
 
-        BeerNotFoundException exception = assertThrows(BeerNotFoundException.class, () -> {
+        ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             beerServiceImpl.update(beerInfoDto, ID);
         });
 
-        String expectedMessage = String.format(BEER_NOT_FOUND, ID);
+        String expectedMessage = String.format(RESOURCE_NOT_FOUND, ID);
         assertEquals(expectedMessage, exception.getMessage());
         verify(beerRepository, never()).save(any(Beer.class));
     }
