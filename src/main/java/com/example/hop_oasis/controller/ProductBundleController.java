@@ -3,8 +3,8 @@ package com.example.hop_oasis.controller;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleImageDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
-import com.example.hop_oasis.service.data.ProductBundleImageServiceImpl;
-import com.example.hop_oasis.service.data.ProductBundleServiceImpl;
+import com.example.hop_oasis.service.ProductBundleImageService;
+import com.example.hop_oasis.service.ProductBundleService;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -19,14 +19,14 @@ import java.util.List;
 @RequestMapping("/products-bundle")
 @MultipartConfig
 public class ProductBundleController {
-    private final ProductBundleServiceImpl productBundleService;
-    private final ProductBundleImageServiceImpl imageService;
+    private final ProductBundleService productBundleService;
+    private final ProductBundleImageService imageService;
     @GetMapping
     public ResponseEntity<List<ProductBundleInfoDto>> getAllProductBundles() {
         return ResponseEntity.ok().body(productBundleService.getAllProductBundle());
     }
     @PostMapping
-    public String saveProductBundle(@RequestParam("name") String name,
+    public ResponseEntity<Void> saveProductBundle(@RequestParam("name") String name,
                                     @RequestParam("price") double price,
                                     @RequestParam("description") String description,
                                     @RequestParam("image") MultipartFile image) {
@@ -35,40 +35,40 @@ public class ProductBundleController {
         productBundleDto.setPrice(price);
         productBundleDto.setDescription(description);
         productBundleService.saveProductBundle(image, productBundleDto);
-        return "Done";
+        return ResponseEntity.ok().build();
     }
     @PostMapping("/add/image")
-    public String addImageToProductBundle(@RequestParam("id") Long id,
+    public ResponseEntity<Void> addImageToProductBundle(@RequestParam("id") Long id,
                                           @RequestParam("image") MultipartFile image) {
         imageService.addProductBundleImage(id, image);
-        return "Done";
+        return ResponseEntity.ok().build();
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProductBundleInfoDto> getProductBundleById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(productBundleService.getProductBundleById(id));
     }
-    @GetMapping("/image/{name}")
+    @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
-        ProductBundleImageDto imajeDto = imageService.getProductBundleImage(name);
+        ProductBundleImageDto imageDto = imageService.getProductBundleImage(name);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
-                .body(imajeDto.getImage());
+                .body(imageDto.getImage());
     }
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateProductBundle(@RequestParam("id") Long id,
-                                                      @RequestBody ProductBundleInfoDto productBundleInfo) {
+    public ResponseEntity<Void> updateProductBundle(@RequestParam("id") Long id,
+                                                    @RequestBody ProductBundleInfoDto productBundleInfo) {
         productBundleService.update(productBundleInfo, id);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         productBundleService.deleteProductBundle(id);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
-    @DeleteMapping("/image/{name}")
-    public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
+    @DeleteMapping("/images/{name}")
+    public ResponseEntity<Void> deleteImage(@PathVariable("name") String name) {
         imageService.deleteProductBundleImage(name);
-        return ResponseEntity.ok().body("Done");
+        return ResponseEntity.ok().build();
     }
 }
