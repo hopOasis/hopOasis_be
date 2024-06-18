@@ -11,3 +11,5 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/011-create-product-bundle.sql
   - include:
       file: classpath:/db/changelog/changes/012-create-products-images.sql
+
+

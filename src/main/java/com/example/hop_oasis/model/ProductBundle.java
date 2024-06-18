@@ -24,6 +24,6 @@ public class ProductBundle {
     @Column(name ="description")
     private String description;
 
-    @OneToMany(mappedBy = "products_bundle", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @OneToMany(mappedBy = "productBundle", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<ProductBundleImage> productImage;
 }
