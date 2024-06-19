@@ -11,5 +11,10 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/011-create-product-bundle.sql
   - include:
       file: classpath:/db/changelog/changes/012-create-products-images.sql
+  - include:
+      file: classpath:/db/changelog/changes/007-create-cider.sql
+  - include:
+      file: classpath:/db/changelog/changes/008-create-cider_image.sql
+
 
 
