@@ -1,9 +1,9 @@
 package com.example.hop_oasis.controller;
 
+import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.dto.CartDto;
 import com.example.hop_oasis.service.CartService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,15 +19,24 @@ public class CartController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> add(@RequestParam("beerId") Long beerId) {
-        cartService.add(beerId);
+    public ResponseEntity<Void> add(@RequestParam("itemId") Long itemId,
+                                    @RequestParam("itemType") ItemType itemType) {
+        cartService.add(itemId, itemType);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
-    public ResponseEntity<Void> updateQuantity(@RequestParam("beerId") Long beerId,
-                                                 @RequestParam("quantity") int quantity) {
-        cartService.updateQuantity(beerId, quantity);
+    public ResponseEntity<Void> updateQuantity(@RequestParam("itemId") Long itemId,
+                                               @RequestParam("quantity") int quantity,
+                                               @RequestParam("itemType") ItemType itemType) {
+        cartService.updateQuantity(itemId, quantity, itemType);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/item")
+    public ResponseEntity<Void> removeItem(@RequestParam("itemId") Long itemId,
+                                           @RequestParam("itemType") ItemType itemType) {
+        cartService.removeItem(itemId, itemType);
         return ResponseEntity.ok().build();
     }
 
