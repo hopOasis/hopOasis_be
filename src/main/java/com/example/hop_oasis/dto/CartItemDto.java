@@ -2,7 +2,6 @@ package com.example.hop_oasis.dto;
 
 import lombok.*;
 
-import java.math.BigDecimal;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -10,8 +9,8 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class CartItemDto {
-    private String beerTitle;
-    private double pricePerBeer;
+    private String itemTitle;
+    private double pricePerItem;
     private int quantity;
-    private BigDecimal totalCost;
+    private double totalCost;
 }
