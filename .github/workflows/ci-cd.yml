@@ -4,25 +4,23 @@ on:
   push:
     branches:
       - dev
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Source
         uses: actions/checkout@v4
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
+
       - name: Build Project
         run: mvn clean package -DskipTests
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifact
-          path: target/*.jar
-          if-no-files-found: error
+
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -32,4 +30,4 @@ jobs:
           environment_name: 'prod'
           version_label: ${{ github.sha }}
           region: eu-central-1
-          deployment_package: target/springboot-example.jar
+          deployment_package: target/hop_oasis.jar

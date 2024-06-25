@@ -71,6 +71,7 @@
                 </configuration>
             </plugin>
         </plugins>
+        <finalName>hop_oasis</finalName>
     </build>
 
 </project>
