@@ -28,7 +28,7 @@ public class CiderImageServiceImpl implements CiderImageService {
 
     @Override
     public CiderImageDto getCiderImageByName(String name) {
-        Optional<CiderImage> imageOp = ciderImageRepository.findByName(name);
+        Optional<CiderImage> imageOp = ciderImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
@@ -56,7 +56,7 @@ public class CiderImageServiceImpl implements CiderImageService {
     }
     @Override
     public void deleteCiderImage(String name) {
-        Optional<CiderImage> imageOp = ciderImageRepository.findByName(name);
+        Optional<CiderImage> imageOp = ciderImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }

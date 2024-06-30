@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface SnackImageRepository extends JpaRepository<SnackImage, Long> {
-    Optional<SnackImage> findByName(String name);
+    Optional<SnackImage> findFirstByName(String name);
 }

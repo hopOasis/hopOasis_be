@@ -29,7 +29,7 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
     private final ProductBundleImageRepository productBundleImageRepository;
     @Override
     public ProductBundleImageDto getProductBundleImage(String name) {
-        Optional<ProductBundleImage> imageOp = productBundleImageRepository.findByName(name);
+        Optional<ProductBundleImage> imageOp = productBundleImageRepository.findFirstByName(name);
         if(imageOp.isEmpty()){
             throw  new ResourceNotFoundException(RESOURCE_NOT_FOUND ,name);
         }
@@ -57,7 +57,7 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
     }
     @Override
     public void deleteProductBundleImage(String name) {
-        Optional<ProductBundleImage> imageOp = productBundleImageRepository.findByName(name);
+        Optional<ProductBundleImage> imageOp = productBundleImageRepository.findFirstByName(name);
         if(imageOp.isEmpty()){
             throw  new ResourceNotFoundException(RESOURCE_DELETED,name);
         }

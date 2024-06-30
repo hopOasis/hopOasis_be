@@ -27,7 +27,7 @@ public class SnackImageServiceImpl implements SnackImageService {
     private final SnackImageRepository snackImageRepository;
     @Override
     public SnackImageDto getSnackImageByName(String name) {
-        Optional<SnackImage> imageOp = snackImageRepository.findByName(name);
+        Optional<SnackImage> imageOp = snackImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
@@ -55,7 +55,7 @@ public class SnackImageServiceImpl implements SnackImageService {
     }
     @Override
     public void deleteSnackImage(String name) {
-        Optional<SnackImage> imageOp = snackImageRepository.findByName(name);
+        Optional<SnackImage> imageOp = snackImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_DELETED, name);
         }
