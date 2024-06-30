@@ -14,6 +14,8 @@ import com.example.hop_oasis.repository.SnackImageRepository;
 import com.example.hop_oasis.repository.SnackRepository;
 import com.example.hop_oasis.service.SnackService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,12 +61,12 @@ public class SnackServiceImpl implements SnackService {
         return snackInfoMapper.toDto(snack);
     }
     @Override
-    public List<SnackInfoDto> getAllSnacks() {
-        List<Snack> snacks = snackRepository.findAll();
+    public Page<SnackInfoDto> getAllSnacks(Pageable pageable) {
+        Page<Snack> snacks = snackRepository.findAll(pageable);
         if (snacks.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return snackInfoMapper.toDtos(snacks);
+        return snacks.map(snackInfoMapper::toDto);
     }
     @Override
     public void updateSnack(SnackInfoDto snackInfo, Long id) {
