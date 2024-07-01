@@ -38,7 +38,7 @@ public class BeerServiceImpl implements BeerService {
     private final ImageCompressor imageCompressor;
 
     @Override
-    public void save(MultipartFile file, BeerDto beerDto)  {
+    public Beer save(MultipartFile file, BeerDto beerDto)  {
         byte[] bytesIm;
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
@@ -56,6 +56,7 @@ public class BeerServiceImpl implements BeerService {
         beerRepository.save(beer);
         image.setBeer(beer);
         imageRepository.save(image);
+        return beer;
     }
     @Override
     public BeerInfoDto getBeerById(Long id) {
@@ -72,7 +73,7 @@ public class BeerServiceImpl implements BeerService {
         return beers.map(beerInfoMapper::toDto);
     }
     @Override
-    public void update(BeerInfoDto beerInfo, Long id) {
+    public BeerInfoDto update(BeerInfoDto beerInfo, Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
@@ -94,10 +95,10 @@ public class BeerServiceImpl implements BeerService {
         if (Objects.nonNull(beerInfo.getDescription())) {
             beer.setDescription(beerInfo.getDescription());
         }
-        if (Objects.nonNull(beerInfo.getBearColor())) {
-            beer.setBearColor(beerInfo.getBearColor());
+        if (Objects.nonNull(beerInfo.getBeerColor())) {
+            beer.setBearColor(beerInfo.getBeerColor());
         }
-        beerRepository.save(beer);
+      return  beerInfoMapper.toDto(beerRepository.save(beer));
     }
     @Override
     public void delete(Long id) {

@@ -14,9 +14,7 @@ import com.example.hop_oasis.dto.ImageDto;
 
 
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
-import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -32,11 +30,9 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -157,7 +153,7 @@ class BeerServiceImplTest {
         beerInfoDto.setPriceLarge(10.0);
         beerInfoDto.setPriceSmall(7.0);
         beerInfoDto.setDescription("Updated description");
-        beerInfoDto.setBearColor("Updated color");
+        beerInfoDto.setBeerColor("Updated color");
 
         beer = new Beer();
         beer.setId(ID);

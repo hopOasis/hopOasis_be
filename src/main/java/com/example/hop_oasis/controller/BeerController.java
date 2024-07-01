@@ -1,9 +1,12 @@
 package com.example.hop_oasis.controller;
 
+import com.example.hop_oasis.convertor.BeerInfoMapper;
+import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
 
+import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.service.BeerService;
 import com.example.hop_oasis.service.ImageService;
 
@@ -17,8 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +28,8 @@ import java.util.List;
 public class BeerController {
     private final BeerService beerService;
     private final ImageService imageService;
+    private final BeerInfoMapper beerInfoMapper;
+    private final ImageMapper imageMapper;
     @GetMapping
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
                                                          @RequestParam(value = "size",defaultValue = "10") int size){
@@ -38,13 +41,13 @@ public class BeerController {
         return ResponseEntity.ok().headers(headers).body(beerPage);
     }
     @PostMapping
-    public ResponseEntity<Void> save(@RequestParam("name") String name,
+    public ResponseEntity<BeerInfoDto> save(@RequestParam("name") String name,
                        @RequestParam("volumeLarge") double volumeLarge,
                        @RequestParam("volumeSmall") double volumeSmall,
                        @RequestParam("priceLarge") double priceLarge,
                        @RequestParam("priceSmall") double priceSmall,
                        @RequestParam("description") String description,
-                       @RequestParam("colorBeer") String colorBeer,
+                       @RequestParam("beerColor") String beerColor,
                        @RequestParam("image") MultipartFile image) {
         BeerDto beerDto = new BeerDto();
         beerDto.setBeerName(name);
@@ -53,16 +56,20 @@ public class BeerController {
         beerDto.setPriceLarge(priceLarge);
         beerDto.setPriceSmall(priceSmall);
         beerDto.setDescription(description);
-        beerDto.setBearColor(colorBeer);
+        beerDto.setBeerColor(beerColor);
 
-        beerService.save(image, beerDto);
-        return ResponseEntity.ok().build();
+        BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(image, beerDto));
+
+        return ResponseEntity.ok().body(beerInfoDto);
     }
     @PostMapping("/add/image")
-    public ResponseEntity<Void> addImageToBeer(@RequestParam("beerId") Long beerId,
+    public ResponseEntity<byte[]> addImageToBeer(@RequestParam("beerId") Long beerId,
                                  @RequestParam("image") MultipartFile image){
-        imageService.addImageToBeer(beerId, image);
-        return ResponseEntity.ok().build();
+        Image i = imageService.addImageToBeer(beerId, image);
+       ImageDto imag = imageService.getImageByName(i.getName());
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_JPEG)
+                .body(imag.getImage());
     }
     @GetMapping("/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
@@ -77,10 +84,10 @@ public class BeerController {
                 .body(imajeDto.getImage());
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Void>updateBeer(@PathVariable("id")Long id,
+    public ResponseEntity<BeerInfoDto>updateBeer(@PathVariable("id")Long id,
                                           @RequestBody BeerInfoDto beerInfo) {
-        beerService.update(beerInfo, id);
-        return ResponseEntity.ok().build();
+       BeerInfoDto dto = beerService.update(beerInfo, id);
+        return ResponseEntity.ok().body(dto);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {

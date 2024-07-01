@@ -17,6 +17,6 @@ public class BeerDto {
     private double priceLarge;
     private double priceSmall;
     private String description;
-    private String bearColor;
+    private String beerColor;
     private List<ImageDto> image;
 }

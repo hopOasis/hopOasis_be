@@ -1,6 +1,5 @@
 package com.example.hop_oasis.dto;
 
-import com.example.hop_oasis.model.Beer;
 import lombok.*;
 
 import java.util.List;
@@ -18,6 +17,6 @@ public class BeerInfoDto {
     private double priceLarge;
     private double priceSmall;
     private String description;
-    private String bearColor;
+    private String beerColor;
     private List<String> imageName;
 }

@@ -36,7 +36,7 @@ public class ImageServiceImpl implements ImageService {
         return imageMapper.toDto(image);
     }
     @Override
-    public void addImageToBeer(Long beerId, MultipartFile file) {
+    public Image addImageToBeer(Long beerId, MultipartFile file) {
         byte[] image = new byte[0];
         try {
             image = imageCompressor.compressImage(file.getBytes());
@@ -51,7 +51,8 @@ public class ImageServiceImpl implements ImageService {
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));
 
         image1.setBeer(beer);
-        imageRepository.save(image1);
+     return imageRepository.save(image1);
+
 
     }
     @Override
