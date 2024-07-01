@@ -7,6 +7,9 @@ import com.example.hop_oasis.service.SnackImageService;
 import com.example.hop_oasis.service.SnackService;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +26,13 @@ public class SnackController {
     private final SnackImageService imageService;
 
     @GetMapping
-    public ResponseEntity<List<SnackInfoDto>> getAllSnacks(){
-        return ResponseEntity.ok().body(snackService.getAllSnacks());
+    public ResponseEntity<List<SnackInfoDto>> getAllSnacks(@RequestParam(value = "page",defaultValue = "0") int page,
+                                                           @RequestParam(value = "size",defaultValue = "10") int size) {
+        Page<SnackInfoDto> snackPage = snackService.getAllSnacks(PageRequest.of(page, size));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + snackPage.getTotalElements());
+
+        return ResponseEntity.ok().headers(headers).body(snackPage.getContent());
     }
     @PostMapping
     public ResponseEntity<Void> save(@RequestParam("name") String name,

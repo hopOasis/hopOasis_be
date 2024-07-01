@@ -9,6 +9,9 @@ import com.example.hop_oasis.service.ImageService;
 
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +28,14 @@ public class BeerController {
     private final BeerService beerService;
     private final ImageService imageService;
     @GetMapping
-    public ResponseEntity<List<BeerInfoDto>> getAllBeers() {
-        return ResponseEntity.ok().body(beerService.getAllBeers());
+    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
+                                                         @RequestParam(value = "size",defaultValue = "10") int size){
+      Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
+      HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "items " + page * size + "-"
+                + ((page + 1) * size - 1) + "/" + beerPage.getTotalElements());
+
+        return ResponseEntity.ok().headers(headers).body(beerPage);
     }
     @PostMapping
     public ResponseEntity<Void> save(@RequestParam("name") String name,
@@ -68,7 +77,7 @@ public class BeerController {
                 .body(imajeDto.getImage());
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Void>updateBeer(@RequestParam("id") Long id,
+    public ResponseEntity<Void>updateBeer(@PathVariable("id")Long id,
                                           @RequestBody BeerInfoDto beerInfo) {
         beerService.update(beerInfo, id);
         return ResponseEntity.ok().build();

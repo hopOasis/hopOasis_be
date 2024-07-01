@@ -7,6 +7,9 @@ import com.example.hop_oasis.service.CiderImageService;
 import com.example.hop_oasis.service.CiderService;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +26,13 @@ public class CiderController {
     private final CiderImageService ciderImageService;
 
     @GetMapping
-    public ResponseEntity<List<CiderInfoDto>> getAllCiders() {
-        return ResponseEntity.ok().body(ciderService.getAllCiders());
+    public ResponseEntity<List<CiderInfoDto>> getAllCiders(@RequestParam(value = "page",defaultValue = "0") int page,
+                                                           @RequestParam(value = "size",defaultValue = "10") int size) {
+        Page<CiderInfoDto> ciderPage = ciderService.getAllCiders(PageRequest.of(page, size));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + ciderPage.getTotalElements());
+
+        return ResponseEntity.ok().headers(headers).body(ciderPage.getContent());
     }
     @PostMapping
     public ResponseEntity<Void> save(@RequestParam("name") String name,

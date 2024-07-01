@@ -14,7 +14,13 @@ import com.example.hop_oasis.dto.ImageDto;
 
 
 import org.junit.jupiter.api.BeforeEach;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
+import org.mockito.stubbing.OngoingStubbing;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,9 +32,11 @@ import static org.mockito.Mockito.*;
 
 import java.io.IOException;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -105,29 +113,40 @@ class BeerServiceImplTest {
     @Test
     void shouldReturnAllBeers() {
         List<Beer> beers = List.of(beer, beer);
-        List<BeerInfoDto> beerInfoDtos = List.of(beerInfoDto, beerInfoDto);
+        Page<Beer> beerPage = new PageImpl<>(beers);
 
-        when(beerRepository.findAll()).thenReturn(beers);
-        when(beerInfoMapper.toDtos(beers)).thenReturn(beerInfoDtos);
+        Pageable pageable = Pageable.unpaged();
+        when(beerRepository.findAll(pageable)).thenReturn(beerPage);
 
-        List<BeerInfoDto> result = beerServiceImpl.getAllBeers();
+        Page<BeerInfoDto> result = beerServiceImpl.getAllBeers(pageable);
 
         assertNotNull(result);
-        assertEquals(beerInfoDtos.size(), result.size());
-        verify(beerRepository).findAll();
-        verify(beerInfoMapper).toDtos(beers);
+        assertEquals(2, result.getTotalElements());
+
+        verify(beerRepository).findAll(pageable);
+        verify(beerInfoMapper, times(2)).toDto(any(Beer.class));
     }
     @Test
     void shouldReturnBeerNotFoundException() {
-        when(beerRepository.findAll()).thenReturn(Collections.emptyList());
+        Page<Beer> emptyBeerPage = new PageImpl<>(Collections.emptyList());
+
+        // Создаем объект Pageable
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // Мокируем вызов findAll(pageable) с пустой страницей
+        when(beerRepository.findAll(pageable)).thenReturn(emptyBeerPage);
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
-            beerServiceImpl
-                    .getAllBeers();
+            beerServiceImpl.getAllBeers(pageable);
         });
+
         String expectedMessage = String.format(RESOURCE_NOT_FOUND, "");
         assertEquals(expectedMessage, exception.getMessage());
-        verify(beerRepository).findAll();
+
+
+        verify(beerRepository).findAll(pageable);
+
+
         verify(beerInfoMapper, never()).toDtos(anyList());
     }
     @Test

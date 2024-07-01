@@ -7,6 +7,9 @@ import com.example.hop_oasis.service.ProductBundleImageService;
 import com.example.hop_oasis.service.ProductBundleService;
 import jakarta.servlet.annotation.MultipartConfig;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +25,16 @@ public class ProductBundleController {
     private final ProductBundleService productBundleService;
     private final ProductBundleImageService imageService;
     @GetMapping
-    public ResponseEntity<List<ProductBundleInfoDto>> getAllProductBundles() {
-        return ResponseEntity.ok().body(productBundleService.getAllProductBundle());
+    public ResponseEntity<List<ProductBundleInfoDto>> getAllProductBundles(@RequestParam(value =
+                                                                           "page",defaultValue = "0") int page,
+                                                                           @RequestParam(value =
+                                                                                   "size",defaultValue = "10") int size) {
+        Page<ProductBundleInfoDto> productBundlePage =
+                productBundleService.getAllProductBundle(PageRequest.of(page, size));
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Range", "items " + page * size + "-" + ((page + 1) * size - 1)
+                + "/" + productBundlePage.getTotalElements());
+        return ResponseEntity.ok().headers(headers).body(productBundlePage.getContent());
     }
     @PostMapping
     public ResponseEntity<Void> saveProductBundle(@RequestParam("name") String name,

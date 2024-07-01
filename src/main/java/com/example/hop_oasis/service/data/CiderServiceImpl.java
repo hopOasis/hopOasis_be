@@ -14,6 +14,8 @@ import com.example.hop_oasis.repository.CiderImageRepository;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.service.CiderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,12 +66,12 @@ public class CiderServiceImpl implements CiderService {
     }
 
     @Override
-    public List<CiderInfoDto> getAllCiders() {
-        List<Cider> cider = ciderRepository.findAll();
+    public Page<CiderInfoDto> getAllCiders(Pageable pageable) {
+        Page<Cider> cider = ciderRepository.findAll(pageable);
         if (cider.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return ciderInfoMapper.toDtos(cider);
+        return cider.map(ciderInfoMapper::toDto);
     }
 
     @Override

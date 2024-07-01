@@ -13,6 +13,8 @@ import com.example.hop_oasis.repository.ProductBundleImageRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.service.ProductBundleService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,12 +58,12 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         return productBundleInfoMapper.toDto(productBundle);
     }
     @Override
-    public List<ProductBundleInfoDto> getAllProductBundle() {
-        List<ProductBundle> productBundles = productBundleRepository.findAll();
+    public Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable) {
+        Page<ProductBundle> productBundles = productBundleRepository.findAll(pageable);
         if (productBundles.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return productBundleInfoMapper.toDtos(productBundles);
+        return productBundles.map(productBundleInfoMapper::toDto);
     }
     @Override
     public void update(ProductBundleInfoDto productDto, Long id) {

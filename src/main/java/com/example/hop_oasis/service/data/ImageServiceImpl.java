@@ -27,7 +27,7 @@ public class ImageServiceImpl implements ImageService {
     private final BeerRepository beerRepository;
     @Override
     public ImageDto getImageByName(String name) {
-        Optional<Image> imageOp = imageRepository.findByName(name);
+        Optional<Image> imageOp = imageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
@@ -56,7 +56,7 @@ public class ImageServiceImpl implements ImageService {
     }
     @Override
     public void deleteImage(String name) {
-        Optional<Image> imageOp = imageRepository.findByName(name);
+        Optional<Image> imageOp = imageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }

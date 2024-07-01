@@ -58,7 +58,7 @@ class ImageServiceImplTest {
         imageDto = new ImageDto();}
     @Test
     void shouldReturnImageByName() {
-        when(imageRepository.findByName(IMAGE_NAME)).thenReturn(Optional.of(image));
+        when(imageRepository.findFirstByName(IMAGE_NAME)).thenReturn(Optional.of(image));
         when(imageCompressor.decompressImage(COMPRESSED_IMAGE_DATA, IMAGE_NAME))
                 .thenReturn(DECOMPRESSED_IMAGE_DATA);
         when(imageMapper.toDto(image)).thenReturn(imageDto);
@@ -67,14 +67,14 @@ class ImageServiceImplTest {
 
         assertNotNull(result);
         assertEquals(imageDto, result);
-        verify(imageRepository).findByName(IMAGE_NAME);
+        verify(imageRepository).findFirstByName(IMAGE_NAME);
         verify(imageCompressor).decompressImage(COMPRESSED_IMAGE_DATA, IMAGE_NAME);
         assertArrayEquals(DECOMPRESSED_IMAGE_DATA, image.getImage());
         verify(imageMapper).toDto(image);
     }
     @Test
     void shouldThrowImageFoundException() {
-        when(imageRepository.findByName(IMAGE_NAME)).thenReturn(Optional.empty());
+        when(imageRepository.findFirstByName(IMAGE_NAME)).thenReturn(Optional.empty());
 
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             imageService.getImageByName(IMAGE_NAME);
@@ -82,7 +82,7 @@ class ImageServiceImplTest {
 
         String expectedMessage = String.format(RESOURCE_NOT_FOUND, IMAGE_NAME);
         assertEquals(expectedMessage, exception.getMessage());
-        verify(imageRepository).findByName(IMAGE_NAME);
+        verify(imageRepository).findFirstByName(IMAGE_NAME);
         verify(imageCompressor, never()).decompressImage(any(byte[].class), eq(IMAGE_NAME));
         verify(imageMapper, never()).toDto(any(Image.class));
     }
@@ -143,7 +143,7 @@ class ImageServiceImplTest {
     void shouldDeleteImage() {
         image.setName(IMAGE_NAME);
 
-        when(imageRepository.findByName(IMAGE_NAME)).thenReturn(Optional.of(image));
+        when(imageRepository.findFirstByName(IMAGE_NAME)).thenReturn(Optional.of(image));
 
         imageService.deleteImage(IMAGE_NAME);
 

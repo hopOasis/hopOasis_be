@@ -14,6 +14,8 @@ import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.repository.ImageRepository;
 import com.example.hop_oasis.service.BeerService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
@@ -62,12 +64,12 @@ public class BeerServiceImpl implements BeerService {
         return beerInfoMapper.toDto(beer);
     }
     @Override
-    public List<BeerInfoDto> getAllBeers() {
-        List<Beer> beers = beerRepository.findAll();
+    public Page<BeerInfoDto> getAllBeers(Pageable pageable) {
+        Page<Beer> beers = beerRepository.findAll(pageable);
         if (beers.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return beerInfoMapper.toDtos(beers);
+        return beers.map(beerInfoMapper::toDto);
     }
     @Override
     public void update(BeerInfoDto beerInfo, Long id) {
