@@ -28,13 +28,14 @@ public class BeerController {
     private final BeerService beerService;
     private final ImageService imageService;
     @GetMapping
-    public ResponseEntity<List<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
+    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
                                                          @RequestParam(value = "size",defaultValue = "10") int size){
       Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
       HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range", "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + beerPage.getTotalElements());
+        headers.add("Content-Range", "items " + page * size + "-"
+                + ((page + 1) * size - 1) + "/" + beerPage.getTotalElements());
 
-        return ResponseEntity.ok().headers(headers).body(beerPage.getContent());
+        return ResponseEntity.ok().headers(headers).body(beerPage);
     }
     @PostMapping
     public ResponseEntity<Void> save(@RequestParam("name") String name,
