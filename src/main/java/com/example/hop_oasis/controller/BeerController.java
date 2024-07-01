@@ -77,7 +77,7 @@ public class BeerController {
                 .body(imajeDto.getImage());
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Void>updateBeer(@RequestParam("id") Long id,
+    public ResponseEntity<Void>updateBeer(@PathVariable("id")Long id,
                                           @RequestBody BeerInfoDto beerInfo) {
         beerService.update(beerInfo, id);
         return ResponseEntity.ok().build();
