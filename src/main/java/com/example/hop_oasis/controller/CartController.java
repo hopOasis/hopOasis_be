@@ -1,5 +1,6 @@
 package com.example.hop_oasis.controller;
 
+import com.example.hop_oasis.dto.ItemRequestDto;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.dto.CartDto;
 import com.example.hop_oasis.service.CartService;
@@ -19,17 +20,14 @@ public class CartController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> add(@RequestParam("itemId") Long itemId,
-                                    @RequestParam("itemType") ItemType itemType) {
-        cartService.add(itemId, itemType);
+    public ResponseEntity<Void> add(@RequestBody ItemRequestDto itemRequest) {
+        cartService.add(itemRequest.getItemId(), itemRequest.getItemType());
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
-    public ResponseEntity<Void> updateQuantity(@RequestParam("itemId") Long itemId,
-                                               @RequestParam("quantity") int quantity,
-                                               @RequestParam("itemType") ItemType itemType) {
-        cartService.updateQuantity(itemId, quantity, itemType);
+    public ResponseEntity<Void> updateQuantity(@RequestBody ItemRequestDto itemRequest) {
+        cartService.updateQuantity(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
         return ResponseEntity.ok().build();
     }
 
