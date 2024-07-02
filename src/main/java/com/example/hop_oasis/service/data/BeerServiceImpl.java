@@ -96,7 +96,7 @@ public class BeerServiceImpl implements BeerService {
             beer.setDescription(beerInfo.getDescription());
         }
         if (Objects.nonNull(beerInfo.getBeerColor())) {
-            beer.setBearColor(beerInfo.getBeerColor());
+            beer.setBeerColor(beerInfo.getBeerColor());
         }
       return  beerInfoMapper.toDto(beerRepository.save(beer));
     }

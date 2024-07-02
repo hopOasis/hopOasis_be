@@ -169,7 +169,7 @@ class BeerServiceImplTest {
         assertEquals(10.0, beer.getPriceLarge());
         assertEquals(7.0, beer.getPriceSmall());
         assertEquals("Updated description", beer.getDescription());
-        assertEquals("Updated color", beer.getBearColor());
+        assertEquals("Updated color", beer.getBeerColor());
     }
     @Test
     void shouldThrowException() {

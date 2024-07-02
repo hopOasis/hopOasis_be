@@ -31,7 +31,7 @@ public class Beer {
     @Column(name = "description")
     private String description;
     @Column(name = "beer_color")
-    private String bearColor;
+    private String beerColor;
 
     @OneToMany(mappedBy = "beer",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<Image> image;
