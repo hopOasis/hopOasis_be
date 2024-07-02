@@ -98,7 +98,7 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    public void add(Long itemId, ItemType itemType) {
+    public CartItemDto add(Long itemId, int quantity, ItemType itemType) {
         switch (itemType) {
             case BEER:
                 BeerInfoDto beer = beerService.getBeerById(itemId);
@@ -107,8 +107,8 @@ public class CartServiceImpl implements CartService {
                     throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
                 }
                 log.debug("Add beer to cart {}", beer);
-                cart.add(itemId, itemType);
-                break;
+                cart.add(itemId, quantity, itemType);
+                return createCartItemDto(beer, quantity, ItemType.BEER);
             case SNACK:
                 SnackInfoDto snack = snackService.getSnackById(itemId);
                 if (snack == null) {
@@ -116,8 +116,8 @@ public class CartServiceImpl implements CartService {
                     throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
                 }
                 log.debug("Add snack to cart {}", snack);
-                cart.add(itemId, itemType);
-                break;
+                cart.add(itemId, quantity, itemType);
+                return createCartItemDto(snack, quantity, ItemType.SNACK);
             case PRODUCT_BUNDLE:
                 ProductBundleInfoDto bundle = bundleService.getProductBundleById(itemId);
                 if (bundle == null) {
@@ -125,8 +125,8 @@ public class CartServiceImpl implements CartService {
                     throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
                 }
                 log.debug("Add product bundle to cart {}", bundle);
-                cart.add(itemId, itemType);
-                break;
+                cart.add(itemId, quantity, itemType);
+                return createCartItemDto(bundle, quantity, ItemType.PRODUCT_BUNDLE);
             case CIDER:
                 CiderInfoDto cider = ciderService.getCiderById(itemId);
                 if (cider == null) {
@@ -134,17 +134,39 @@ public class CartServiceImpl implements CartService {
                     throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
                 }
                 log.debug("Add cider to cart {}", cider);
-                cart.add(itemId, itemType);
-                break;
+                cart.add(itemId, quantity, itemType);
+                return createCartItemDto(cider, quantity, ItemType.CIDER);
             default:
                 throw new IllegalArgumentException("Unsupported item type: " + itemType);
         }
     }
 
     @Override
-    public void updateQuantity(Long itemId, int quantity, ItemType itemType) {
+    public CartItemDto updateQuantity(Long itemId, int quantity, ItemType itemType) {
         log.debug("Updating item quantity in cart, itemId: {}, quantity: {}, itemType: {}", itemId, quantity, itemType);
         cart.updateQuantity(itemId, quantity, itemType);
+        CartItemDto updatedItem;
+        switch (itemType) {
+            case BEER:
+                BeerInfoDto beer = beerService.getBeerById(itemId);
+                updatedItem = createCartItemDto(beer, quantity, ItemType.BEER);
+                break;
+            case SNACK:
+                SnackInfoDto snack = snackService.getSnackById(itemId);
+                updatedItem = createCartItemDto(snack, quantity, ItemType.SNACK);
+                break;
+            case PRODUCT_BUNDLE:
+                ProductBundleInfoDto bundle = bundleService.getProductBundleById(itemId);
+                updatedItem = createCartItemDto(bundle, quantity, ItemType.PRODUCT_BUNDLE);
+                break;
+            case CIDER:
+                CiderInfoDto cider = ciderService.getCiderById(itemId);
+                updatedItem = createCartItemDto(cider, quantity, ItemType.CIDER);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported item type: " + itemType);
+        }
+        return updatedItem;
     }
     @Override
     public void removeItem(Long itemId, ItemType itemType){

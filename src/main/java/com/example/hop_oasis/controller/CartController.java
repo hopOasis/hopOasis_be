@@ -1,5 +1,6 @@
 package com.example.hop_oasis.controller;
 
+import com.example.hop_oasis.dto.CartItemDto;
 import com.example.hop_oasis.dto.ItemRequestDto;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.dto.CartDto;
@@ -20,15 +21,15 @@ public class CartController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> add(@RequestBody ItemRequestDto itemRequest) {
-        cartService.add(itemRequest.getItemId(), itemRequest.getItemType());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CartItemDto> add(@RequestBody ItemRequestDto itemRequest) {
+       CartItemDto dto = cartService.add(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<Void> updateQuantity(@RequestBody ItemRequestDto itemRequest) {
-        cartService.updateQuantity(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CartItemDto> updateQuantity(@RequestBody ItemRequestDto itemRequest) {
+       CartItemDto dto = cartService.updateQuantity(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/item")
