@@ -46,19 +46,19 @@ public class Cart {
         return Collections.unmodifiableMap(cider);
     }
 
-    public void add(Long itemId, ItemType itemType) {
+    public void add(Long itemId, int quantity, ItemType itemType) {
         switch (itemType) {
             case BEER:
-                beers.merge(itemId, 1, Integer::sum);
+                beers.merge(itemId, quantity, Integer::sum);
                 break;
             case SNACK:
-                snacks.merge(itemId, 1, Integer::sum);
+                snacks.merge(itemId, quantity, Integer::sum);
                 break;
             case PRODUCT_BUNDLE:
-                productBundle.merge(itemId, 1, Integer::sum);
+                productBundle.merge(itemId, quantity, Integer::sum);
                 break;
             case CIDER:
-                cider.merge(itemId, 1, Integer::sum);
+                cider.merge(itemId, quantity, Integer::sum);
                 break;
         }
 

@@ -1,5 +1,7 @@
 package com.example.hop_oasis.controller;
 
+import com.example.hop_oasis.dto.CartItemDto;
+import com.example.hop_oasis.dto.ItemRequestDto;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.dto.CartDto;
 import com.example.hop_oasis.service.CartService;
@@ -19,18 +21,15 @@ public class CartController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> add(@RequestParam("itemId") Long itemId,
-                                    @RequestParam("itemType") ItemType itemType) {
-        cartService.add(itemId, itemType);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CartItemDto> add(@RequestBody ItemRequestDto itemRequest) {
+        CartItemDto dto = cartService.add(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<Void> updateQuantity(@RequestParam("itemId") Long itemId,
-                                               @RequestParam("quantity") int quantity,
-                                               @RequestParam("itemType") ItemType itemType) {
-        cartService.updateQuantity(itemId, quantity, itemType);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<CartItemDto> updateQuantity(@RequestBody ItemRequestDto itemRequest) {
+        CartItemDto dto = cartService.updateQuantity(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
+        return ResponseEntity.ok(dto);
     }
 
     @DeleteMapping("/item")
