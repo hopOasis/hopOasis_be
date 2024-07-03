@@ -20,13 +20,13 @@ public class CartController {
         return ResponseEntity.ok().body(cartService.getAllItems());
     }
 
-    @PutMapping
+    @PostMapping("/items")
     public ResponseEntity<CartItemDto> add(@RequestBody ItemRequestDto itemRequest) {
         CartItemDto dto = cartService.add(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping
+    @PutMapping
     public ResponseEntity<CartItemDto> updateQuantity(@RequestBody ItemRequestDto itemRequest) {
         CartItemDto dto = cartService.updateQuantity(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
         return ResponseEntity.ok(dto);
