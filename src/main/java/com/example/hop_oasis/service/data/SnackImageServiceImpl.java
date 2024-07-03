@@ -36,7 +36,7 @@ public class SnackImageServiceImpl implements SnackImageService {
         return snackImageMapper.toDto(image);
     }
     @Override
-    public void addSnackImageToSnack(Long snackId, MultipartFile file) {
+    public SnackImage addSnackImageToSnack(Long snackId, MultipartFile file) {
         byte[] image = new byte[0];
         try {
             image = imageCompressor.compressImage(file.getBytes());
@@ -52,6 +52,7 @@ public class SnackImageServiceImpl implements SnackImageService {
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));
         image1.setSnack(snack);
         snackImageRepository.save(image1);
+        return image1;
     }
     @Override
     public void deleteSnackImage(String name) {

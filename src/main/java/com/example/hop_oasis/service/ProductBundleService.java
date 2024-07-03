@@ -10,9 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface ProductBundleService {
-    void saveProductBundle(MultipartFile file, ProductBundleDto productBundle);
+    ProductBundle saveProductBundle(MultipartFile file, ProductBundleDto productBundle);
     ProductBundleInfoDto getProductBundleById(Long id);
     Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable);
-    void update(ProductBundleInfoDto productBundleInfoDto, Long id);
-    void deleteProductBundle(Long id);
+    ProductBundleInfoDto update(ProductBundleInfoDto productBundleInfoDto, Long id);
+    ProductBundleInfoDto deleteProductBundle(Long id);
 }

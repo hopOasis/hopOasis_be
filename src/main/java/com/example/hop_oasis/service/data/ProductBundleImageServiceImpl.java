@@ -38,7 +38,7 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
         return productBundleImageMapper.toDto(image);
     }
     @Override
-    public void addProductBundleImage(Long id, MultipartFile file) {
+    public ProductBundleImage addProductBundleImage(Long id, MultipartFile file) {
         byte[] image;
         try{
             image = imageCompressor.compressImage(file.getBytes());
@@ -54,6 +54,7 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND,""));
         image1.setProductBundle(productBundle);
         productBundleImageRepository.save(image1);
+        return image1;
     }
     @Override
     public void deleteProductBundleImage(String name) {

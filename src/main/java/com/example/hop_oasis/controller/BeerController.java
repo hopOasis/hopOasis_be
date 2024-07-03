@@ -29,7 +29,7 @@ public class BeerController {
     private final BeerService beerService;
     private final ImageService imageService;
     private final BeerInfoMapper beerInfoMapper;
-    private final ImageMapper imageMapper;
+
     @GetMapping
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
                                                          @RequestParam(value = "size",defaultValue = "10") int size){
@@ -90,14 +90,13 @@ public class BeerController {
         return ResponseEntity.ok().body(dto);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
-        beerService.delete(id);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<BeerInfoDto> delete(@PathVariable("id") Long id) {
+        return ResponseEntity.ok().body(beerService.delete(id));
     }
     @DeleteMapping("/images/{name}")
-    public ResponseEntity<Void> deleteImage(@PathVariable("name") String name) {
+    public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
         imageService.deleteImage(name);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(name);
     }
 }
 

@@ -37,7 +37,7 @@ public class CiderImageServiceImpl implements CiderImageService {
         return ciderImageMapper.toDto(image);
     }
     @Override
-    public void addCiderImageToCider(Long ciderId, MultipartFile file) {
+    public CiderImage addCiderImageToCider(Long ciderId, MultipartFile file) {
         byte[] image;
         try {
             image = imageCompressor.compressImage(file.getBytes());
@@ -52,7 +52,7 @@ public class CiderImageServiceImpl implements CiderImageService {
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ciderId));
 
         image1.setCider(cider);
-        ciderImageRepository.save(image1);
+       return ciderImageRepository.save(image1);
     }
     @Override
     public void deleteCiderImage(String name) {

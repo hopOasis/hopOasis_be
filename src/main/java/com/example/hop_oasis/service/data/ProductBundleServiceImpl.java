@@ -33,7 +33,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     private final ProductBundleImageMapper imageMapper;
     private final ImageCompressor imageCompressor;
     @Override
-    public void saveProductBundle(MultipartFile file, ProductBundleDto productBundleDto) {
+    public ProductBundle saveProductBundle(MultipartFile file, ProductBundleDto productBundleDto) {
         byte[] bytesIm;
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
@@ -50,6 +50,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         productBundleRepository.save(productBundle);
         image.setProductBundle(productBundle);
         productImageRepository.save(image);
+        return productBundle;
     }
     @Override
     public ProductBundleInfoDto getProductBundleById(Long id) {
@@ -66,7 +67,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         return productBundles.map(productBundleInfoMapper::toDto);
     }
     @Override
-    public void update(ProductBundleInfoDto productDto, Long id) {
+    public ProductBundleInfoDto update(ProductBundleInfoDto productDto, Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         if (!productDto.getName().isEmpty()) {
@@ -78,12 +79,13 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         if (!productDto.getDescription().isEmpty()) {
             productBundle.setDescription(productDto.getDescription());
         }
-        productBundleRepository.save(productBundle);
+        return productBundleInfoMapper.toDto(productBundleRepository.save(productBundle));
     }
     @Override
-    public void deleteProductBundle(Long id) {
+    public ProductBundleInfoDto deleteProductBundle(Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         productBundleRepository.deleteById(id);
+        return productBundleInfoMapper.toDto(productBundle);
     }
 }

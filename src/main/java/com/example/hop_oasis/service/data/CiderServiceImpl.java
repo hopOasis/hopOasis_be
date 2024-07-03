@@ -37,7 +37,7 @@ public class CiderServiceImpl implements CiderService {
     private final ImageCompressor imageCompressor;
 
     @Override
-    public void saveCider(MultipartFile file, CiderDto ciderDto) {
+    public Cider saveCider(MultipartFile file, CiderDto ciderDto) {
         byte[] bytesIm;
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
@@ -56,6 +56,7 @@ public class CiderServiceImpl implements CiderService {
         image.setCider(cider);
         ciderImageRepository.save(image);
 
+        return cider;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class CiderServiceImpl implements CiderService {
     }
 
     @Override
-    public void update(CiderInfoDto ciderInfo, Long id) {
+    public CiderInfoDto update(CiderInfoDto ciderInfo, Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         if (!ciderInfo.getCiderName().isEmpty()) {
@@ -96,17 +97,16 @@ public class CiderServiceImpl implements CiderService {
         if (!ciderInfo.getDescription().isEmpty()) {
             cider.setDescription(ciderInfo.getDescription());
         }
-        ciderRepository.save(cider);
-
-
+        return ciderInfoMapper.toDto(ciderRepository.save(cider));
     }
 
 
     @Override
-    public void deleteCider(Long id) {
+    public CiderInfoDto deleteCider(Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         ciderRepository.deleteById(id);
+        return ciderInfoMapper.toDto(cider);
 
     }
 }

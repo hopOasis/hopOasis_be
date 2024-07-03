@@ -35,7 +35,7 @@ public class SnackServiceImpl implements SnackService {
     private final SnackImageMapper snackImageMapper;
     private final ImageCompressor imageCompressor;
     @Override
-    public void saveSnack(MultipartFile file, SnackDto snackDto) {
+    public Snack saveSnack(MultipartFile file, SnackDto snackDto) {
         byte[] bytesIm;
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
@@ -53,6 +53,7 @@ public class SnackServiceImpl implements SnackService {
         snackRepository.save(snack);
         image.setSnack(snack);
         snackImageRepository.save(image);
+        return snack;
     }
     @Override
     public SnackInfoDto getSnackById(Long id) {
@@ -69,7 +70,7 @@ public class SnackServiceImpl implements SnackService {
         return snacks.map(snackInfoMapper::toDto);
     }
     @Override
-    public void updateSnack(SnackInfoDto snackInfo, Long id) {
+    public SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
@@ -91,12 +92,13 @@ public class SnackServiceImpl implements SnackService {
         if (!snackInfo.getDescription().isEmpty()) {
             snack.setDescription(snackInfo.getDescription());
         }
-        snackRepository.save(snack);
+       return snackInfoMapper.toDto(snackRepository.save(snack));
     }
     @Override
-    public void deleteSnack(Long id) {
+    public SnackInfoDto deleteSnack(Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(()->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         snackRepository.deleteById(id);
+        return snackInfoMapper.toDto(snack);
     }
 }

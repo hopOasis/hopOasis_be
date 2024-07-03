@@ -14,6 +14,6 @@ public interface BeerService {
      BeerInfoDto getBeerById(Long id);
      Page<BeerInfoDto> getAllBeers(Pageable pageable);
      BeerInfoDto update(BeerInfoDto beerInfo,Long id);
-     void delete(Long id);
+     BeerInfoDto delete(Long id);
 
 }

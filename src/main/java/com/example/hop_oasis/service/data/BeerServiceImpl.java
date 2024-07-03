@@ -101,9 +101,10 @@ public class BeerServiceImpl implements BeerService {
       return  beerInfoMapper.toDto(beerRepository.save(beer));
     }
     @Override
-    public void delete(Long id) {
+    public BeerInfoDto delete(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         beerRepository.deleteById(id);
+        return beerInfoMapper.toDto(beer);
     }
 }
