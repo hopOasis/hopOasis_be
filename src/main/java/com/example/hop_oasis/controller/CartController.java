@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     private final CartService cartService;
 
-    @GetMapping
+    @GetMapping(produces = "application/json")
     public ResponseEntity<CartDto> find() {
         return ResponseEntity.ok().body(cartService.getAllItems());
     }
 
-    @PostMapping("/items")
+    @PostMapping(value = "/items",consumes = "application/json")
     public ResponseEntity<CartItemDto> add(@RequestBody ItemRequestDto itemRequest) {
         CartItemDto dto = cartService.add(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
         return ResponseEntity.ok(dto);
