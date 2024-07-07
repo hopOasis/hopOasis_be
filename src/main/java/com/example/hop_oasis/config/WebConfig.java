@@ -10,6 +10,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(
+
                         "http://localhost:3000",
                         "https://hop-oasis-fr.vercel.app",
                         "http://localhost:5173",
@@ -17,7 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(true); // Если вы хотите разрешить отправку куки
+                .allowCredentials(true);
     }
 
 //        registry.addMapping("/**")

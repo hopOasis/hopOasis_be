@@ -35,4 +35,8 @@ public class Beer {
 
     @OneToMany(mappedBy = "beer",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<Image> image;
+
+    @ManyToOne
+    @JoinColumn(name = "beer_id")
+    private SpecialOfferProduct specialOfferProduct;
 }
