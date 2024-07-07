@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS rating (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    item_id BIGINT NOT NULL,
+    item_type VARCHAR(50) NOT NULL,
+    rating DOUBLE NOT NULL
+);

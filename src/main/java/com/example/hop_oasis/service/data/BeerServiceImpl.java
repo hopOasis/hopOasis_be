@@ -6,20 +6,27 @@ import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.convertor.ImageMapper;
+import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Image;
+import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.model.Rating;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.repository.ImageRepository;
+import com.example.hop_oasis.repository.RatingRepository;
 import com.example.hop_oasis.service.BeerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,14 +43,16 @@ public class BeerServiceImpl implements BeerService {
     private final BeerInfoMapper beerInfoMapper;
     private final ImageMapper imageMapper;
     private final ImageCompressor imageCompressor;
+    private final RatingServiceImpl ratingService;
+    private final RatingRepository ratingRepository;
 
     @Override
-    public Beer save(MultipartFile file, BeerDto beerDto)  {
+    public Beer save(MultipartFile file, BeerDto beerDto) {
         byte[] bytesIm;
         try {
             bytesIm = imageCompressor.compressImage(file.getBytes());
         } catch (IOException e) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND,"");
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         Image image = Image.builder()
                 .image(bytesIm)
@@ -58,23 +67,50 @@ public class BeerServiceImpl implements BeerService {
         imageRepository.save(image);
         return beer;
     }
+
     @Override
     public BeerInfoDto getBeerById(Long id) {
-        Beer beer = beerRepository.findById(id).orElseThrow(()->
+        Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
-        return beerInfoMapper.toDto(beer);
+        return convertToDtoWithRating(beer);
     }
+
+    @Override
+    public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long itemId, double ratingValue) {
+        if (ratingValue < 1.0 || ratingValue > 5.0) {
+            throw new IllegalArgumentException("Rating value must be between 1 and 5");
+        }
+        Rating rating = new Rating(itemId, ItemType.BEER, ratingValue);
+        ratingRepository.save(rating);
+        Beer beer = beerRepository.findById(itemId)
+                .orElseThrow(() -> new IllegalArgumentException("Beer not found with id " + itemId));
+        return convertToDtoWithRating(beer);
+    }
+
+    private BeerInfoDto convertToDtoWithRating(Beer beer) {
+        BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beer);
+        ItemRatingDto rating = ratingService.getItemRating(beer.getId(), ItemType.BEER);
+        BigDecimal roundedAverageRating = BigDecimal.valueOf(rating.getAverageRating())
+                .setScale(1, RoundingMode.HALF_UP);
+        beerInfoDto.setAverageRating(roundedAverageRating.doubleValue());
+        beerInfoDto.setRatingCount(rating.getRatingCount());
+        return beerInfoDto;
+
+
+    }
+
     @Override
     public Page<BeerInfoDto> getAllBeers(Pageable pageable) {
         Page<Beer> beers = beerRepository.findAll(pageable);
         if (beers.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return beers.map(beerInfoMapper::toDto);
+        return beers.map(this::convertToDtoWithRating);
     }
+
     @Override
     public BeerInfoDto update(BeerInfoDto beerInfo, Long id) {
-        Beer beer = beerRepository.findById(id).orElseThrow(()->
+        Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
         if (!beerInfo.getBeerName().isEmpty()) {
@@ -98,8 +134,9 @@ public class BeerServiceImpl implements BeerService {
         if (Objects.nonNull(beerInfo.getBeerColor())) {
             beer.setBeerColor(beerInfo.getBeerColor());
         }
-      return  beerInfoMapper.toDto(beerRepository.save(beer));
+        return beerInfoMapper.toDto(beerRepository.save(beer));
     }
+
     @Override
     public BeerInfoDto delete(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->

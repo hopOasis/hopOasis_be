@@ -75,6 +75,13 @@ public class BeerController {
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.getBeerById(id));
     }
+    @PostMapping("/{id}/rating")
+    public ResponseEntity<BeerInfoDto> addRating(@PathVariable("id") Long id,
+                                          @RequestParam("rating") double rating){
+       BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, rating);
+        return ResponseEntity.ok().body(dto);
+
+    }
     @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
         ImageDto imajeDto = imageService.getImageByName(name);

@@ -12,6 +12,7 @@ import java.util.List;
 public interface BeerService {
      Beer save(MultipartFile file, BeerDto beerDto);
      BeerInfoDto getBeerById(Long id);
+     BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long itemId, double ratingValue);
      Page<BeerInfoDto> getAllBeers(Pageable pageable);
      BeerInfoDto update(BeerInfoDto beerInfo,Long id);
      BeerInfoDto delete(Long id);

@@ -19,4 +19,6 @@ public class BeerInfoDto {
     private String description;
     private String beerColor;
     private List<String> imageName;
+    private double averageRating;
+    private int ratingCount;
 }
