@@ -21,6 +21,12 @@ jobs:
       - name: Build Project
         run: mvn clean package -DskipTests
 
+      - name: Package application
+        run: |
+          mkdir -p build/distributions
+          cp target/hop_oasis.jar build/distributions/
+          zip -r build/distributions/my-app.zip target/hop_oasis.jar .ebextensions
+
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -30,4 +36,4 @@ jobs:
           environment_name: 'prod'
           version_label: ${{ github.sha }}
           region: eu-central-1
-          deployment_package: target/hop_oasis.jar
+          file: build/distributions/my-app.zip
