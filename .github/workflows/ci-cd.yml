@@ -36,4 +36,4 @@ jobs:
           environment_name: 'prod'
           version_label: ${{ github.sha }}
           region: eu-central-1
-          file: build/distributions/my-app.zip
+          deployment_package: build/distributions/my-app.zip
