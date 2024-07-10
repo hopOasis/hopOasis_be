@@ -23,6 +23,7 @@ jobs:
 
       - name: Package application
         run: |
+          ls -la
           mkdir -p build/distributions
           cp target/hop_oasis.jar build/distributions/
           cp -r .ebextensions build/distributions/
