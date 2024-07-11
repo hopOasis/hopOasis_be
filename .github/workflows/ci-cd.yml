@@ -27,8 +27,9 @@ jobs:
           mkdir -p build/distributions
           cp target/hop_oasis.jar build/distributions/
           cp -r .ebextensions build/distributions/
+          cp -r .platform build/distributions/
           cd build/distributions
-          zip -r my-app.zip hop_oasis.jar .ebextensions
+          zip -r my-app.zip hop_oasis.jar .ebextensions .platform
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
