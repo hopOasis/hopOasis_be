@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS special_offer_product(
+    Id INT  PRIMARY KEY AUTO_INCREMENT
+
+)

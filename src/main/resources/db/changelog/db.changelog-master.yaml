@@ -15,6 +15,15 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/007-create-cider.sql
   - include:
       file: classpath:/db/changelog/changes/008-create-cider_image.sql
-
+  - include:
+      file: classpath:/db/changelog/changes/014-create-special-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/019-create-beer-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/020-create-cider-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/021-create-snack-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/022-create-product-bundle-offer.sql
 
 
