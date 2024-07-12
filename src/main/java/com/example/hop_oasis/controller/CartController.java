@@ -33,18 +33,18 @@ public class CartController {
         return ResponseEntity.ok().body(cartService.getAllItems(createCartItems()));
     }
 
-    @PostMapping("/items")
-    public ResponseEntity<CartItemDto> add(@RequestBody ItemRequestDto itemRequest) {
-        CartItemDto dto = cartService.add(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
-        return ResponseEntity.ok(dto);
-    }
-//    @PostMapping("/items")public ResponseEntity<CartItemDto> addItem(
-//            @RequestParam("itemId") Long itemId,
-//            @RequestParam("quantity") int quantity,
-//            @RequestParam("itemType") ItemType itemType) {
-//        CartItemDto dto = cartService.add(itemId, quantity, itemType);
+//    @PostMapping("/items")
+//    public ResponseEntity<CartItemDto> add(@RequestBody ItemRequestDto itemRequest) {
+//        CartItemDto dto = cartService.add(itemRequest.getItemId(), itemRequest.getQuantity(), itemRequest.getItemType());
 //        return ResponseEntity.ok(dto);
 //    }
+    @GetMapping("/items")public ResponseEntity<CartItemDto> addItem(
+            @RequestParam("itemId") Long itemId,
+            @RequestParam("quantity") int quantity,
+            @RequestParam("itemType") ItemType itemType) {
+        CartItemDto dto = cartService.add(itemId, quantity, itemType);
+        return ResponseEntity.ok(dto);
+    }
 
     @PutMapping
     public ResponseEntity<CartItemDto> updateQuantity(@RequestBody ItemRequestDto itemRequest) {
