@@ -32,7 +32,6 @@ public class Snack {
 
     @OneToMany(mappedBy = "snack",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<SnackImage> snackImage;
-    @ManyToOne
-    @JoinColumn(name = "snack_id")
-    private SpecialOfferProduct specialOfferProduct;
+    @ManyToMany
+    private List<SpecialOfferProduct> specialOfferProduct;
 }

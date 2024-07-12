@@ -11,21 +11,40 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "special_offer_product")
+
 public class SpecialOfferProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "specialOfferProduct",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+
+    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(
+            name = "beer_special_offer_product",
+            joinColumns = @JoinColumn(name = "special_offer_product_id"),
+            inverseJoinColumns = @JoinColumn(name = "beer_id"))
     private List<Beer> beers;
 
-    @OneToMany(mappedBy = "specialOfferProduct",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(
+            name = "cider_special_offer_product",
+            joinColumns = @JoinColumn(name = "special_offer_product_id"),
+            inverseJoinColumns = @JoinColumn(name = "cider_id"))
     private List<Cider> ciders;
 
-    @OneToMany(mappedBy = "specialOfferProduct",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(
+            name = "snack_special_offer_product",
+            joinColumns = @JoinColumn(name = "special_offer_product_id"),
+            inverseJoinColumns = @JoinColumn(name = "snack_id"))
     private List<Snack> snacks;
 
-    @OneToMany(mappedBy = "specialOfferProduct",cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(
+            name = "product_bundle_special_offer_product",
+            joinColumns = @JoinColumn(name = "special_offer_product_id"),
+            inverseJoinColumns = @JoinColumn(name = "product_bundle_id"))
     private List<ProductBundle> productBundles;
+
 
 }

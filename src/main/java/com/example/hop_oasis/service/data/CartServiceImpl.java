@@ -9,6 +9,8 @@ import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -20,6 +22,7 @@ import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*
 @Service
 @RequiredArgsConstructor
 @Log4j2
+@SessionAttributes("cart")
 public class CartServiceImpl implements CartService {
     private final Cart cart;
     private final BeerServiceImpl beerService;
@@ -27,9 +30,13 @@ public class CartServiceImpl implements CartService {
     private final SnackServiceImpl snackService;
     private final CiderServiceImpl ciderService;
 
+
+@ModelAttribute("cart")
+public List<CartItemDto> createCartItems(){
+    return new ArrayList<>();
+}
     @Override
-    public CartDto getAllItems() {
-        List<CartItemDto> items = new ArrayList<>();
+    public CartDto getAllItems(@ModelAttribute("cart") List<CartItemDto> items) {
 
         addItemsToCart(items, cart.getBeers(), beerService::getBeerById, ItemType.BEER);
         addItemsToCart(items, cart.getSnacks(), snackService::getSnackById, ItemType.SNACK);
@@ -45,7 +52,7 @@ public class CartServiceImpl implements CartService {
         return result;
     }
 
-    private <T> void addItemsToCart(List<CartItemDto> items, Map<Long, Integer> cartItems, Function<Long, T> fetchFunction, ItemType itemType) {
+    private <T> void addItemsToCart(@ModelAttribute("cart") List<CartItemDto> items, Map<Long, Integer> cartItems, Function<Long, T> fetchFunction, ItemType itemType) {
         for (Map.Entry<Long, Integer> entry : cartItems.entrySet()) {
             Long itemId = entry.getKey();
             int quantity = entry.getValue();

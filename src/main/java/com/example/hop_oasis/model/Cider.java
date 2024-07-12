@@ -33,7 +33,6 @@ public class Cider {
     @OneToMany(mappedBy = "cider",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<CiderImage> image;
 
-    @ManyToOne
-    @JoinColumn(name = "cider_id")
-    private SpecialOfferProduct specialOfferProduct;
+    @ManyToMany
+    private List<SpecialOfferProduct> specialOfferProduct;
 }
