@@ -14,7 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "http://localhost:3000",
                         "https://hop-oasis-fr.vercel.app",
                         "http://localhost:5173",
-                        "https://hopoasis-admin.vercel.app"
+                        "https://hopoasis-admin.vercel.app",
+                        "https://localhost:3000"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

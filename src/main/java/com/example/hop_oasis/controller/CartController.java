@@ -5,7 +5,9 @@ import com.example.hop_oasis.dto.ItemRequestDto;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.dto.CartDto;
 import com.example.hop_oasis.service.CartService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +26,26 @@ public class CartController {
         return cartService.createCartItems();
     }
     @GetMapping("/session-id")
-    public ResponseEntity<String>getSessionId(HttpSession session) {
-        return ResponseEntity.ok().body(session.getId());
+    public ResponseEntity<String>getSessionId(HttpSession session, HttpServletResponse response) {
+        String sessionId = session.getId();
+        Cookie cookie = new Cookie("SESSIONID", sessionId);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(7 * 24 * 60 * 60); // Действует 7 дней
+        response.addCookie(cookie);
+        return ResponseEntity.ok().body(sessionId);
+    }
+    @GetMapping("/session-id-from-cookie")
+    public ResponseEntity<String> getSessionIdFromCookie(HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("SESSIONID".equals(cookie.getName())) {
+                    return ResponseEntity.ok().body("Session ID from cookie: " + cookie.getValue());
+                }
+            }
+        }
+        return ResponseEntity.ok().body("Session ID not found in cookies");
     }
 
     @GetMapping
