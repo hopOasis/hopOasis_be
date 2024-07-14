@@ -31,8 +31,14 @@ public class CartController {
         Cookie cookie = new Cookie("SESSIONID", sessionId);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
-        cookie.setMaxAge(7 * 24 * 60 * 60); // Действует 7 дней
+        cookie.setMaxAge(7 * 24 * 60 * 60);
+        cookie.setSecure(true);
+
         response.addCookie(cookie);
+
+        response.setHeader("Set-Cookie", String.format("SESSIONID=%s; HttpOnly; Path=/; Max-Age=%d; Secure; SameSite=None",
+                sessionId, 7 * 24 * 60 * 60));
+
         return ResponseEntity.ok().body(sessionId);
     }
     @GetMapping("/session-id-from-cookie")
