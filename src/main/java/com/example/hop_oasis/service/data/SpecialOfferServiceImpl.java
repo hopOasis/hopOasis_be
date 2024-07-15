@@ -47,6 +47,14 @@ public class SpecialOfferServiceImpl {
                 .specialOfferProductBundles(productBundleInfoMapper.toDtos(specialOfferProduct.getProductBundles()))
                 .build();
     }
+    public List<SpecialOfferAllProductDto> getAllSpecialOffers() {
+        List<Long> specialOfferProducts = specialOfferRepository.findAllIds();
+        List<SpecialOfferAllProductDto> specialOfferAllProductDtos = new ArrayList<>();
+        for (Long id: specialOfferProducts) {
+            specialOfferAllProductDtos.add(getSpecialOffer(id));
+        }
+        return specialOfferAllProductDtos;
+    }
     public void addBeerToSpecialOffer(Long beerId, Long offerId) {
         Beer beer = beerRepository.findById(beerId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));

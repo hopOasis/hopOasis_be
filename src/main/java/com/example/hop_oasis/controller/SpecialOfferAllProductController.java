@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +25,10 @@ public class SpecialOfferAllProductController {
     @GetMapping("/{offerId}")
     public SpecialOfferAllProductDto getSpecialOffer(@PathVariable("offerId") Long offerId) {
         return specialOfferService.getSpecialOffer(offerId);
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<SpecialOfferAllProductDto>> getAllSpecialOffers() {
+        return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
     }
 
     @GetMapping("/beer/{beerId}/{offerId}")
