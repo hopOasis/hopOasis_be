@@ -26,7 +26,7 @@ public class SpecialOfferAllProductController {
     public SpecialOfferAllProductDto getSpecialOffer(@PathVariable("offerId") Long offerId) {
         return specialOfferService.getSpecialOffer(offerId);
     }
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<SpecialOfferAllProductDto>> getAllSpecialOffers() {
         return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
     }
