@@ -4,9 +4,7 @@ import com.example.hop_oasis.convertor.CiderImageMapper;
 import com.example.hop_oasis.convertor.CiderInfoMapper;
 import com.example.hop_oasis.convertor.CiderMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
-import com.example.hop_oasis.dto.CiderDto;
-import com.example.hop_oasis.dto.CiderImageDto;
-import com.example.hop_oasis.dto.CiderInfoDto;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderImage;
@@ -20,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +35,7 @@ public class CiderServiceImpl implements CiderService {
     private final CiderInfoMapper ciderInfoMapper;
     private final CiderImageMapper ciderImageMapper;
     private final ImageCompressor imageCompressor;
+    private final CiderRatingServiceImpl ciderRatingService;
 
     @Override
     public Cider saveCider(MultipartFile file, CiderDto ciderDto) {
@@ -63,7 +64,30 @@ public class CiderServiceImpl implements CiderService {
     public CiderInfoDto getCiderById(Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
-        return ciderInfoMapper.toDto(cider);
+        return convertToDtoWithRating(cider);
+    }
+
+    @Override
+    public CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long id, double ratingValue) {
+        if (ratingValue < 1.0 || ratingValue > 5.0) {
+            throw new IllegalArgumentException("Rating value must be between 1 and 5");
+        }
+        ciderRatingService.addRating(id, ratingValue);
+        Cider cider = ciderRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cider not found with id " + id));
+        return convertToDtoWithRating(cider);
+    }
+
+    private CiderInfoDto convertToDtoWithRating(Cider cider) {
+        CiderInfoDto ciderInfoDto = ciderInfoMapper.toDto(cider);
+        ItemRatingDto rating = ciderRatingService.getItemRating(cider.getId());
+        BigDecimal roundedAverageRating = BigDecimal.valueOf(rating.getAverageRating())
+                .setScale(1, RoundingMode.HALF_UP);
+        ciderInfoDto.setAverageRating(roundedAverageRating.doubleValue());
+        ciderInfoDto.setRatingCount(rating.getRatingCount());
+        return ciderInfoDto;
+
+
     }
 
     @Override
@@ -72,7 +96,7 @@ public class CiderServiceImpl implements CiderService {
         if (cider.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return cider.map(ciderInfoMapper::toDto);
+        return cider.map(this::convertToDtoWithRating);
     }
 
     @Override

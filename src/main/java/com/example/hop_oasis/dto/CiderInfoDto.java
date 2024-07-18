@@ -19,6 +19,8 @@ public class CiderInfoDto{
     private double priceSmall;
     private String description;
     private List<String> ciderImageName;
+    private double averageRating;
+    private int ratingCount;
 
 }
 

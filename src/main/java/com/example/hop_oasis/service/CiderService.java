@@ -12,6 +12,7 @@ import java.util.List;
 public interface CiderService {
     Cider saveCider (MultipartFile file, CiderDto ciderDto);
     CiderInfoDto getCiderById(Long id);
+    CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long itemId, double ratingValue);
     Page<CiderInfoDto> getAllCiders(Pageable pageable);
     CiderInfoDto update(CiderInfoDto ciderInfo, Long id);
     CiderInfoDto deleteCider(Long id);

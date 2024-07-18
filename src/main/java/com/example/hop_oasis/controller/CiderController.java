@@ -1,9 +1,7 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.CiderInfoMapper;
-import com.example.hop_oasis.dto.CiderDto;
-import com.example.hop_oasis.dto.CiderImageDto;
-import com.example.hop_oasis.dto.CiderInfoDto;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.CiderImage;
 import com.example.hop_oasis.service.CiderImageService;
 import com.example.hop_oasis.service.CiderService;
@@ -70,6 +68,15 @@ public class CiderController {
     @GetMapping("/{id}")
     public ResponseEntity<CiderInfoDto> getCiderById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(ciderService.getCiderById(id));
+    }
+
+    @PostMapping("/{id}/ratings")
+    public ResponseEntity<CiderInfoDto> addRating(@PathVariable("id") Long id,
+                                                  @RequestBody RatingDto ratingDto) {
+        double ratingValue = ratingDto.getRatingValue();
+        CiderInfoDto dto = ciderService.addRatingAndReturnUpdatedCiderInfo(id, ratingValue);
+        return ResponseEntity.ok().body(dto);
+
     }
     @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {

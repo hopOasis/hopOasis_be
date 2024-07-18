@@ -12,6 +12,7 @@ import java.util.List;
 public interface ProductBundleService {
     ProductBundle saveProductBundle(MultipartFile file, ProductBundleDto productBundle);
     ProductBundleInfoDto getProductBundleById(Long id);
+    ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long itemId, double ratingValue);
     Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable);
     ProductBundleInfoDto update(ProductBundleInfoDto productBundleInfoDto, Long id);
     ProductBundleInfoDto deleteProductBundle(Long id);

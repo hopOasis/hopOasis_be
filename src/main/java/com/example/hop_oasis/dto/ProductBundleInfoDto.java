@@ -15,4 +15,6 @@ public class ProductBundleInfoDto {
     private double price;
     private String description;
     private List<String> productImageName;
+    private double averageRating;
+    private int ratingCount;
 }

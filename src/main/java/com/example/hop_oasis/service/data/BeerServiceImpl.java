@@ -1,21 +1,14 @@
 package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.decoder.ImageCompressor;
-import com.example.hop_oasis.dto.BeerDto;
-import com.example.hop_oasis.dto.BeerInfoDto;
-import com.example.hop_oasis.dto.ImageDto;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.convertor.ImageMapper;
-import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
-import com.example.hop_oasis.model.Image;
-import com.example.hop_oasis.model.ItemType;
-import com.example.hop_oasis.model.Rating;
+import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
-import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.repository.ImageRepository;
-import com.example.hop_oasis.repository.RatingRepository;
 import com.example.hop_oasis.service.BeerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,8 +36,7 @@ public class BeerServiceImpl implements BeerService {
     private final BeerInfoMapper beerInfoMapper;
     private final ImageMapper imageMapper;
     private final ImageCompressor imageCompressor;
-    private final RatingServiceImpl ratingService;
-    private final RatingRepository ratingRepository;
+    private final BeerRatingServiceImpl beerRatingService;
 
     @Override
     public Beer save(MultipartFile file, BeerDto beerDto) {
@@ -76,20 +68,19 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long itemId, double ratingValue) {
+    public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long id, double ratingValue) {
         if (ratingValue < 1.0 || ratingValue > 5.0) {
             throw new IllegalArgumentException("Rating value must be between 1 and 5");
         }
-        Rating rating = new Rating(itemId, ItemType.BEER, ratingValue);
-        ratingRepository.save(rating);
-        Beer beer = beerRepository.findById(itemId)
-                .orElseThrow(() -> new IllegalArgumentException("Beer not found with id " + itemId));
+        beerRatingService.addRating(id, ratingValue);
+        Beer beer = beerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cider not found with id " + id));
         return convertToDtoWithRating(beer);
     }
 
     private BeerInfoDto convertToDtoWithRating(Beer beer) {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beer);
-        ItemRatingDto rating = ratingService.getItemRating(beer.getId(), ItemType.BEER);
+        ItemRatingDto rating = beerRatingService.getItemRating(beer.getId());
         BigDecimal roundedAverageRating = BigDecimal.valueOf(rating.getAverageRating())
                 .setScale(1, RoundingMode.HALF_UP);
         beerInfoDto.setAverageRating(roundedAverageRating.doubleValue());

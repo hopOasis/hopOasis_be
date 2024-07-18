@@ -6,6 +6,7 @@ import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
 
+import com.example.hop_oasis.dto.RatingDto;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.service.BeerService;
 import com.example.hop_oasis.service.ImageService;
@@ -31,24 +32,25 @@ public class BeerController {
     private final BeerInfoMapper beerInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
-                                                         @RequestParam(value = "size",defaultValue = "10") int size){
-      Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
-      HttpHeaders headers = new HttpHeaders();
+    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page", defaultValue = "0") int page,
+                                                         @RequestParam(value = "size", defaultValue = "10") int size) {
+        Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
+        HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Range", "items " + page * size + "-"
                 + ((page + 1) * size - 1) + "/" + beerPage.getTotalElements());
 
         return ResponseEntity.ok().headers(headers).body(beerPage);
     }
+
     @PostMapping
     public ResponseEntity<BeerInfoDto> save(@RequestParam("name") String name,
-                       @RequestParam("volumeLarge") double volumeLarge,
-                       @RequestParam("volumeSmall") double volumeSmall,
-                       @RequestParam("priceLarge") double priceLarge,
-                       @RequestParam("priceSmall") double priceSmall,
-                       @RequestParam("description") String description,
-                       @RequestParam("beerColor") String beerColor,
-                       @RequestParam("image") MultipartFile image) {
+                                            @RequestParam("volumeLarge") double volumeLarge,
+                                            @RequestParam("volumeSmall") double volumeSmall,
+                                            @RequestParam("priceLarge") double priceLarge,
+                                            @RequestParam("priceSmall") double priceSmall,
+                                            @RequestParam("description") String description,
+                                            @RequestParam("beerColor") String beerColor,
+                                            @RequestParam("image") MultipartFile image) {
         BeerDto beerDto = new BeerDto();
         beerDto.setBeerName(name);
         beerDto.setVolumeLarge(volumeLarge);
@@ -62,26 +64,31 @@ public class BeerController {
 
         return ResponseEntity.ok().body(beerInfoDto);
     }
+
     @PostMapping("/add/image")
     public ResponseEntity<byte[]> addImageToBeer(@RequestParam("beerId") Long beerId,
-                                 @RequestParam("image") MultipartFile image){
+                                                 @RequestParam("image") MultipartFile image) {
         Image i = imageService.addImageToBeer(beerId, image);
-       ImageDto imag = imageService.getImageByName(i.getName());
+        ImageDto imag = imageService.getImageByName(i.getName());
         return ResponseEntity.ok()
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imag.getImage());
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.getBeerById(id));
     }
-    @PostMapping("/{id}/rating")
+
+    @PostMapping("/{id}/ratings")
     public ResponseEntity<BeerInfoDto> addRating(@PathVariable("id") Long id,
-                                          @RequestParam("rating") double rating){
-       BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, rating);
+                                                 @RequestBody RatingDto ratingDto) {
+        double ratingValue = ratingDto.getRatingValue();
+        BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, ratingValue);
         return ResponseEntity.ok().body(dto);
 
     }
+
     @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
         ImageDto imajeDto = imageService.getImageByName(name);
@@ -90,16 +97,19 @@ public class BeerController {
                 .contentType(MediaType.IMAGE_JPEG)
                 .body(imajeDto.getImage());
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<BeerInfoDto>updateBeer(@PathVariable("id")Long id,
-                                          @RequestBody BeerInfoDto beerInfo) {
-       BeerInfoDto dto = beerService.update(beerInfo, id);
+    public ResponseEntity<BeerInfoDto> updateBeer(@PathVariable("id") Long id,
+                                                  @RequestBody BeerInfoDto beerInfo) {
+        BeerInfoDto dto = beerService.update(beerInfo, id);
         return ResponseEntity.ok().body(dto);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<BeerInfoDto> delete(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.delete(id));
     }
+
     @DeleteMapping("/images/{name}")
     public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
         imageService.deleteImage(name);

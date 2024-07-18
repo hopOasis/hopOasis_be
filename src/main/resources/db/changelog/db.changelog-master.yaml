@@ -16,7 +16,12 @@ databaseChangeLog:
   - include:
       file: classpath:/db/changelog/changes/008-create-cider_image.sql
   - include:
-      file: classpath:/db/changelog/changes/013-create-rating.sql
-
+      file: classpath:/db/changelog/changes/013-create-beer-rating.sql
+  - include:
+      file: classpath:/db/changelog/changes/015-create-cider-rating.sql
+  - include:
+      file: classpath:/db/changelog/changes/016-create-snack-rating.sql
+  - include:
+      file: classpath:/db/changelog/changes/017-create-product-rating.sql
 
 

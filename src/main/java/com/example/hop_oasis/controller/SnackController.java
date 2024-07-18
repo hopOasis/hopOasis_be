@@ -1,10 +1,7 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.SnackInfoMapper;
-import com.example.hop_oasis.dto.CiderInfoDto;
-import com.example.hop_oasis.dto.SnackDto;
-import com.example.hop_oasis.dto.SnackImageDto;
-import com.example.hop_oasis.dto.SnackInfoDto;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.service.SnackImageService;
 import com.example.hop_oasis.service.SnackService;
@@ -60,6 +57,13 @@ public class SnackController {
     @GetMapping("/{id}")
     public ResponseEntity<SnackInfoDto> getSnackById(@PathVariable("id") Long id){
         return ResponseEntity.ok().body(snackService.getSnackById(id));
+    }
+    @PostMapping("/{id}/ratings")
+    public ResponseEntity<SnackInfoDto> addRating(@PathVariable("id") Long id,
+                                                  @RequestBody RatingDto ratingDto) {
+        double ratingValue = ratingDto.getRatingValue();
+        SnackInfoDto dto = snackService.addRatingAndReturnUpdatedSnackInfo(id, ratingValue);
+        return ResponseEntity.ok().body(dto);
     }
     @PostMapping("/add/image")
     public ResponseEntity<byte[]> addImageToSnack(@RequestParam("snackId") Long snackId,

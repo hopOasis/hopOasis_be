@@ -1,9 +1,7 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
-import com.example.hop_oasis.dto.ProductBundleDto;
-import com.example.hop_oasis.dto.ProductBundleImageDto;
-import com.example.hop_oasis.dto.ProductBundleInfoDto;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.ProductBundleImage;
 import com.example.hop_oasis.service.ProductBundleImageService;
 import com.example.hop_oasis.service.ProductBundleService;
@@ -64,6 +62,14 @@ public class ProductBundleController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductBundleInfoDto> getProductBundleById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(productBundleService.getProductBundleById(id));
+    }
+    @PostMapping("/{id}/ratings")
+    public ResponseEntity<ProductBundleInfoDto> addRating(@PathVariable("id") Long id,
+                                                          @RequestBody RatingDto ratingDto) {
+        double ratingValue = ratingDto.getRatingValue();
+        ProductBundleInfoDto dto = productBundleService.addRatingAndReturnUpdatedProductBundleInfo(id, ratingValue);
+        return ResponseEntity.ok().body(dto);
+
     }
     @GetMapping("/images/{name}")
     public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {

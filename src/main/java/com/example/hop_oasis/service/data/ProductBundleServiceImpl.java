@@ -4,6 +4,7 @@ import com.example.hop_oasis.convertor.ProductBundleImageMapper;
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
 import com.example.hop_oasis.convertor.ProductBundleMapper;
 import com.example.hop_oasis.decoder.ImageCompressor;
+import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
@@ -32,6 +35,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     private final ProductBundleInfoMapper productBundleInfoMapper;
     private final ProductBundleImageMapper imageMapper;
     private final ImageCompressor imageCompressor;
+    private final ProductBundleRatingServiceImpl productBundleRatingService;
     @Override
     public ProductBundle saveProductBundle(MultipartFile file, ProductBundleDto productBundleDto) {
         byte[] bytesIm;
@@ -56,7 +60,28 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     public ProductBundleInfoDto getProductBundleById(Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
-        return productBundleInfoMapper.toDto(productBundle);
+        return convertToDtoWithRating(productBundle);
+    }
+    @Override
+    public ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long id, double ratingValue) {
+        if (ratingValue < 1.0 || ratingValue > 5.0) {
+            throw new IllegalArgumentException("Rating value must be between 1 and 5");
+        }
+        productBundleRatingService.addRating(id, ratingValue);
+        ProductBundle productBundle = productBundleRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Bundle not found with id " + id));
+        return convertToDtoWithRating(productBundle);
+    }
+    private ProductBundleInfoDto convertToDtoWithRating(ProductBundle productBundle ) {
+        ProductBundleInfoDto bundleInfoDto = productBundleInfoMapper.toDto(productBundle);
+        ItemRatingDto rating = productBundleRatingService.getItemRating(productBundle.getId());
+        BigDecimal roundedAverageRating = BigDecimal.valueOf(rating.getAverageRating())
+                .setScale(1, RoundingMode.HALF_UP);
+        bundleInfoDto.setAverageRating(roundedAverageRating.doubleValue());
+        bundleInfoDto.setRatingCount(rating.getRatingCount());
+        return bundleInfoDto;
+
+
     }
     @Override
     public Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable) {
@@ -64,7 +89,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         if (productBundles.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        return productBundles.map(productBundleInfoMapper::toDto);
+        return productBundles.map(this::convertToDtoWithRating);
     }
     @Override
     public ProductBundleInfoDto update(ProductBundleInfoDto productDto, Long id) {

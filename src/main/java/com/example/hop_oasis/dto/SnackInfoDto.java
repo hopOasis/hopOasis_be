@@ -18,4 +18,6 @@ public class SnackInfoDto {
     private double priceSmall;
     private String description;
     private List<String> snackImageName;
+    private double averageRating;
+    private int ratingCount;
 }

@@ -12,6 +12,7 @@ import java.util.List;
 public interface SnackService {
     Snack saveSnack(MultipartFile file, SnackDto snackDto);
     SnackInfoDto getSnackById(Long id);
+    SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long itemId, double ratingValue);
     Page<SnackInfoDto> getAllSnacks(Pageable pageable);
     SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id);
     SnackInfoDto  deleteSnack(Long id);
