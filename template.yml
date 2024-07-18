@@ -2,10 +2,10 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application Model template describing your function.
 Resources:
-  hopbe:
+  hop-be-resource:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: hop-be
+      FunctionName: hop-be-function
       CodeUri: target/hop_oasis-0.0.1-SNAPSHOT.jar
       Description: ''
       MemorySize: 512
