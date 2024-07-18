@@ -27,5 +27,4 @@ public class StreamLambdaHandler implements RequestStreamHandler {
     public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
         handler.proxyStream(inputStream, outputStream, context);
     }
-
 }
