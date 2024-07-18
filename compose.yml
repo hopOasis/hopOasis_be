@@ -1,20 +1,20 @@
 
-#services:
-#  mysql:
-#    image: mysql
-#    ports:
-#      - "3306:3306"
-#    environment:
-#      - MYSQL_DATABASE=hop_oasis
-#      - MYSQL_USER=oasis
-#      - MYSQL_PASSWORD=oasis
-#      - MYSQL_ROOT_PASSWORD=root
+services:
+  mysql:
+    image: mysql
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_DATABASE=hop_oasis
+      - MYSQL_USER=oasis
+      - MYSQL_PASSWORD=oasis
+      - MYSQL_ROOT_PASSWORD=root
 
-#  hop_oasis:
-#    build: .
-#    ports:
-#      - "8000:8080"
-#    container_name: hop_oasis
-#    depends_on:
-#      - mysql
+  hop_oasis:
+    build: .
+    ports:
+      - "8000:8080"
+    container_name: hop_oasis
+    depends_on:
+      - mysql
 
