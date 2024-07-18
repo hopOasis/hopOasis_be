@@ -5,6 +5,7 @@ Resources:
   hopbe:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: hop-be
       CodeUri: target/hop_oasis-0.0.1-SNAPSHOT.jar
       Description: ''
       MemorySize: 512
