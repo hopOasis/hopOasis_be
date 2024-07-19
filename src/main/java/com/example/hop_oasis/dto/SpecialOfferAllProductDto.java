@@ -11,6 +11,8 @@ import java.util.List;
 @Setter
 public class SpecialOfferAllProductDto {
     private Long id;
+    private String name;
+    private boolean active;
     private List<BeerInfoDto> specialOfferBeers;
     private List<CiderInfoDto> specialOfferCiders;
     private List<SnackInfoDto> specialOfferSnacks;

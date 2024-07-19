@@ -16,6 +16,11 @@ public class SpecialOfferProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "name_offer")
+    private String name;
+
+    @Column(name = "active")
+    private boolean active;
 
 
     @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})

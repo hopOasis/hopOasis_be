@@ -25,5 +25,6 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/021-create-snack-offer.sql
   - include:
       file: classpath:/db/changelog/changes/022-create-product-bundle-offer.sql
-
+  - include:
+      file: classpath:/db/changelog/changes/023-add-name-and-active-to-special-offer.sql
 

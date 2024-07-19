@@ -1,5 +1,6 @@
 package com.example.hop_oasis.repository;
 
+import com.example.hop_oasis.dto.SpecialOfferAllProductDto;
 import com.example.hop_oasis.model.SpecialOfferProduct;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +13,8 @@ import java.util.Optional;
 public interface SpecialOfferRepository extends JpaRepository<SpecialOfferProduct, Long> {
     @Query("SELECT s.id FROM SpecialOfferProduct s")
     List<Long> findAllIds();
+
+    @Query("SELECT s.id FROM SpecialOfferProduct s WHERE s.active = true")
+    Long findActiveSpecialOfferProductIds();
 }
+
