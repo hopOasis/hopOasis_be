@@ -64,9 +64,7 @@ public class SnackServiceImpl implements SnackService {
     }
     @Override
     public SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long id, double ratingValue) {
-        if (ratingValue < 1.0 || ratingValue > 5.0) {
-            throw new IllegalArgumentException("Rating value must be between 1 and 5");
-        }
+
         snackRatingService.addRating(id, ratingValue);
         Snack snack = snackRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Snack not found with id " + id));

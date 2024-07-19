@@ -6,12 +6,14 @@ import com.example.hop_oasis.model.ProductBundleImage;
 import com.example.hop_oasis.service.ProductBundleImageService;
 import com.example.hop_oasis.service.ProductBundleService;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/products-bundle")
 @MultipartConfig
+@Validated
 public class ProductBundleController {
     private final ProductBundleService productBundleService;
     private final ProductBundleImageService imageService;
@@ -50,9 +53,10 @@ public class ProductBundleController {
         return ResponseEntity.ok().body(productBundleInfoMapper
                 .toDto(productBundleService.saveProductBundle(image, productBundleDto)));
     }
+
     @PostMapping("/add/image")
     public ResponseEntity<byte[]> addImageToProductBundle(@RequestParam("id") Long id,
-                                          @RequestParam("image") MultipartFile image) {
+                                                          @RequestParam("image") MultipartFile image) {
         ProductBundleImage i = imageService.addProductBundleImage(id, image);
         ProductBundleImageDto imageDto = imageService.getProductBundleImage(i.getName());
         return ResponseEntity.ok()
@@ -63,12 +67,17 @@ public class ProductBundleController {
     public ResponseEntity<ProductBundleInfoDto> getProductBundleById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(productBundleService.getProductBundleById(id));
     }
+
     @PostMapping("/{id}/ratings")
-    public ResponseEntity<ProductBundleInfoDto> addRating(@PathVariable("id") Long id,
-                                                          @RequestBody RatingDto ratingDto) {
-        double ratingValue = ratingDto.getRatingValue();
-        ProductBundleInfoDto dto = productBundleService.addRatingAndReturnUpdatedProductBundleInfo(id, ratingValue);
-        return ResponseEntity.ok().body(dto);
+    public ResponseEntity<?> addRating(@PathVariable("id") Long id, @Valid @RequestBody RatingDto ratingDto) {
+        try {
+            double ratingValue = ratingDto.getRatingValue();
+            ProductBundleInfoDto dto = productBundleService.addRatingAndReturnUpdatedProductBundleInfo(id, ratingValue);
+            return ResponseEntity.ok().body(dto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+
 
     }
     @GetMapping("/images/{name}")

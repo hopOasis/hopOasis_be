@@ -69,9 +69,6 @@ public class CiderServiceImpl implements CiderService {
 
     @Override
     public CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long id, double ratingValue) {
-        if (ratingValue < 1.0 || ratingValue > 5.0) {
-            throw new IllegalArgumentException("Rating value must be between 1 and 5");
-        }
         ciderRatingService.addRating(id, ratingValue);
         Cider cider = ciderRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cider not found with id " + id));

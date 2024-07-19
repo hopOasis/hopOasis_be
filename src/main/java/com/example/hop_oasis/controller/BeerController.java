@@ -12,12 +12,14 @@ import com.example.hop_oasis.service.BeerService;
 import com.example.hop_oasis.service.ImageService;
 
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequestMapping("/beers")
 @MultipartConfig
+@Validated
 public class BeerController {
     private final BeerService beerService;
     private final ImageService imageService;
@@ -81,11 +84,16 @@ public class BeerController {
     }
 
     @PostMapping("/{id}/ratings")
-    public ResponseEntity<BeerInfoDto> addRating(@PathVariable("id") Long id,
-                                                 @RequestBody RatingDto ratingDto) {
-        double ratingValue = ratingDto.getRatingValue();
-        BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, ratingValue);
-        return ResponseEntity.ok().body(dto);
+    public ResponseEntity<?> addRating(@PathVariable("id") Long id,
+                                                @Valid @RequestBody RatingDto ratingDto) {
+        try {
+            double ratingValue = ratingDto.getRatingValue();
+            BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, ratingValue);
+            return ResponseEntity.ok(dto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+
 
     }
 

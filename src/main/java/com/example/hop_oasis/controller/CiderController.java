@@ -6,12 +6,14 @@ import com.example.hop_oasis.model.CiderImage;
 import com.example.hop_oasis.service.CiderImageService;
 import com.example.hop_oasis.service.CiderService;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/ciders")
 @MultipartConfig
+@Validated
 public class CiderController {
     private final CiderService ciderService;
     private final CiderImageService ciderImageService;
@@ -71,11 +74,16 @@ public class CiderController {
     }
 
     @PostMapping("/{id}/ratings")
-    public ResponseEntity<CiderInfoDto> addRating(@PathVariable("id") Long id,
-                                                  @RequestBody RatingDto ratingDto) {
-        double ratingValue = ratingDto.getRatingValue();
-        CiderInfoDto dto = ciderService.addRatingAndReturnUpdatedCiderInfo(id, ratingValue);
-        return ResponseEntity.ok().body(dto);
+    public ResponseEntity<?> addRating(@PathVariable("id") Long id,
+                                       @Valid @RequestBody RatingDto ratingDto) {
+        try {
+            double ratingValue = ratingDto.getRatingValue();
+            CiderInfoDto dto = ciderService.addRatingAndReturnUpdatedCiderInfo(id, ratingValue);
+            return ResponseEntity.ok().body(dto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+
 
     }
     @GetMapping("/images/{name}")

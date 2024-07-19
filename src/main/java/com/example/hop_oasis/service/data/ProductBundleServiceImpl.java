@@ -64,9 +64,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     }
     @Override
     public ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long id, double ratingValue) {
-        if (ratingValue < 1.0 || ratingValue > 5.0) {
-            throw new IllegalArgumentException("Rating value must be between 1 and 5");
-        }
+
         productBundleRatingService.addRating(id, ratingValue);
         ProductBundle productBundle = productBundleRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Bundle not found with id " + id));

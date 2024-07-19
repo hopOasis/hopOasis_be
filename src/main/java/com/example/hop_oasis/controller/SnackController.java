@@ -6,12 +6,14 @@ import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.service.SnackImageService;
 import com.example.hop_oasis.service.SnackService;
 import jakarta.servlet.annotation.MultipartConfig;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,6 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/snacks")
 @MultipartConfig
+@Validated
 public class SnackController {
     private final SnackService snackService;
     private final SnackImageService imageService;
@@ -58,12 +61,18 @@ public class SnackController {
     public ResponseEntity<SnackInfoDto> getSnackById(@PathVariable("id") Long id){
         return ResponseEntity.ok().body(snackService.getSnackById(id));
     }
+
     @PostMapping("/{id}/ratings")
-    public ResponseEntity<SnackInfoDto> addRating(@PathVariable("id") Long id,
-                                                  @RequestBody RatingDto ratingDto) {
-        double ratingValue = ratingDto.getRatingValue();
-        SnackInfoDto dto = snackService.addRatingAndReturnUpdatedSnackInfo(id, ratingValue);
-        return ResponseEntity.ok().body(dto);
+    public ResponseEntity<?> addRating(@PathVariable("id") Long id,
+                                       @Valid @RequestBody RatingDto ratingDto) {
+        try {
+            double ratingValue = ratingDto.getRatingValue();
+            SnackInfoDto dto = snackService.addRatingAndReturnUpdatedSnackInfo(id, ratingValue);
+            return ResponseEntity.ok().body(dto);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
+
     }
     @PostMapping("/add/image")
     public ResponseEntity<byte[]> addImageToSnack(@RequestParam("snackId") Long snackId,
