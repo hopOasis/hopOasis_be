@@ -1,7 +1,6 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.BeerInfoMapper;
-import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
@@ -63,6 +62,7 @@ public class BeerController {
 
         return ResponseEntity.ok().body(beerInfoDto);
     }
+
     @PostMapping("/add/image")
     public ResponseEntity<byte[]> addImageToBeer(@RequestParam("beerId") Long beerId,
                                  @RequestParam("image") MultipartFile image){

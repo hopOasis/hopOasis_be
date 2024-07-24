@@ -1,6 +1,7 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.dto.SpecialOfferAllProductDto;
+import com.example.hop_oasis.dto.SpecialOfferRequestDto;
 import com.example.hop_oasis.model.SpecialOfferProduct;
 import com.example.hop_oasis.service.data.SpecialOfferServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -31,12 +32,14 @@ public class SpecialOfferAllProductController {
     }
 
     @PostMapping
-    public ResponseEntity<SpecialOfferProduct> createSpecialOffer(@RequestParam("name") String name) {
+    public ResponseEntity<SpecialOfferProduct> createSpecialOffer(@RequestBody SpecialOfferRequestDto specialOfferRequestDto) {
+        String name = specialOfferRequestDto.getName();
         return ResponseEntity.ok().body(specialOfferService.createSpecialOffer(name));
     }
     @PutMapping("/name/{offerId}")
     public ResponseEntity<SpecialOfferAllProductDto> updateSpecialOfferName(@PathVariable("offerId") Long offerId
-            , @RequestParam("name") String name) {
+            , @RequestBody SpecialOfferRequestDto specialOfferRequestDto) {
+        String name = specialOfferRequestDto.getName();
         return ResponseEntity.ok().body(specialOfferService.updateSpecialOfferName(offerId, name));
     }
 
