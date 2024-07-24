@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class CartItemDto {
+public final class CartItemDto {
     private String itemTitle;
     private double pricePerItem;
     private int quantity;

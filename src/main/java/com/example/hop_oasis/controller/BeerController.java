@@ -30,6 +30,7 @@ public class BeerController {
     private final ImageService imageService;
     private final BeerInfoMapper beerInfoMapper;
 
+
     @GetMapping
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page",defaultValue = "0") int page,
                                                          @RequestParam(value = "size",defaultValue = "10") int size){

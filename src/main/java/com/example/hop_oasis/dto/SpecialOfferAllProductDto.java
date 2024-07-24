@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class SpecialOfferAllProductDto {
+public final class SpecialOfferAllProductDto {
     private Long id;
     private String name;
     private boolean active;

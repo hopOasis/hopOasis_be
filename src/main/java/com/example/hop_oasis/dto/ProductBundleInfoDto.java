@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class ProductBundleInfoDto {
+public final class ProductBundleInfoDto {
     private Long id;
     private String name;
     private double price;

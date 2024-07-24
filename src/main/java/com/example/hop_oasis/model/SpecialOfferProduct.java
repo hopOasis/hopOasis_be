@@ -20,7 +20,7 @@ public class SpecialOfferProduct {
     private String name;
 
     @Column(name = "active")
-    private boolean active;
+    private boolean active = false;
 
 
     @ManyToMany(fetch = FetchType.LAZY,cascade = {CascadeType.PERSIST,CascadeType.MERGE})

@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class CartDto {
+public final class CartDto {
     private List<CartItemDto> items;
     private double priceForAll;
 }

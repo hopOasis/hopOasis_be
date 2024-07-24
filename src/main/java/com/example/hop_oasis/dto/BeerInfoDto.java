@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class BeerInfoDto {
+public final class BeerInfoDto {
     private Long id;
     private String beerName;
     private double volumeLarge;

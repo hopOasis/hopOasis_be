@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class SnackDto {
+public final class SnackDto {
     private Long id;
     private String snackName;
     private double weightLarge;

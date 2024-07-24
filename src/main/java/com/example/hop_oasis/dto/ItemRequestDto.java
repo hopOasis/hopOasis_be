@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class ItemRequestDto {
+public final class ItemRequestDto {
     private Long itemId;
     private int quantity;
     private ItemType itemType;
