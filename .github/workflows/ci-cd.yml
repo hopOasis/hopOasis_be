@@ -3,7 +3,7 @@ name: Deploy to Elastic Beanstalk
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
   build-and-deploy:
@@ -21,6 +21,16 @@ jobs:
       - name: Build Project
         run: mvn clean package -DskipTests
 
+      - name: Package application
+        run: |
+          ls -la
+          mkdir -p build/distributions
+          cp target/hop_oasis.jar build/distributions/
+          cp -r .ebextensions build/distributions/
+          cp -r .platform build/distributions/
+          cd build/distributions
+          zip -r my-app.zip hop_oasis.jar .ebextensions .platform
+
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v21
         with:
@@ -30,4 +40,4 @@ jobs:
           environment_name: 'prod'
           version_label: ${{ github.sha }}
           region: eu-central-1
-          deployment_package: target/hop_oasis.jar
+          deployment_package: build/distributions/my-app.zip

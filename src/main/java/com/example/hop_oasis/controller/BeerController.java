@@ -1,7 +1,6 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.BeerInfoMapper;
-import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageDto;
@@ -33,6 +32,7 @@ public class BeerController {
     private final BeerService beerService;
     private final ImageService imageService;
     private final BeerInfoMapper beerInfoMapper;
+
 
     @GetMapping
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page", defaultValue = "0") int page,

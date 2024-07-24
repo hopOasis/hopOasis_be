@@ -26,4 +26,7 @@ public class ProductBundle {
 
     @OneToMany(mappedBy = "productBundle", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<ProductBundleImage> productImage;
+
+    @ManyToMany
+    private List<SpecialOfferProduct> specialOfferProduct;
 }

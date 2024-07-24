@@ -32,4 +32,7 @@ public class Cider {
 
     @OneToMany(mappedBy = "cider",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<CiderImage> image;
+
+    @ManyToMany
+    private List<SpecialOfferProduct> specialOfferProduct;
 }

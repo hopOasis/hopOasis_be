@@ -35,4 +35,7 @@ public class Beer {
 
     @OneToMany(mappedBy = "beer",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<Image> image;
+
+    @ManyToMany
+    private List<SpecialOfferProduct> specialOfferProduct;
 }

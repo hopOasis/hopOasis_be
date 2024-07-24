@@ -39,23 +39,23 @@ public class BeerServiceImpl implements BeerService {
     private final BeerRatingServiceImpl beerRatingService;
 
     @Override
-    public Beer save(MultipartFile file, BeerDto beerDto) {
+    public Beer save( MultipartFile file,BeerDto beerDto) {
         byte[] bytesIm;
-        try {
-            bytesIm = imageCompressor.compressImage(file.getBytes());
-        } catch (IOException e) {
+       try {
+           bytesIm = imageCompressor.compressImage(file.getBytes());
+       } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         Image image = Image.builder()
                 .image(bytesIm)
-                .name(file.getOriginalFilename())
-                .build();
+              .name(file.getOriginalFilename())
+              .build();
         List<ImageDto> images = new ArrayList<>();
         images.add(imageMapper.toDto(image));
         beerDto.setImage(images);
         Beer beer = beerMapper.toEntity(beerDto);
         beerRepository.save(beer);
-        image.setBeer(beer);
+       image.setBeer(beer);
         imageRepository.save(image);
         return beer;
     }

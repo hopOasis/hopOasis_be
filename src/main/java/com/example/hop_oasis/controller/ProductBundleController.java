@@ -2,6 +2,7 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
 import com.example.hop_oasis.dto.*;
+import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleImage;
 import com.example.hop_oasis.service.ProductBundleImageService;
 import com.example.hop_oasis.service.ProductBundleService;
@@ -17,7 +18,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -50,8 +53,10 @@ public class ProductBundleController {
         productBundleDto.setPrice(price);
         productBundleDto.setDescription(description);
 
-        return ResponseEntity.ok().body(productBundleInfoMapper
-                .toDto(productBundleService.saveProductBundle(image, productBundleDto)));
+        ProductBundle productBundle = productBundleService.saveProductBundle(image, productBundleDto);
+        ProductBundleInfoDto dto = productBundleInfoMapper.toDto(productBundle);
+
+        return ResponseEntity.ok().body(dto);
     }
 
     @PostMapping("/add/image")

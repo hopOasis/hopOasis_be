@@ -16,6 +16,18 @@ databaseChangeLog:
   - include:
       file: classpath:/db/changelog/changes/008-create-cider_image.sql
   - include:
+      file: classpath:/db/changelog/changes/014-create-special-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/019-create-beer-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/020-create-cider-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/021-create-snack-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/022-create-product-bundle-offer.sql
+  - include:
+      file: classpath:/db/changelog/changes/023-add-name-and-active-to-special-offer.sql
+  - include:
       file: classpath:/db/changelog/changes/013-create-beer-rating.sql
   - include:
       file: classpath:/db/changelog/changes/015-create-cider-rating.sql

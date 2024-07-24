@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class ProductBundleImageDto {
+public final class ProductBundleImageDto {
     private Long id;
     private byte[] image;
     private String name;

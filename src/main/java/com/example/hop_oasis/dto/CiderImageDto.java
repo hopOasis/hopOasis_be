@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public class CiderImageDto {
+public final class CiderImageDto {
     private Long id;
     private byte[] image;
     private String name;

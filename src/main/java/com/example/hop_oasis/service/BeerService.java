@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface BeerService {
-     Beer save(MultipartFile file, BeerDto beerDto);
+     Beer save( MultipartFile file,BeerDto beerDto);
      BeerInfoDto getBeerById(Long id);
      BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long itemId, double ratingValue);
      Page<BeerInfoDto> getAllBeers(Pageable pageable);

@@ -9,7 +9,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public class CiderDto {
+public final class CiderDto {
     private Long id;
     private String ciderName;
     private double volumeLarge;
