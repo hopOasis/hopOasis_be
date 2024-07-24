@@ -30,7 +30,7 @@ public class SpecialOfferAllProductController {
         return ResponseEntity.ok().body(specialOfferService.activateSpecialOffer(offerId));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<SpecialOfferProduct> createSpecialOffer(@RequestParam("name") String name) {
         return ResponseEntity.ok().body(specialOfferService.createSpecialOffer(name));
     }
@@ -45,7 +45,7 @@ public class SpecialOfferAllProductController {
         return specialOfferService.getSpecialOffer(offerId);
     }
 
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<List<SpecialOfferAllProductDto>> getAllSpecialOffers() {
         return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
     }
