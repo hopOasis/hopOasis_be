@@ -50,7 +50,7 @@ public class SpecialOfferAllProductController {
         return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
     }
 
-    @GetMapping("/{beerId}/{offerId}/beers")
+    @GetMapping("/{offerId}/beers/{beerId}")
     public ResponseEntity<String> addBeerToSpecialOffer(@PathVariable("beerId") Long beerId
             , @PathVariable("offerId") Long offerId) {
         specialOfferService.addBeerToSpecialOffer(beerId, offerId);
