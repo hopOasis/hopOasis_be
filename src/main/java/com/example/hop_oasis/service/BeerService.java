@@ -5,12 +5,9 @@ import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.model.Beer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 public interface BeerService {
-     Beer save( MultipartFile file,BeerDto beerDto);
+     Beer save(BeerDto beerDto);
      BeerInfoDto getBeerById(Long id);
      BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long itemId, double ratingValue);
      Page<BeerInfoDto> getAllBeers(Pageable pageable);

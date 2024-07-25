@@ -14,9 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,42 +29,23 @@ import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*
 @RequiredArgsConstructor
 public class BeerServiceImpl implements BeerService {
     private final BeerRepository beerRepository;
-    private final ImageRepository imageRepository;
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
-    private final ImageMapper imageMapper;
-    private final ImageCompressor imageCompressor;
     private final BeerRatingServiceImpl beerRatingService;
 
     @Override
-    public Beer save( MultipartFile file,BeerDto beerDto) {
-        byte[] bytesIm;
-       try {
-           bytesIm = imageCompressor.compressImage(file.getBytes());
-       } catch (IOException e) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
-        }
-        Image image = Image.builder()
-                .image(bytesIm)
-              .name(file.getOriginalFilename())
-              .build();
-        List<ImageDto> images = new ArrayList<>();
-        images.add(imageMapper.toDto(image));
-        beerDto.setImage(images);
+    public Beer save( BeerDto beerDto)  {
         Beer beer = beerMapper.toEntity(beerDto);
         beerRepository.save(beer);
-       image.setBeer(beer);
-        imageRepository.save(image);
+
         return beer;
     }
-
     @Override
     public BeerInfoDto getBeerById(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(beer);
     }
-
     @Override
     public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long id, double ratingValue) {
         beerRatingService.addRating(id, ratingValue);
@@ -83,10 +62,7 @@ public class BeerServiceImpl implements BeerService {
         beerInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         beerInfoDto.setRatingCount(rating.getRatingCount());
         return beerInfoDto;
-
-
     }
-
     @Override
     public Page<BeerInfoDto> getAllBeers(Pageable pageable) {
         Page<Beer> beers = beerRepository.findAll(pageable);
@@ -95,7 +71,6 @@ public class BeerServiceImpl implements BeerService {
         }
         return beers.map(this::convertToDtoWithRating);
     }
-
     @Override
     public BeerInfoDto update(BeerInfoDto beerInfo, Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->

@@ -35,5 +35,6 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/016-create-snack-rating.sql
   - include:
       file: classpath:/db/changelog/changes/017-create-product-rating.sql
-
+  - include:
+      file: classpath:/db/changelog/changes/024-delete-culomn-image-from-images.sql
 

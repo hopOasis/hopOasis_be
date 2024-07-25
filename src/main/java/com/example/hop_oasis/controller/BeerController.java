@@ -1,12 +1,9 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.BeerInfoMapper;
-import com.example.hop_oasis.dto.BeerDto;
-import com.example.hop_oasis.dto.BeerInfoDto;
-import com.example.hop_oasis.dto.ImageDto;
+import com.example.hop_oasis.dto.*;
 
-import com.example.hop_oasis.dto.RatingDto;
-import com.example.hop_oasis.model.Image;
+
 import com.example.hop_oasis.service.BeerService;
 import com.example.hop_oasis.service.ImageService;
 
@@ -21,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+
 
 
 @RestController
@@ -46,36 +45,18 @@ public class BeerController {
     }
 
     @PostMapping
-    public ResponseEntity<BeerInfoDto> save(@RequestParam("name") String name,
-                                            @RequestParam("volumeLarge") double volumeLarge,
-                                            @RequestParam("volumeSmall") double volumeSmall,
-                                            @RequestParam("priceLarge") double priceLarge,
-                                            @RequestParam("priceSmall") double priceSmall,
-                                            @RequestParam("description") String description,
-                                            @RequestParam("beerColor") String beerColor,
-                                            @RequestParam("image") MultipartFile image) {
-        BeerDto beerDto = new BeerDto();
-        beerDto.setBeerName(name);
-        beerDto.setVolumeLarge(volumeLarge);
-        beerDto.setVolumeSmall(volumeSmall);
-        beerDto.setPriceLarge(priceLarge);
-        beerDto.setPriceSmall(priceSmall);
-        beerDto.setDescription(description);
-        beerDto.setBeerColor(beerColor);
+    public ResponseEntity<BeerInfoDto> save(@RequestBody BeerDto beerDto) {
 
-        BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(image, beerDto));
-
+        BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(beerDto));
         return ResponseEntity.ok().body(beerInfoDto);
     }
 
-    @PostMapping("/add/image")
-    public ResponseEntity<byte[]> addImageToBeer(@RequestParam("beerId") Long beerId,
-                                                 @RequestParam("image") MultipartFile image) {
-        Image i = imageService.addImageToBeer(beerId, image);
-        ImageDto imag = imageService.getImageByName(i.getName());
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imag.getImage());
+    @PostMapping(path="/add/image/{beerId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<ImageUrlDto>  addImageToBeer(@PathVariable("beerId") Long beerId,
+                                                       @RequestParam("image") MultipartFile image){
+
+        return ResponseEntity.ok().body(imageService.addImageToBeer(beerId, image));
+
     }
 
     @GetMapping("/{id}")
@@ -97,13 +78,11 @@ public class BeerController {
 
     }
 
-    @GetMapping("/images/{name}")
-    public ResponseEntity<byte[]> getImageByName(@PathVariable("name") String name) {
-        ImageDto imajeDto = imageService.getImageByName(name);
+    @GetMapping( "/images/{name}")
+    public ResponseEntity<ImageUrlDto> getImageByName(@PathVariable String name) {
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imajeDto.getImage());
+        return ResponseEntity.ok().body(imageService.getImageByName(name));
+
     }
 
     @PutMapping("/{id}")

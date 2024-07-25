@@ -16,8 +16,6 @@ public class Image {
     @Column(name = "id")
     private Long id;
     @Lob
-    @Column(name = "image",length = 100000)
-    private byte[] image;
     @Column(name = "name")
     private String name;
     @ManyToOne

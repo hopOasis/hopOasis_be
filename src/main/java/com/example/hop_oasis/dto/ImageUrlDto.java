@@ -7,7 +7,6 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public final class ImageDto {
-    private Long id;
-    private String name;
+public final class ImageUrlDto {
+    private String url;
 }
