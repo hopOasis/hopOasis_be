@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS product_rating (
+CREATE TABLE IF NOT EXISTS product_bundle_rating (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     rating DOUBLE NOT NULL,
     product_id INT NOT NULL,
