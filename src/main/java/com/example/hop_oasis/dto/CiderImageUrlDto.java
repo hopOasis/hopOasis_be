@@ -7,7 +7,6 @@ import lombok.*;
 @Builder
 @Getter
 @Setter
-public final class SnackImageDto {
-    private Long id;
-    private String name;
+public final class CiderImageUrlDto {
+    private String url;
 }

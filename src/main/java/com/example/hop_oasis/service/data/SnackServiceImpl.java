@@ -1,13 +1,9 @@
 package com.example.hop_oasis.service.data;
-
-import com.example.hop_oasis.convertor.SnackImageMapper;
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.convertor.SnackMapper;
-import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Snack;
-import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.repository.SnackImageRepository;
 import com.example.hop_oasis.repository.SnackRepository;
 import com.example.hop_oasis.service.SnackService;
@@ -15,14 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
 @Service
@@ -32,28 +22,11 @@ public class SnackServiceImpl implements SnackService {
     private final SnackImageRepository snackImageRepository;
     private final SnackMapper snackMapper;
     private final SnackInfoMapper snackInfoMapper;
-    private final SnackImageMapper snackImageMapper;
-    private final ImageCompressor imageCompressor;
     private final SnackRatingServiceImpl snackRatingService;
     @Override
-    public Snack saveSnack(MultipartFile file, SnackDto snackDto) {
-        byte[] bytesIm;
-        try {
-            bytesIm = imageCompressor.compressImage(file.getBytes());
-        } catch (IOException e) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
-        }
-        SnackImage image = SnackImage.builder()
-                .image(bytesIm)
-                .name(file.getOriginalFilename())
-                .build();
-        List<SnackImageDto> images = new ArrayList<>();
-        images.add(snackImageMapper.toDto(image));
-        snackDto.setSnackImageDto(images);
+    public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
         snackRepository.save(snack);
-        image.setSnack(snack);
-        snackImageRepository.save(image);
         return snack;
     }
     @Override
@@ -70,7 +43,6 @@ public class SnackServiceImpl implements SnackService {
                 .orElseThrow(() -> new IllegalArgumentException("Snack not found with id " + id));
         return convertToDtoWithRating(snack);
     }
-
     private SnackInfoDto convertToDtoWithRating(Snack snack) {
         SnackInfoDto snackInfoDto = snackInfoMapper.toDto(snack);
         ItemRatingDto rating = snackRatingService.getItemRating(snack.getId());
@@ -79,8 +51,6 @@ public class SnackServiceImpl implements SnackService {
         snackInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         snackInfoDto.setRatingCount(rating.getRatingCount());
         return snackInfoDto;
-
-
     }
     @Override
     public Page<SnackInfoDto> getAllSnacks(Pageable pageable) {

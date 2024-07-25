@@ -2,7 +2,6 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.service.SnackImageService;
 import com.example.hop_oasis.service.SnackService;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -17,7 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,34 +32,20 @@ public class SnackController {
                                                            @RequestParam(value = "size",defaultValue = "10") int size) {
         Page<SnackInfoDto> snackPage = snackService.getAllSnacks(PageRequest.of(page, size));
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range", "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + snackPage.getTotalElements());
+        headers.add("Content-Range",
+                "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + snackPage.getTotalElements());
 
         return ResponseEntity.ok().headers(headers).body(snackPage);
     }
     @PostMapping
-    public ResponseEntity<SnackInfoDto> save(@RequestParam("name") String name,
-                       @RequestParam("weightLarge") double weightLarge,
-                       @RequestParam("weightSmall") double weightSmall,
-                       @RequestParam("priceLarge") double priceLarge,
-                       @RequestParam("priceSmall")double priceSmall,
-                       @RequestParam("description") String description,
-                       @RequestParam("image") MultipartFile image){
-        SnackDto snackDto = new SnackDto();
-        snackDto.setSnackName(name);
-        snackDto.setWeightLarge(weightLarge);
-        snackDto.setWeightSmall(weightSmall);
-        snackDto.setPriceLarge(priceLarge);
-        snackDto.setPriceSmall(priceSmall);
-        snackDto.setDescription(description);
-
-        SnackInfoDto snackInfoDto = snackInfoMapper.toDto(snackService.saveSnack(image, snackDto));
+    public ResponseEntity<SnackInfoDto> save(@RequestBody SnackDto snackDto){
+        SnackInfoDto snackInfoDto = snackInfoMapper.toDto(snackService.saveSnack(snackDto));
         return ResponseEntity.ok().body(snackInfoDto);
     }
     @GetMapping("/{id}")
     public ResponseEntity<SnackInfoDto> getSnackById(@PathVariable("id") Long id){
         return ResponseEntity.ok().body(snackService.getSnackById(id));
     }
-
     @PostMapping("/{id}/ratings")
     public ResponseEntity<?> addRating(@PathVariable("id") Long id,
                                        @Valid @RequestBody RatingDto ratingDto) {
@@ -72,24 +56,15 @@ public class SnackController {
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
-
     }
-    @PostMapping("/add/image")
-    public ResponseEntity<byte[]> addImageToSnack(@RequestParam("snackId") Long snackId,
+    @PostMapping(path = "/add/image/{snackId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<SnackImageUrlDto> addImageToSnack(@PathVariable("snackId") Long snackId,
                                   @RequestParam("image") MultipartFile image){
-       SnackImage i = imageService.addSnackImageToSnack(snackId, image);
-       SnackImageDto imag = imageService.getSnackImageByName(i.getName());
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imag.getImage());
+        return ResponseEntity.ok().body(imageService.addSnackImageToSnack(snackId, image));
     }
     @GetMapping("/images/{name}")
-    public ResponseEntity<byte[]> getSnackImageByName(@PathVariable("name")String name){
-        SnackImageDto imageDto = imageService.getSnackImageByName(name);
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imageDto.getImage());
+    public ResponseEntity<SnackImageUrlDto> getSnackImageByName(@PathVariable("name")String name){
+        return ResponseEntity.ok().body(imageService.getSnackImageByName(name));
     }
     @PutMapping("/{id}")
     public ResponseEntity<SnackInfoDto> updateSnack(@RequestParam("id")Long id,@RequestBody SnackInfoDto snackInfoDto){

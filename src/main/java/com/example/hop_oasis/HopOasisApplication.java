@@ -16,13 +16,9 @@ public class HopOasisApplication {
     @Bean
     public ApplicationRunner applicationRunner(S3Service s3Service){
         return args -> {
-            //log.info("Spring Boot AWS S3 integration...");
-
             try {
                 var s3Object = s3Service.getFile("jvm.jpg");
-                //  log.info(s3Object.getKey());
             } catch (AmazonS3Exception e) {
-                // log.error(e.getMessage());
             }
         };
     }

@@ -1,8 +1,6 @@
 package com.example.hop_oasis.service.data;
 
-import com.example.hop_oasis.convertor.SnackImageMapper;
-import com.example.hop_oasis.decoder.ImageCompressor;
-import com.example.hop_oasis.dto.SnackImageDto;
+import com.example.hop_oasis.dto.SnackImageUrlDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackImage;
@@ -22,44 +20,40 @@ import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*
 @RequiredArgsConstructor
 public class SnackImageServiceImpl implements SnackImageService {
     private final SnackRepository snackRepository;
-    private final SnackImageMapper snackImageMapper;
-    private final ImageCompressor imageCompressor;
     private final SnackImageRepository snackImageRepository;
+    private final S3Service s3Service;
+
     @Override
-    public SnackImageDto getSnackImageByName(String name) {
-        Optional<SnackImage> imageOp = snackImageRepository.findFirstByName(name);
-        if (imageOp.isEmpty()) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
-        }
-        SnackImage image = imageOp.get();
-        image.setImage(imageCompressor.decompressImage(image.getImage(), name));
-        return snackImageMapper.toDto(image);
+    public SnackImageUrlDto getSnackImageByName(String name) {
+        return new SnackImageUrlDto(s3Service.getFileUrl(name).toString());
     }
+
     @Override
-    public SnackImage addSnackImageToSnack(Long snackId, MultipartFile file) {
-        byte[] image = new byte[0];
+    public SnackImageUrlDto addSnackImageToSnack(Long snackId, MultipartFile file) {
         try {
-            image = imageCompressor.compressImage(file.getBytes());
+            String fileName = "snacks/" + file.getOriginalFilename();
+            s3Service.uploadFile(fileName, file);
 
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         SnackImage image1 = SnackImage.builder()
-                .image(image)
                 .name(file.getOriginalFilename())
                 .build();
-        Snack snack = snackRepository.findById(snackId).orElseThrow(()->
+        Snack snack = snackRepository.findById(snackId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));
         image1.setSnack(snack);
         snackImageRepository.save(image1);
-        return image1;
+        return new SnackImageUrlDto(s3Service.getFileUrl(image1.getName()).toString());
     }
+
     @Override
     public void deleteSnackImage(String name) {
         Optional<SnackImage> imageOp = snackImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_DELETED, name);
         }
+        s3Service.deleteFile("snacks/" + name);
         snackImageRepository.delete(imageOp.get());
     }
 }

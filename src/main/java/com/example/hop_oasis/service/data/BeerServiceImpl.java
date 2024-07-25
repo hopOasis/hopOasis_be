@@ -1,27 +1,19 @@
 package com.example.hop_oasis.service.data;
-
-import com.example.hop_oasis.decoder.ImageCompressor;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
-import com.example.hop_oasis.convertor.ImageMapper;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
-import com.example.hop_oasis.repository.ImageRepository;
 import com.example.hop_oasis.service.BeerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-
 
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
@@ -32,12 +24,10 @@ public class BeerServiceImpl implements BeerService {
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
-
     @Override
     public Beer save( BeerDto beerDto)  {
         Beer beer = beerMapper.toEntity(beerDto);
         beerRepository.save(beer);
-
         return beer;
     }
     @Override
@@ -53,7 +43,6 @@ public class BeerServiceImpl implements BeerService {
                 .orElseThrow(() -> new IllegalArgumentException("Beer not found with id " + id));
         return convertToDtoWithRating(beer);
     }
-
     private BeerInfoDto convertToDtoWithRating(Beer beer) {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beer);
         ItemRatingDto rating = beerRatingService.getItemRating(beer.getId());

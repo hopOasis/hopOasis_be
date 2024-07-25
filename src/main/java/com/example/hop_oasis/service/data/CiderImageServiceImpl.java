@@ -1,8 +1,6 @@
 package com.example.hop_oasis.service.data;
 
-import com.example.hop_oasis.convertor.CiderImageMapper;
-import com.example.hop_oasis.decoder.ImageCompressor;
-import com.example.hop_oasis.dto.CiderImageDto;
+import com.example.hop_oasis.dto.CiderImageUrlDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderImage;
@@ -22,37 +20,29 @@ import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.R
 @RequiredArgsConstructor
 public class CiderImageServiceImpl implements CiderImageService {
     private final CiderImageRepository ciderImageRepository;
-    private final CiderImageMapper ciderImageMapper;
-    private final ImageCompressor imageCompressor;
     private final CiderRepository ciderRepository;
-
+    private final S3Service s3Service;
     @Override
-    public CiderImageDto getCiderImageByName(String name) {
-        Optional<CiderImage> imageOp = ciderImageRepository.findFirstByName(name);
-        if (imageOp.isEmpty()) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
-        }
-        CiderImage image = imageOp.get();
-        image.setImage(imageCompressor.decompressImage(image.getImage(), name));
-        return ciderImageMapper.toDto(image);
+    public CiderImageUrlDto getCiderImageByName(String name) {
+     return new CiderImageUrlDto(s3Service.getFileUrl(name).toString());
     }
     @Override
-    public CiderImage addCiderImageToCider(Long ciderId, MultipartFile file) {
-        byte[] image;
+    public CiderImageUrlDto addCiderImageToCider(Long ciderId, MultipartFile file) {
         try {
-            image = imageCompressor.compressImage(file.getBytes());
+            String fileName ="ciders/" + file.getOriginalFilename();
+            s3Service.uploadFile(fileName, file);
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         CiderImage image1 = CiderImage.builder()
-                .image(image)
                 .name(file.getOriginalFilename())
                 .build();
         Cider cider = ciderRepository.findById(ciderId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ciderId));
 
         image1.setCider(cider);
-       return ciderImageRepository.save(image1);
+        ciderImageRepository.save(image1);
+       return new CiderImageUrlDto(s3Service.getFileUrl(image1.getName()).toString());
     }
     @Override
     public void deleteCiderImage(String name) {
@@ -60,6 +50,7 @@ public class CiderImageServiceImpl implements CiderImageService {
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
+        s3Service.deleteFile("ciders/" +name);
         ciderImageRepository.delete(imageOp.get());
     }
 }
