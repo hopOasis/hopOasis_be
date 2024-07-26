@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,11 +31,7 @@ public class SnackController {
     public ResponseEntity<Page<SnackInfoDto>> getAllSnacks(@RequestParam(value = "page",defaultValue = "0") int page,
                                                            @RequestParam(value = "size",defaultValue = "10") int size) {
         Page<SnackInfoDto> snackPage = snackService.getAllSnacks(PageRequest.of(page, size));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range",
-                "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + snackPage.getTotalElements());
-
-        return ResponseEntity.ok().headers(headers).body(snackPage);
+        return ResponseEntity.ok().body(snackPage);
     }
     @PostMapping
     public ResponseEntity<SnackInfoDto> save(@RequestBody SnackDto snackDto){
@@ -57,13 +53,13 @@ public class SnackController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
-    @PostMapping(path = "/add/image/{snackId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<SnackImageUrlDto> addImageToSnack(@PathVariable("snackId") Long snackId,
+    @PostMapping(path = "/{snackId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<SnackInfoDto> addImageToSnack(@PathVariable("snackId") Long snackId,
                                   @RequestParam("image") MultipartFile image){
         return ResponseEntity.ok().body(imageService.addSnackImageToSnack(snackId, image));
     }
     @GetMapping("/images/{name}")
-    public ResponseEntity<SnackImageUrlDto> getSnackImageByName(@PathVariable("name")String name){
+    public ResponseEntity<ImageUrlDto> getSnackImageByName(@PathVariable("name")String name){
         return ResponseEntity.ok().body(imageService.getSnackImageByName(name));
     }
     @PutMapping("/{id}")

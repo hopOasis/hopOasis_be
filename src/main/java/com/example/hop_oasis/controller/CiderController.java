@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,19 +31,15 @@ public class CiderController {
     public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@RequestParam(value = "page",defaultValue = "0") int page,
                                                            @RequestParam(value = "size",defaultValue = "10") int size) {
         Page<CiderInfoDto> ciderPage = ciderService.getAllCiders(PageRequest.of(page, size));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range",
-                "items " + page * size + "-" + ((page + 1) * size - 1) + "/" + ciderPage.getTotalElements());
-
-        return ResponseEntity.ok().headers(headers).body(ciderPage);
+        return ResponseEntity.ok().body(ciderPage);
     }
     @PostMapping
     public ResponseEntity<CiderInfoDto> save(@RequestBody CiderDto ciderDto) {
         CiderInfoDto ciderInfoDto = ciderInfoMapper.toDto(ciderService.saveCider(ciderDto));
         return ResponseEntity.ok().body(ciderInfoDto);
     }
-    @PostMapping(path = "/add/image/{ciderId}",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<CiderImageUrlDto> addImageToCider(@PathVariable("ciderId") Long ciderId,
+    @PostMapping(path = "/{ciderId}/images",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CiderInfoDto> addImageToCider(@PathVariable("ciderId") Long ciderId,
                                                 @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(ciderImageService.addCiderImageToCider(ciderId, image));
     }
@@ -63,7 +59,7 @@ public class CiderController {
         }
     }
     @GetMapping("/images/{name}")
-    public ResponseEntity<CiderImageUrlDto> getImageByName(@PathVariable("name") String name) {
+    public ResponseEntity<ImageUrlDto> getImageByName(@PathVariable("name") String name) {
        return ResponseEntity.ok().body(ciderImageService.getCiderImageByName(name));
     }
     @PutMapping("/{id}")

@@ -1,5 +1,8 @@
 package com.example.hop_oasis.service.data;
 
+import com.example.hop_oasis.convertor.BeerInfoMapper;
+import com.example.hop_oasis.decoder.ExtractImageName;
+import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ImageUrlDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Beer;
@@ -21,12 +24,14 @@ public class ImageServiceImpl implements ImageService {
     private final ImageRepository imageRepository;
     private final BeerRepository beerRepository;
     private final S3Service s3Service;
+    private final BeerInfoMapper beerInfoMapper;
+    private final ExtractImageName extractImageName;
     @Override
     public ImageUrlDto getImageByName(String name) {
         return new ImageUrlDto(s3Service.getFileUrl(name).toString());
     }
     @Override
-    public ImageUrlDto addImageToBeer(Long beerId, MultipartFile file) {
+    public BeerInfoDto addImageToBeer(Long beerId, MultipartFile file) {
         try {
             String fileName = "beers/"+ file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
@@ -34,14 +39,15 @@ public class ImageServiceImpl implements ImageService {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         Image image1 = Image.builder()
-                .name(file.getOriginalFilename())
+                .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
                 .build();
         Beer beer = beerRepository.findById(beerId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));
 
         image1.setBeer(beer);
         imageRepository.save(image1);
-        return new ImageUrlDto(s3Service.getFileUrl(image1.getName()).toString());
+        return beerInfoMapper.toDto(beerRepository.findById(beerId).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId)));
     }
     @Override
     public void deleteImage(String name) {
@@ -49,7 +55,7 @@ public class ImageServiceImpl implements ImageService {
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
-        s3Service.deleteFile("beers/" + name);
+        s3Service.deleteFile("beers/" + extractImageName.extractName(name));
         imageRepository.delete(imageOp.get());
     }
 }

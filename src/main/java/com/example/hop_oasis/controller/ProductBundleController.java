@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -32,10 +32,7 @@ public class ProductBundleController {
                                                                                    "size",defaultValue = "10") int size) {
         Page<ProductBundleInfoDto> productBundlePage =
                 productBundleService.getAllProductBundle(PageRequest.of(page, size));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range", "items " + page * size + "-" + ((page + 1) * size - 1)
-                + "/" + productBundlePage.getTotalElements());
-        return ResponseEntity.ok().headers(headers).body(productBundlePage);
+        return ResponseEntity.ok().body(productBundlePage);
     }
     @PostMapping
     public ResponseEntity<ProductBundleInfoDto> saveProductBundle(@RequestBody ProductBundleDto productBundleDto) {
@@ -43,8 +40,8 @@ public class ProductBundleController {
                 .toDto(productBundleService.saveProductBundle(productBundleDto));
         return ResponseEntity.ok().body(dto);
     }
-    @PostMapping(path = "/add/image/{id}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ProductBundleImageUrlDto> addImageToProductBundle(@PathVariable("id") Long id,
+    @PostMapping(path = "/{id}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<ProductBundleInfoDto> addImageToProductBundle(@PathVariable("id") Long id,
                                                           @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(imageService.addProductBundleImage(id, image));
     }
@@ -63,7 +60,7 @@ public class ProductBundleController {
         }
     }
     @GetMapping("/images/{name}")
-    public ResponseEntity<ProductBundleImageUrlDto> getImageByName(@PathVariable("name") String name) {
+    public ResponseEntity<ImageUrlDto> getImageByName(@PathVariable("name") String name) {
         return ResponseEntity.ok().body(imageService.getProductBundleImage(name));
     }
     @PutMapping("/{id}")

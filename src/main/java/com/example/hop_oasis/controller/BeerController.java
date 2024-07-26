@@ -9,7 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpHeaders;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -30,11 +30,7 @@ public class BeerController {
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page", defaultValue = "0") int page,
                                                          @RequestParam(value = "size", defaultValue = "10") int size) {
         Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Range", "items " + page * size + "-"
-                + ((page + 1) * size - 1) + "/" + beerPage.getTotalElements());
-
-        return ResponseEntity.ok().headers(headers).body(beerPage);
+        return ResponseEntity.ok().body(beerPage);
     }
 
     @PostMapping
@@ -42,8 +38,8 @@ public class BeerController {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(beerDto));
         return ResponseEntity.ok().body(beerInfoDto);
     }
-    @PostMapping(path="/add/image/{beerId}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<ImageUrlDto>  addImageToBeer(@PathVariable("beerId") Long beerId,
+    @PostMapping(path="/{beerId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<BeerInfoDto>  addImageToBeer(@PathVariable("beerId") Long beerId,
                                                        @RequestParam("image") MultipartFile image){
         return ResponseEntity.ok().body(imageService.addImageToBeer(beerId, image));
     }

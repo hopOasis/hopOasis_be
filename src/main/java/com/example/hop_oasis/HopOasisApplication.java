@@ -13,13 +13,5 @@ public class HopOasisApplication {
     public static void main(String[] args) {
         SpringApplication.run(HopOasisApplication.class, args);
     }
-    @Bean
-    public ApplicationRunner applicationRunner(S3Service s3Service){
-        return args -> {
-            try {
-                var s3Object = s3Service.getFile("jvm.jpg");
-            } catch (AmazonS3Exception e) {
-            }
-        };
-    }
+
 }
