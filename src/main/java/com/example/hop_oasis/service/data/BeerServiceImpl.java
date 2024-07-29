@@ -88,7 +88,6 @@ public class BeerServiceImpl implements BeerService {
         }
         return beerInfoMapper.toDto(beerRepository.save(beer));
     }
-
     @Override
     public BeerInfoDto delete(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->

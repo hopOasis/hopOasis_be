@@ -58,10 +58,7 @@ public class SnackController {
                                   @RequestParam("image") MultipartFile image){
         return ResponseEntity.ok().body(imageService.addSnackImageToSnack(snackId, image));
     }
-    @GetMapping("/images/{name}")
-    public ResponseEntity<ImageUrlDto> getSnackImageByName(@PathVariable("name")String name){
-        return ResponseEntity.ok().body(imageService.getSnackImageByName(name));
-    }
+
     @PutMapping("/{id}")
     public ResponseEntity<SnackInfoDto> updateSnack(@RequestParam("id")Long id,@RequestBody SnackInfoDto snackInfoDto){
         return ResponseEntity.ok().body(snackService.updateSnack(snackInfoDto, id));

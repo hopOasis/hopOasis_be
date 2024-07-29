@@ -1,7 +1,5 @@
 package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
-import com.example.hop_oasis.decoder.ExtractImageName;
-import com.example.hop_oasis.dto.ImageUrlDto;
 
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
@@ -17,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.example.hop_oasis.extractor.ImageNameExtractor.extractName;
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_DELETED;
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
@@ -28,13 +27,11 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
     private final ProductBundleImageRepository productBundleImageRepository;
     private final S3Service s3Service;
     private final ProductBundleInfoMapper productBundleInfoMapper;
-    private final ExtractImageName extractImageName;
-    @Override
-    public ImageUrlDto getProductBundleImage(String name) {
-       return new ImageUrlDto(s3Service.getFileUrl(name).toString());
-    }
+
     @Override
     public ProductBundleInfoDto addProductBundleImage(Long id, MultipartFile file) {
+        ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND,""));
         try{
             String fileName ="productBundles/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
@@ -44,12 +41,10 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
         ProductBundleImage image1 = ProductBundleImage.builder()
                 .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
                 .build();
-        ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException(RESOURCE_NOT_FOUND,""));
+
         image1.setProductBundle(productBundle);
         productBundleImageRepository.save(image1);
-        return productBundleInfoMapper.toDto(productBundleRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException(RESOURCE_NOT_FOUND,"")));
+        return productBundleInfoMapper.toDto(productBundleRepository.findById(id).get());
     }
     @Override
     public void deleteProductBundleImage(String name) {
@@ -57,7 +52,7 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
         if(imageOp.isEmpty()){
             throw  new ResourceNotFoundException(RESOURCE_DELETED,name);
         }
-        s3Service.deleteFile("productBundles/"+ extractImageName.extractName(name));
+        s3Service.deleteFile("productBundles/"+ extractName(name));
         productBundleImageRepository.delete(imageOp.get());
     }
 }

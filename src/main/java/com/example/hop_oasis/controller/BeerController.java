@@ -58,10 +58,6 @@ public class BeerController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
-    @GetMapping( "/images/{name}")
-    public ResponseEntity<ImageUrlDto> getImageByName(@PathVariable String name) {
-        return ResponseEntity.ok().body(imageService.getImageByName(name));
-    }
     @PutMapping("/{id}")
     public ResponseEntity<BeerInfoDto> updateBeer(@PathVariable("id") Long id,
                                                   @RequestBody BeerInfoDto beerInfo) {

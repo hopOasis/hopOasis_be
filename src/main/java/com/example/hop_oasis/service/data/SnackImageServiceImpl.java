@@ -1,8 +1,5 @@
 package com.example.hop_oasis.service.data;
-
 import com.example.hop_oasis.convertor.SnackInfoMapper;
-import com.example.hop_oasis.decoder.ExtractImageName;
-import com.example.hop_oasis.dto.ImageUrlDto;
 
 import com.example.hop_oasis.dto.SnackInfoDto;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
@@ -18,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Optional;
 
+import static com.example.hop_oasis.extractor.ImageNameExtractor.extractName;
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
 @Service
@@ -27,15 +25,12 @@ public class SnackImageServiceImpl implements SnackImageService {
     private final SnackImageRepository snackImageRepository;
     private final S3Service s3Service;
     private final SnackInfoMapper snackInfoMapper;
-    private final ExtractImageName extractImageName;
 
-    @Override
-    public ImageUrlDto getSnackImageByName(String name) {
-        return new ImageUrlDto(s3Service.getFileUrl(name).toString());
-    }
 
     @Override
     public SnackInfoDto addSnackImageToSnack(Long snackId, MultipartFile file) {
+        Snack snack = snackRepository.findById(snackId).orElseThrow(() ->
+                new ResourceNotFoundException(RESOURCE_NOT_FOUND, snackId));
         try {
             String fileName = "snacks/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
@@ -46,12 +41,10 @@ public class SnackImageServiceImpl implements SnackImageService {
         SnackImage image1 = SnackImage.builder()
                 .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
                 .build();
-        Snack snack = snackRepository.findById(snackId).orElseThrow(() ->
-                new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));
+
         image1.setSnack(snack);
         snackImageRepository.save(image1);
-        return snackInfoMapper.toDto(snackRepository.findById(snackId).orElseThrow(() ->
-                new ResourceNotFoundException(RESOURCE_NOT_FOUND, snackId)));
+        return snackInfoMapper.toDto(snackRepository.findById(snackId).get());
     }
 
     @Override
@@ -60,7 +53,7 @@ public class SnackImageServiceImpl implements SnackImageService {
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_DELETED, name);
         }
-        s3Service.deleteFile("snacks/" + extractImageName.extractName(name));
+        s3Service.deleteFile("snacks/" + extractName(name));
         snackImageRepository.delete(imageOp.get());
     }
 }

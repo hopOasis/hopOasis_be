@@ -59,10 +59,6 @@ public class ProductBundleController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
-    @GetMapping("/images/{name}")
-    public ResponseEntity<ImageUrlDto> getImageByName(@PathVariable("name") String name) {
-        return ResponseEntity.ok().body(imageService.getProductBundleImage(name));
-    }
     @PutMapping("/{id}")
     public ResponseEntity<ProductBundleInfoDto> updateProductBundle(@RequestParam("id") Long id,
                                                     @RequestBody ProductBundleInfoDto productBundleInfo) {

@@ -58,10 +58,6 @@ public class CiderController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
-    @GetMapping("/images/{name}")
-    public ResponseEntity<ImageUrlDto> getImageByName(@PathVariable("name") String name) {
-       return ResponseEntity.ok().body(ciderImageService.getCiderImageByName(name));
-    }
     @PutMapping("/{id}")
     public ResponseEntity<CiderInfoDto> updateCider(@RequestParam("id") Long id,
                                             @RequestBody CiderInfoDto ciderInfo) {
