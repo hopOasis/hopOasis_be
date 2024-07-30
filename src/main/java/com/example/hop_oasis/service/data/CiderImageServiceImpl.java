@@ -31,14 +31,15 @@ public class CiderImageServiceImpl implements CiderImageService {
     public CiderInfoDto addCiderImageToCider(Long ciderId, MultipartFile file) {
         Cider cider = ciderRepository.findById(ciderId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ciderId));
+        String fileName;
         try {
-            String fileName ="ciders/" + file.getOriginalFilename();
+            fileName ="ciders/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         CiderImage image1 = CiderImage.builder()
-                .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
+                .name(s3Service.getFileUrl(fileName).toString())
                 .build();
 
         image1.setCider(cider);
@@ -52,7 +53,7 @@ public class CiderImageServiceImpl implements CiderImageService {
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
-        s3Service.deleteFile("ciders/" + extractName(name));
+        s3Service.deleteFile(extractName(name));
         ciderImageRepository.delete(imageOp.get());
     }
 }

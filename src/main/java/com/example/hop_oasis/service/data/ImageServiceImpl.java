@@ -30,14 +30,15 @@ public class ImageServiceImpl implements ImageService {
     public BeerInfoDto addImageToBeer(Long beerId, MultipartFile file) {
         Beer beer = beerRepository.findById(beerId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));
+        String fileName;
         try {
-            String fileName = "beers/"+ file.getOriginalFilename();
+             fileName = "beers/"+ file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         Image image1 = Image.builder()
-                .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
+                .name(s3Service.getFileUrl(fileName).toString())
                 .build();
 
         image1.setBeer(beer);
@@ -50,7 +51,7 @@ public class ImageServiceImpl implements ImageService {
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, name);
         }
-        s3Service.deleteFile("beers/" + extractName(name));
+        s3Service.deleteFile(extractName(name));
         imageRepository.delete(imageOp.get());
     }
 }

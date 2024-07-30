@@ -32,14 +32,15 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
     public ProductBundleInfoDto addProductBundleImage(Long id, MultipartFile file) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND,""));
+        String fileName;
         try{
-            String fileName ="productBundles/" + file.getOriginalFilename();
+            fileName ="productBundles/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
         }catch (IOException e){
             throw new  ResourceNotFoundException(RESOURCE_NOT_FOUND ,"");
         }
         ProductBundleImage image1 = ProductBundleImage.builder()
-                .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
+                .name(s3Service.getFileUrl(fileName).toString())
                 .build();
 
         image1.setProductBundle(productBundle);
@@ -52,7 +53,7 @@ public class ProductBundleImageServiceImpl implements ProductBundleImageService 
         if(imageOp.isEmpty()){
             throw  new ResourceNotFoundException(RESOURCE_DELETED,name);
         }
-        s3Service.deleteFile("productBundles/"+ extractName(name));
+        s3Service.deleteFile(extractName(name));
         productBundleImageRepository.delete(imageOp.get());
     }
 }

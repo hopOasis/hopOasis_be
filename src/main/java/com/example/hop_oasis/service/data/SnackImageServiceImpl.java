@@ -31,15 +31,16 @@ public class SnackImageServiceImpl implements SnackImageService {
     public SnackInfoDto addSnackImageToSnack(Long snackId, MultipartFile file) {
         Snack snack = snackRepository.findById(snackId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, snackId));
+        String fileName;
         try {
-            String fileName = "snacks/" + file.getOriginalFilename();
+            fileName = "snacks/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
 
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         SnackImage image1 = SnackImage.builder()
-                .name(s3Service.getFileUrl(file.getOriginalFilename()).toString())
+                .name(s3Service.getFileUrl(fileName).toString())
                 .build();
 
         image1.setSnack(snack);
@@ -53,7 +54,7 @@ public class SnackImageServiceImpl implements SnackImageService {
         if (imageOp.isEmpty()) {
             throw new ResourceNotFoundException(RESOURCE_DELETED, name);
         }
-        s3Service.deleteFile("snacks/" + extractName(name));
+        s3Service.deleteFile(extractName(name));
         snackImageRepository.delete(imageOp.get());
     }
 }
