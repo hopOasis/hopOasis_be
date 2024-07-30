@@ -7,8 +7,8 @@ import com.example.hop_oasis.model.ItemType;
 import java.util.List;
 
 public interface CartService {
-    List<CartItemDto> createCartItems();
-    CartDto getAllItems(List<CartItemDto> items);
+
+    CartDto getAllItems();
 
     CartItemDto add(Long itemId,int quantity, ItemType itemType);
 
