@@ -68,9 +68,9 @@ public class ProductBundleController {
     public ResponseEntity<ProductBundleInfoDto> delete(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(productBundleService.deleteProductBundle(id));
     }
-    @DeleteMapping("/images/{name}")
-    public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
-        imageService.deleteProductBundleImage(name);
-        return ResponseEntity.ok().body(name);
+    @DeleteMapping("/images")
+    public ResponseEntity<String> deleteImage(@RequestBody ImageUrlDto name) {
+        imageService.deleteProductBundleImage(name.getName());
+        return ResponseEntity.ok().body(name.getName());
     }
 }

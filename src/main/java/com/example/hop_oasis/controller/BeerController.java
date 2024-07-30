@@ -16,6 +16,10 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/beers")
@@ -68,10 +72,10 @@ public class BeerController {
     public ResponseEntity<BeerInfoDto> delete(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.delete(id));
     }
-    @DeleteMapping("/images/{name}")
-    public ResponseEntity<String> deleteImage(@PathVariable("name") String name) {
-        imageService.deleteImage(name);
-        return ResponseEntity.ok().body(name);
+    @DeleteMapping("/images")
+    public ResponseEntity<String> deleteImage(@RequestBody ImageUrlDto name) {
+        imageService.deleteImage(name.getName());
+        return ResponseEntity.ok().body(name.getName());
     }
 }
 

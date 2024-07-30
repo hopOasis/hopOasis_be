@@ -67,10 +67,10 @@ public class SnackController {
     public ResponseEntity<SnackInfoDto> deleteSnack(@PathVariable("id")Long id){
         return ResponseEntity.ok().body(snackService.deleteSnack(id));
     }
-    @DeleteMapping("/images/{name}")
-    public ResponseEntity<String>deleteSnackImage(@PathVariable("name")String name){
-        imageService.deleteSnackImage(name);
-        return ResponseEntity.ok().body(name);
+    @DeleteMapping("/images")
+    public ResponseEntity<String>deleteSnackImage(@RequestBody ImageUrlDto name){
+        imageService.deleteSnackImage(name.getName());
+        return ResponseEntity.ok().body(name.getName());
     }
 
 }

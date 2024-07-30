@@ -67,9 +67,9 @@ public class CiderController {
     public ResponseEntity<CiderInfoDto> deleteCider(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(ciderService.deleteCider(id));
     }
-    @DeleteMapping("/images/{name}")
-    public ResponseEntity<String> deleteCiderImage(@PathVariable("name") String name) {
-        ciderImageService.deleteCiderImage(name);
-        return ResponseEntity.ok().body(name);
+    @DeleteMapping("/images")
+    public ResponseEntity<String> deleteCiderImage(@RequestBody ImageUrlDto name) {
+        ciderImageService.deleteCiderImage(name.getName());
+        return ResponseEntity.ok().body(name.getName());
     }
 }

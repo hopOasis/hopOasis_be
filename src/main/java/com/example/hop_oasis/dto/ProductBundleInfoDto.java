@@ -17,4 +17,5 @@ public final class ProductBundleInfoDto {
     private List<String> productImageName;
     private double averageRating;
     private int ratingCount;
+    private List<Long> specialOfferIds;
 }

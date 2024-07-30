@@ -37,5 +37,10 @@ public class Beer {
     private List<Image> image;
 
     @ManyToMany
+    @JoinTable(
+            name = "beer_special_offer_product",
+            joinColumns = @JoinColumn(name = "beer_id"),
+            inverseJoinColumns = @JoinColumn(name = "special_offer_product_id")
+    )
     private List<SpecialOfferProduct> specialOfferProduct;
 }
