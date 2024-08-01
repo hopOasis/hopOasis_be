@@ -175,13 +175,12 @@ public class SpecialOfferServiceImpl {
     public SpecialOfferAllProductDto activateSpecialOffer(Long offerId) {
         List<SpecialOfferProduct> allSpecialOffers = specialOfferRepository.findAll();
         for (SpecialOfferProduct offer : allSpecialOffers) {
-            if (!offer.getId().equals(offerId) && offer.isActive()) {
-                offer.setActive(false);
-                specialOfferRepository.save(offer);
-            } else {
+            if (offer.getId().equals(offerId)) {
                 offer.setActive(true);
-                specialOfferRepository.save(offer);
+            } else {
+                offer.setActive(false);
             }
+            specialOfferRepository.save(offer);
         }
         return getActiveSpecialOffer();
     }

@@ -20,4 +20,5 @@ public final class SnackInfoDto {
     private List<String> snackImageName;
     private double averageRating;
     private int ratingCount;
+    private List<Long> specialOfferIds;
 }

@@ -33,5 +33,10 @@ public class Snack {
     @OneToMany(mappedBy = "snack",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
     private List<SnackImage> snackImage;
     @ManyToMany
+    @JoinTable(
+            name = "snack_special_offer_product",
+            joinColumns = @JoinColumn(name = "snack_id"),
+            inverseJoinColumns = @JoinColumn(name = "special_offer_product_id")
+    )
     private List<SpecialOfferProduct> specialOfferProduct;
 }

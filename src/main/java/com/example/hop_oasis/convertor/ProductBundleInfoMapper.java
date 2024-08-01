@@ -5,6 +5,7 @@ import com.example.hop_oasis.dto.ProductBundleInfoDto;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleImage;
 import com.example.hop_oasis.model.SnackImage;
+import com.example.hop_oasis.model.SpecialOfferProduct;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
@@ -16,11 +17,17 @@ import java.util.stream.Collectors;
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface ProductBundleInfoMapper extends Mappable<ProductBundle,ProductBundleInfoDto>{
     @Mapping(target = "productImageName", source = "productImage")
+    @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
     ProductBundleInfoDto toDto(ProductBundle productBundle);
 
     default List<String> mapSnackImagesName(List<ProductBundleImage> images){
         return images.stream()
                 .map(ProductBundleImage::getName)
+                .collect(Collectors.toList());
+    }
+    default List<Long> mapOffersToIds(List<SpecialOfferProduct> offers) {
+        return offers.stream()
+                .map(SpecialOfferProduct::getId)
                 .collect(Collectors.toList());
     }
 

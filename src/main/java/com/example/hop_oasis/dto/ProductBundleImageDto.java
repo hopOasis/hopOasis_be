@@ -9,6 +9,5 @@ import lombok.*;
 @Setter
 public final class ProductBundleImageDto {
     private Long id;
-    private byte[] image;
     private String name;
 }

@@ -5,12 +5,8 @@ import com.example.hop_oasis.dto.CiderInfoDto;
 import com.example.hop_oasis.model.Cider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-
 public interface CiderService {
-    Cider saveCider (MultipartFile file, CiderDto ciderDto);
+    Cider saveCider (CiderDto ciderDto);
     CiderInfoDto getCiderById(Long id);
     CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long itemId, double ratingValue);
     Page<CiderInfoDto> getAllCiders(Pageable pageable);

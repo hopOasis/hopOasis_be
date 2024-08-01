@@ -28,5 +28,10 @@ public class ProductBundle {
     private List<ProductBundleImage> productImage;
 
     @ManyToMany
+    @JoinTable(
+            name = "product_bundle_special_offer_product",
+            joinColumns = @JoinColumn(name = "product_bundle_id"),
+            inverseJoinColumns = @JoinColumn(name = "special_offer_product_id")
+    )
     private List<SpecialOfferProduct> specialOfferProduct;
 }

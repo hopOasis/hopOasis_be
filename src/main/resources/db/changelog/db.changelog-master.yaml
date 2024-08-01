@@ -36,6 +36,14 @@ databaseChangeLog:
   - include:
       file: classpath:/db/changelog/changes/017-create-product-rating.sql
   - include:
+      file: classpath:/db/changelog/changes/024-delete-culomn-image-from-images.sql
+  - include:
+      file: classpath:/db/changelog/changes/025-delete-culomn-image-from-cider-images.sql
+  - include:
+      file: classpath:/db/changelog/changes/026-delete-culomn-image-from-snack-images.sql
+  - include:
+      file: classpath:/db/changelog/changes/027-delete-culomn-image-from-product-bundle-images.sql
+  - include:
       file: classpath:/db/changelog/changes/028-create-cart.sql
   - include:
       file: classpath:/db/changelog/changes/029-create-cart-item.sql

@@ -21,4 +21,5 @@ public final class BeerInfoDto {
     private List<String> imageName;
     private double averageRating;
     private int ratingCount;
+    private List<Long> specialOfferIds;
 }

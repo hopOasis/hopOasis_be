@@ -1,0 +1,1 @@
+ALTER TABLE cider_images DROP image;

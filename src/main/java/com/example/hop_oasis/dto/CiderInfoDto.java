@@ -21,6 +21,7 @@ public final class CiderInfoDto{
     private List<String> ciderImageName;
     private double averageRating;
     private int ratingCount;
+    private List<Long> specialOfferIds;
 
 }
 
