@@ -2,50 +2,47 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.dto.CartDto;
 import com.example.hop_oasis.dto.CartItemDto;
+import com.example.hop_oasis.dto.CartUpdateRequestDto;
 import com.example.hop_oasis.dto.ItemRequestDto;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.service.CartService;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
-@RequestMapping("/cart")
+@RequestMapping("/carts")
 @RequiredArgsConstructor
-@Log4j2
 public class CartController {
 
     private final CartService cartService;
 
-    @GetMapping
-    public ResponseEntity<CartDto> find() {
-        return ResponseEntity.ok().body(cartService.getAllItems());
+    @GetMapping("/{cartId}")
+    public ResponseEntity<CartDto> find(@PathVariable Long cartId) {
+        return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
     }
 
-    @PostMapping("/add")
+    @PostMapping
     public ResponseEntity<CartItemDto> addItem(@RequestBody ItemRequestDto itemRequestDto) {
-        CartItemDto dto = cartService.add(itemRequestDto.getItemId(), itemRequestDto.getQuantity(), itemRequestDto.getItemType());
+        CartItemDto dto = cartService.add(itemRequestDto.getCartId(), itemRequestDto.getItemId(), itemRequestDto.getQuantity(), itemRequestDto.getItemType());
         return ResponseEntity.ok(dto);
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<CartItemDto> updateItemQuantity(@RequestBody ItemRequestDto itemRequestDto) {
-        CartItemDto updatedItem = cartService.updateQuantity(itemRequestDto.getItemId(), itemRequestDto.getQuantity(), itemRequestDto.getItemType());
-
-        return ResponseEntity.ok(updatedItem);
+    @PutMapping
+    public ResponseEntity<CartDto> updateCart(@RequestBody CartUpdateRequestDto cartUpdateRequestDto) {
+        CartDto dto = cartService.updateCart(cartUpdateRequestDto.getCartId(), cartUpdateRequestDto.getItems());
+        return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping("/remove")
-    public ResponseEntity<Void> removeItem(@RequestParam Long itemId, @RequestParam ItemType itemType) {
-        cartService.removeItem(itemId, itemType);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/remove/{cartId}")
+    public ResponseEntity<String> removeItem(@PathVariable ("cartId") Long cartId, @RequestParam("itemId") Long itemId, @RequestParam("itemType") ItemType itemType) {
+        cartService.removeItem(cartId, itemId, itemType);
+        return ResponseEntity.ok("Done");
     }
 
-    @DeleteMapping("/clear")
-    public ResponseEntity<Void> clearCart() {
-        cartService.delete();
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/clear/{cartId}")
+    public ResponseEntity<String> clearCart(@PathVariable("cartId") Long cartId) {
+        cartService.delete(cartId);
+        return ResponseEntity.ok("Done");
     }
 }

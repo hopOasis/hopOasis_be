@@ -37,5 +37,7 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/017-create-product-rating.sql
   - include:
       file: classpath:/db/changelog/changes/024-create-cart.sql
+  - include:
+      file: classpath:/db/changelog/changes/025-create-cart-item.sql
 
 
