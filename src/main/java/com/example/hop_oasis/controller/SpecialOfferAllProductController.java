@@ -5,11 +5,18 @@ import com.example.hop_oasis.dto.SpecialOfferRequestDto;
 import com.example.hop_oasis.model.SpecialOfferProduct;
 import com.example.hop_oasis.service.data.SpecialOfferServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.SessionAttributes;
 
 
 @RestController
@@ -18,95 +25,101 @@ import java.util.List;
 @MultipartConfig
 @SessionAttributes("specialOfferProduct")
 public class SpecialOfferAllProductController {
-    private final SpecialOfferServiceImpl specialOfferService;
+
+  private final SpecialOfferServiceImpl specialOfferService;
 
 
-    @GetMapping("/active")
-    public ResponseEntity<SpecialOfferAllProductDto> getActiveSpecialOffer() {
-        return ResponseEntity.ok().body(specialOfferService.getActiveSpecialOffer());
-    }
+  @GetMapping("/active")
+  public ResponseEntity<SpecialOfferAllProductDto> getActiveSpecialOffer() {
+    return ResponseEntity.ok().body(specialOfferService.getActiveSpecialOffer());
+  }
 
-    @PutMapping("/{offerId}")
-    public ResponseEntity<SpecialOfferAllProductDto> activateSpecialOffer(@PathVariable("offerId") Long offerId) {
-        return ResponseEntity.ok().body(specialOfferService.activateSpecialOffer(offerId));
-    }
+  @PutMapping("/{offerId}")
+  public ResponseEntity<SpecialOfferAllProductDto> activateSpecialOffer(
+      @PathVariable("offerId") Long offerId) {
+    return ResponseEntity.ok().body(specialOfferService.activateSpecialOffer(offerId));
+  }
 
-    @PostMapping
-    public ResponseEntity<SpecialOfferProduct> createSpecialOffer(@RequestBody SpecialOfferRequestDto specialOfferRequestDto) {
-        String name = specialOfferRequestDto.getName();
-        return ResponseEntity.ok().body(specialOfferService.createSpecialOffer(name));
-    }
-    @PutMapping("/name/{offerId}")
-    public ResponseEntity<SpecialOfferAllProductDto> updateSpecialOfferName(@PathVariable("offerId") Long offerId
-            , @RequestBody SpecialOfferRequestDto specialOfferRequestDto) {
-        String name = specialOfferRequestDto.getName();
-        return ResponseEntity.ok().body(specialOfferService.updateSpecialOfferName(offerId, name));
-    }
+  @PostMapping
+  public ResponseEntity<SpecialOfferProduct> createSpecialOffer(
+      @RequestBody SpecialOfferRequestDto specialOfferRequestDto) {
+    String name = specialOfferRequestDto.getName();
+    return ResponseEntity.ok().body(specialOfferService.createSpecialOffer(name));
+  }
 
-    @GetMapping("/{offerId}")
-    public SpecialOfferAllProductDto getSpecialOffer(@PathVariable("offerId") Long offerId) {
-        return specialOfferService.getSpecialOffer(offerId);
-    }
+  @PutMapping("/name/{offerId}")
+  public ResponseEntity<SpecialOfferAllProductDto> updateSpecialOfferName(
+      @PathVariable("offerId") Long offerId
+      , @RequestBody SpecialOfferRequestDto specialOfferRequestDto) {
+    String name = specialOfferRequestDto.getName();
+    return ResponseEntity.ok().body(specialOfferService.updateSpecialOfferName(offerId, name));
+  }
 
-    @GetMapping
-    public ResponseEntity<List<SpecialOfferAllProductDto>> getAllSpecialOffers() {
-        return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
-    }
+  @GetMapping("/{offerId}")
+  public SpecialOfferAllProductDto getSpecialOffer(@PathVariable("offerId") Long offerId) {
+    return specialOfferService.getSpecialOffer(offerId);
+  }
 
-    @GetMapping("/{offerId}/beers/{beerId}")
-    public ResponseEntity<String> addBeerToSpecialOffer(@PathVariable("beerId") Long beerId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.addBeerToSpecialOffer(beerId, offerId);
-        return ResponseEntity.ok().body("Added beer to special offer");
-    }
+  @GetMapping
+  public ResponseEntity<List<SpecialOfferAllProductDto>> getAllSpecialOffers() {
+    return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
+  }
 
-    @GetMapping("/{offerId}/ciders/{ciderId}")
-    public void addCiderToSpecialOffer(@PathVariable("ciderId") Long ciderId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.addCiderToSpecialOffer(ciderId, offerId);
-    }
+  @GetMapping("/{offerId}/beers/{beerId}")
+  public ResponseEntity<String> addBeerToSpecialOffer(@PathVariable("beerId") Long beerId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.addBeerToSpecialOffer(beerId, offerId);
+    return ResponseEntity.ok().body("Added beer to special offer");
+  }
 
-    @GetMapping("/{offerId}/snacks/{snackId}")
-    public void addSnackToSpecialOffer(@PathVariable("snackId") Long snackId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.addSnackToSpecialOffer(snackId, offerId);
-    }
+  @GetMapping("/{offerId}/ciders/{ciderId}")
+  public void addCiderToSpecialOffer(@PathVariable("ciderId") Long ciderId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.addCiderToSpecialOffer(ciderId, offerId);
+  }
 
-    @GetMapping("/{offerId}/products-bundle/{productBundleId}")
-    public void addProductBundleToSpecialOffer(@PathVariable("productBundleId") Long productBundleId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.addProductBundleToSpecialOffer(productBundleId, offerId);
-    }
+  @GetMapping("/{offerId}/snacks/{snackId}")
+  public void addSnackToSpecialOffer(@PathVariable("snackId") Long snackId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.addSnackToSpecialOffer(snackId, offerId);
+  }
 
-    @DeleteMapping("/{offerId}")
-    public ResponseEntity<Void> deleteSpecialOffer(@PathVariable("offerId") Long offerId) {
-        specialOfferService.deleteSpecialOffer(offerId);
-        return ResponseEntity.ok().build();
-    }
+  @GetMapping("/{offerId}/products-bundle/{productBundleId}")
+  public void addProductBundleToSpecialOffer(@PathVariable("productBundleId") Long productBundleId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.addProductBundleToSpecialOffer(productBundleId, offerId);
+  }
 
-    @DeleteMapping("/{offerId}/beers/{beerId}")
-    public void deleteBeerFromSpecialOffer(@PathVariable("beerId") Long beerId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.deleteBeerFromSpecialOffer(beerId, offerId);
-    }
+  @DeleteMapping("/{offerId}")
+  public ResponseEntity<Void> deleteSpecialOffer(@PathVariable("offerId") Long offerId) {
+    specialOfferService.deleteSpecialOffer(offerId);
+    return ResponseEntity.ok().build();
+  }
 
-    @DeleteMapping("/{offerId}/ciders/{ciderId}")
-    public void deleteCiderFromSpecialOffer(@PathVariable("ciderId") Long ciderId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.deleteCiderFromSpecialOffer(ciderId, offerId);
-    }
+  @DeleteMapping("/{offerId}/beers/{beerId}")
+  public void deleteBeerFromSpecialOffer(@PathVariable("beerId") Long beerId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.deleteBeerFromSpecialOffer(beerId, offerId);
+  }
 
-    @DeleteMapping("/{offerId}/snacks/{snackId}")
-    public void deleteSnackFromSpecialOffer(@PathVariable("snackId") Long snackId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.deleteSnackFromSpecialOffer(snackId, offerId);
-    }
+  @DeleteMapping("/{offerId}/ciders/{ciderId}")
+  public void deleteCiderFromSpecialOffer(@PathVariable("ciderId") Long ciderId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.deleteCiderFromSpecialOffer(ciderId, offerId);
+  }
 
-    @DeleteMapping("/{offerId}/products-bundle/{productBundleId}")
-    public void deleteProductBundleFromSpecialOffer(@PathVariable("productBundleId") Long productBundleId
-            , @PathVariable("offerId") Long offerId) {
-        specialOfferService.deleteProductBundleFromSpecialOffer(productBundleId, offerId);
-    }
+  @DeleteMapping("/{offerId}/snacks/{snackId}")
+  public void deleteSnackFromSpecialOffer(@PathVariable("snackId") Long snackId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.deleteSnackFromSpecialOffer(snackId, offerId);
+  }
+
+  @DeleteMapping("/{offerId}/products-bundle/{productBundleId}")
+  public void deleteProductBundleFromSpecialOffer(
+      @PathVariable("productBundleId") Long productBundleId
+      , @PathVariable("offerId") Long offerId) {
+    specialOfferService.deleteProductBundleFromSpecialOffer(productBundleId, offerId);
+  }
 
 
 }

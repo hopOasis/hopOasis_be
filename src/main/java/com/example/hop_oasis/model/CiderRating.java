@@ -1,7 +1,16 @@
 package com.example.hop_oasis.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -9,13 +18,14 @@ import lombok.*;
 @Setter
 @Entity
 public class CiderRating {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-    @Column(name = "rating", nullable = false)
-    private double ratingValue;
-    @ManyToOne
-    @JoinColumn(name = "cider_id", nullable = false)
-    private Cider cider;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
+  @Column(name = "rating", nullable = false)
+  private double ratingValue;
+  @ManyToOne
+  @JoinColumn(name = "cider_id", nullable = false)
+  private Cider cider;
 }

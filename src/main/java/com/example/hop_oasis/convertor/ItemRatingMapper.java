@@ -6,8 +6,9 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ItemRatingMapper {
-    @Mapping(source = "itemId", target = "itemId")
-    @Mapping(source = "averageRating", target = "averageRating")
-    @Mapping(source = "ratingCount", target = "ratingCount")
-    ItemRatingDto toDto(Long itemId, double averageRating, int ratingCount);
+
+  @Mapping(source = "itemId", target = "itemId")
+  @Mapping(source = "averageRating", target = "averageRating")
+  @Mapping(source = "ratingCount", target = "ratingCount")
+  ItemRatingDto toDto(Long itemId, double averageRating, int ratingCount);
 }

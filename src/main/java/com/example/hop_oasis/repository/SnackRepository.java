@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SnackRepository extends JpaRepository<Snack, Long> {
 
-    Page<Snack> findAll(Pageable pageable);
+  Page<Snack> findAll(Pageable pageable);
 }

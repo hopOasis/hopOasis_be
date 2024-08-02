@@ -1,10 +1,10 @@
 package com.example.hop_oasis.repository;
 
 import com.example.hop_oasis.model.ProductBundleImage;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
+public interface ProductBundleImageRepository extends JpaRepository<ProductBundleImage, Long> {
 
-public interface ProductBundleImageRepository extends JpaRepository<ProductBundleImage,Long> {
-    Optional<ProductBundleImage> findFirstByName(String name);
+  Optional<ProductBundleImage> findFirstByName(String name);
 }

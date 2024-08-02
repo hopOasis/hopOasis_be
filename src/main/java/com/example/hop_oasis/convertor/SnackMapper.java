@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring",
-        unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface SnackMapper extends Mappable<Snack, SnackDto>{
+    unmappedTargetPolicy = ReportingPolicy.IGNORE)
+public interface SnackMapper extends Mappable<Snack, SnackDto> {
+
 }

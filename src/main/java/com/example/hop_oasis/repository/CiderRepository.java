@@ -6,5 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CiderRepository extends JpaRepository<Cider, Long> {
-    Page<Cider> findAll(Pageable pageable);
+
+  Page<Cider> findAll(Pageable pageable);
 }

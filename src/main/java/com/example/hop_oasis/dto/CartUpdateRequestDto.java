@@ -1,8 +1,11 @@
 package com.example.hop_oasis.dto;
 
-import lombok.*;
-
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -10,7 +13,8 @@ import java.util.List;
 @Getter
 @Setter
 public class CartUpdateRequestDto {
-    private Long cartId;
-    private List<ItemRequestDto> items;
+
+  private Long cartId;
+  private List<ItemRequestDto> items;
 }
 

@@ -1,7 +1,18 @@
 package com.example.hop_oasis.model;
 
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -9,16 +20,17 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name="products_images")
+@Table(name = "products_images")
 public class ProductBundleImage {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="id")
-    private Long id;
-    @Column(name = "name")
-    private String name;
-    @ManyToOne
-    @JoinColumn(name ="product_image_id")
-    private ProductBundle productBundle;
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
+  private Long id;
+  @Column(name = "name")
+  private String name;
+  @ManyToOne
+  @JoinColumn(name = "product_image_id")
+  private ProductBundle productBundle;
 
 }
