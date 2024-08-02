@@ -7,10 +7,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface SnackService {
-    Snack saveSnack(SnackDto snackDto);
-    SnackInfoDto getSnackById(Long id);
-    SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long itemId, double ratingValue);
-    Page<SnackInfoDto> getAllSnacks(Pageable pageable);
-    SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id);
-    SnackInfoDto  deleteSnack(Long id);
+
+  Snack saveSnack(SnackDto snackDto);
+
+  SnackInfoDto getSnackById(Long id);
+
+  SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long itemId, double ratingValue);
+
+  Page<SnackInfoDto> getAllSnacks(Pageable pageable);
+
+  SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id);
+
+  SnackInfoDto deleteSnack(Long id);
 }

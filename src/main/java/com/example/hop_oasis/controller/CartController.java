@@ -8,41 +8,53 @@ import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/carts")
 @RequiredArgsConstructor
 public class CartController {
 
-    private final CartService cartService;
+  private final CartService cartService;
 
-    @GetMapping("/{cartId}")
-    public ResponseEntity<CartDto> find(@PathVariable Long cartId) {
-        return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
-    }
+  @GetMapping("/{cartId}")
+  public ResponseEntity<CartDto> find(@PathVariable Long cartId) {
+    return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
+  }
 
-    @PostMapping
-    public ResponseEntity<CartItemDto> addItem(@RequestBody ItemRequestDto itemRequestDto) {
-        CartItemDto dto = cartService.add(itemRequestDto.getCartId(), itemRequestDto.getItemId(), itemRequestDto.getQuantity(), itemRequestDto.getItemType());
-        return ResponseEntity.ok(dto);
-    }
+  @PostMapping
+  public ResponseEntity<CartItemDto> addItem(@RequestBody ItemRequestDto itemRequestDto) {
+    CartItemDto dto = cartService.add(itemRequestDto.getCartId(), itemRequestDto.getItemId(),
+        itemRequestDto.getQuantity(), itemRequestDto.getItemType());
+    return ResponseEntity.ok(dto);
+  }
 
-    @PutMapping
-    public ResponseEntity<CartDto> updateCart(@RequestBody CartUpdateRequestDto cartUpdateRequestDto) {
-        CartDto dto = cartService.updateCart(cartUpdateRequestDto.getCartId(), cartUpdateRequestDto.getItems());
-        return ResponseEntity.ok(dto);
-    }
+  @PutMapping
+  public ResponseEntity<CartDto> updateCart(
+      @RequestBody CartUpdateRequestDto cartUpdateRequestDto) {
+    CartDto dto = cartService.updateCart(cartUpdateRequestDto.getCartId(),
+        cartUpdateRequestDto.getItems());
+    return ResponseEntity.ok(dto);
+  }
 
-    @DeleteMapping("/remove/{cartId}")
-    public ResponseEntity<String> removeItem(@PathVariable ("cartId") Long cartId, @RequestParam("itemId") Long itemId, @RequestParam("itemType") ItemType itemType) {
-        cartService.removeItem(cartId, itemId, itemType);
-        return ResponseEntity.ok("Done");
-    }
+  @DeleteMapping("/remove/{cartId}")
+  public ResponseEntity<String> removeItem(@PathVariable("cartId") Long cartId,
+      @RequestParam("itemId") Long itemId, @RequestParam("itemType") ItemType itemType) {
+    cartService.removeItem(cartId, itemId, itemType);
+    return ResponseEntity.ok("Done");
+  }
 
-    @DeleteMapping("/clear/{cartId}")
-    public ResponseEntity<String> clearCart(@PathVariable("cartId") Long cartId) {
-        cartService.delete(cartId);
-        return ResponseEntity.ok("Done");
-    }
+  @DeleteMapping("/clear/{cartId}")
+  public ResponseEntity<String> clearCart(@PathVariable("cartId") Long cartId) {
+    cartService.delete(cartId);
+    return ResponseEntity.ok("Done");
+  }
 }

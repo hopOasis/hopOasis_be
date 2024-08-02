@@ -12,20 +12,22 @@ import java.io.OutputStream;
 
 public class StreamLambdaHandler implements RequestStreamHandler {
 
-    private static SpringBootLambdaContainerHandler<HttpApiV2ProxyRequest, AwsProxyResponse> handler;
+  private static SpringBootLambdaContainerHandler<HttpApiV2ProxyRequest, AwsProxyResponse> handler;
 
-    static {
-        try {
-            handler = SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(HopOasisApplication.class);
-        } catch (ContainerInitializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Could not initialize Spring Boot application", e);
-        }
+  static {
+    try {
+      handler = SpringBootLambdaContainerHandler.getHttpApiV2ProxyHandler(
+          HopOasisApplication.class);
+    } catch (ContainerInitializationException e) {
+      e.printStackTrace();
+      throw new RuntimeException("Could not initialize Spring Boot application", e);
     }
+  }
 
-    @Override
-    public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context) throws IOException {
-        handler.proxyStream(inputStream, outputStream, context);
-    }
+  @Override
+  public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
+      throws IOException {
+    handler.proxyStream(inputStream, outputStream, context);
+  }
 
 }

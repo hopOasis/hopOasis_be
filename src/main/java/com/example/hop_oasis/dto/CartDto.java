@@ -1,9 +1,12 @@
 package com.example.hop_oasis.dto;
 
-import lombok.*;
-
 import java.math.BigDecimal;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -11,6 +14,7 @@ import java.util.List;
 @Getter
 @Setter
 public final class CartDto {
-    private List<CartItemDto> items;
-    private BigDecimal priceForAll;
+
+  private List<CartItemDto> items;
+  private BigDecimal priceForAll;
 }

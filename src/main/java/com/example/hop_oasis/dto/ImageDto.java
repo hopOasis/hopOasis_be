@@ -1,6 +1,10 @@
 package com.example.hop_oasis.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -8,7 +12,8 @@ import lombok.*;
 @Getter
 @Setter
 public final class ImageDto {
-    private Long id;
-    private String name;
+
+  private Long id;
+  private String name;
 
 }
