@@ -1,189 +1,173 @@
 package com.example.hop_oasis.service.data;
 
-import com.example.hop_oasis.component.Cart;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.model.ItemType;
-import com.example.hop_oasis.service.CartService;
+import com.example.hop_oasis.model.*;
+import com.example.hop_oasis.repository.CartItemRepository;
+import com.example.hop_oasis.repository.CartRepository;
 import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
-
+import com.example.hop_oasis.service.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.SessionAttributes;
 
-import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Map;
-import java.util.function.Function;
+import java.util.List;
 
 import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
-@SessionAttributes("cart")
+@Slf4j
+@Transactional
 public class CartServiceImpl implements CartService {
-    private final Cart cart;
-    private final BeerServiceImpl beerService;
-    private final ProductBundleServiceImpl bundleService;
-    private final SnackServiceImpl snackService;
-    private final CiderServiceImpl ciderService;
 
+    private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final BeerService beerService;
+    private final SnackService snackService;
+    private final ProductBundleService bundleService;
+    private final CiderService ciderService;
 
-@ModelAttribute("cart")
-public List<CartItemDto> createCartItems(){
-    return new ArrayList<>();
-}
     @Override
-    public CartDto getAllItems(@ModelAttribute("cart") List<CartItemDto> items) {
+    public CartDto getAllItemsByCartId(Long cartId) {
+        List<CartItemDto> items = new ArrayList<>();
+        List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
 
-        addItemsToCart(items, cart.getBeers(), beerService::getBeerById, ItemType.BEER);
-        addItemsToCart(items, cart.getSnacks(), snackService::getSnackById, ItemType.SNACK);
-        addItemsToCart(items, cart.getProductBundles(), bundleService::getProductBundleById, ItemType.PRODUCT_BUNDLE);
-        addItemsToCart(items, cart.getCider(), ciderService::getCiderById, ItemType.CIDER);
+        for (CartItem cartItem : cartItems) {
+            CartItemDto dto = createCartItemDto(cartItem);
+            items.add(dto);
+        }
 
         CartDto result = new CartDto();
         result.setItems(items);
         result.setPriceForAll(items.stream()
                 .map(CartItemDto::getTotalCost)
-                .reduce(0.0, Double::sum));
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
         log.debug("Return cart with all items: {}", result);
         return result;
     }
 
-    private <T> void addItemsToCart(@ModelAttribute("cart") List<CartItemDto> items, Map<Long, Integer> cartItems, Function<Long, T> fetchFunction, ItemType itemType) {
-        for (Map.Entry<Long, Integer> entry : cartItems.entrySet()) {
-            Long itemId = entry.getKey();
-            int quantity = entry.getValue();
-            T itemInfoDto = fetchFunction.apply(itemId);
-            if (itemInfoDto == null) {
-                log.error("{} with ID {} not found", itemType, itemId);
-                throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+    @Override
+    public CartItemDto add(Long cartId, Long itemId, int quantity, ItemType itemType) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    return cartRepository.save(newCart);
+                });
+
+
+        List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId, itemId, itemType);
+
+        CartItem cartItem;
+        if (cartItems.isEmpty()) {
+            cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setItemId(itemId);
+            cartItem.setItemType(itemType);
+        } else {
+            cartItem = cartItems.getFirst();
+        }
+        cartItem.setQuantity(quantity + cartItem.getQuantity());
+
+        cartItemRepository.save(cartItem);
+
+        return createCartItemDto(cartItem);
+    }
+
+
+    @Override
+    public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
+        //перетворити айтемс в картайтемс
+        // засетити картайтемс в карт
+        //cart.setCartItems();
+        for (ItemRequestDto item : items) {
+            List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId
+                    , item.getItemId(), item.getItemType());
+            CartItem cartItem;
+
+            if (cartItems.isEmpty()) {
+                cartItem = new CartItem();
+                cartItem.setCart(cart);
+                cartItem.setItemId(item.getItemId());
+                cartItem.setItemType(item.getItemType());
+                cartItem.setQuantity(item.getQuantity());
+            } else {
+                cartItem = cartItems.getFirst();
+                cartItem.setQuantity(item.getQuantity());
             }
-            items.add(createCartItemDto(itemInfoDto, quantity, itemType));
+
+            cartItemRepository.save(cartItem);
+        }
+        return getAllItemsByCartId(cartId);
+    }
+
+
+    @Override
+    public void removeItem(Long cartId, Long itemId, ItemType itemType) {
+        List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId, itemId, itemType);
+        if (!cartItems.isEmpty()) {
+            for (CartItem cartItem : cartItems) {
+                cartItemRepository.delete(cartItem);
+            }
+        } else {
+            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
     }
 
-    private <T> CartItemDto createCartItemDto(T itemInfoDto, int quantity, ItemType itemType) {
-        CartItemDto cartItemDto = new CartItemDto();
-        double pricePerItem;
 
-        switch (itemType) {
+    @Override
+    public void delete(Long cartId) {
+        log.debug("Clear cart");
+        cartItemRepository.deleteByCartId(cartId);
+    }
+
+    private CartItemDto createCartItemDto(CartItem cartItem) {
+        CartItemDto dto = new CartItemDto();
+        dto.setItemId(cartItem.getItemId());
+        dto.setQuantity(cartItem.getQuantity());
+
+        switch (cartItem.getItemType()) {
             case BEER:
-                BeerInfoDto beerInfoDto = (BeerInfoDto) itemInfoDto;
-                cartItemDto.setItemTitle(beerInfoDto.getBeerName());
-                pricePerItem = determinePrice(beerInfoDto.getPriceLarge(), beerInfoDto.getPriceSmall());
+                BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
+                if (beerInfo != null) {
+                    dto.setItemTitle(beerInfo.getBeerName());
+                    dto.setPricePerItem(determinePrice(beerInfo.getPriceLarge(), beerInfo.getPriceSmall()));
+                }
                 break;
             case SNACK:
-                SnackInfoDto snackInfoDto = (SnackInfoDto) itemInfoDto;
-                cartItemDto.setItemTitle(snackInfoDto.getSnackName());
-                pricePerItem = determinePrice(snackInfoDto.getPriceLarge(), snackInfoDto.getPriceSmall());
+                SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
+                if (snackInfo != null) {
+                    dto.setItemTitle(snackInfo.getSnackName());
+                    dto.setPricePerItem(determinePrice(snackInfo.getPriceLarge(), snackInfo.getPriceSmall()));
+                }
                 break;
             case PRODUCT_BUNDLE:
-                ProductBundleInfoDto bundleInfoDto = (ProductBundleInfoDto) itemInfoDto;
-                cartItemDto.setItemTitle(bundleInfoDto.getName());
-                pricePerItem = bundleInfoDto.getPrice();
+                ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
+                if (bundleInfo != null) {
+                    dto.setItemTitle(bundleInfo.getName());
+                    dto.setPricePerItem(bundleInfo.getPrice());
+                }
                 break;
             case CIDER:
-                CiderInfoDto ciderInfoDto = (CiderInfoDto) itemInfoDto;
-                cartItemDto.setItemTitle(ciderInfoDto.getCiderName());
-                pricePerItem = determinePrice(ciderInfoDto.getPriceLarge(), ciderInfoDto.getPriceSmall());
+                CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
+                if (ciderInfo != null) {
+                    dto.setItemTitle(ciderInfo.getCiderName());
+                    dto.setPricePerItem(determinePrice(ciderInfo.getPriceLarge(), ciderInfo.getPriceSmall()));
+                }
                 break;
-            default:
-                throw new IllegalArgumentException("Unsupported item type: " + itemType);
         }
-
-        cartItemDto.setPricePerItem(pricePerItem);
-        cartItemDto.setQuantity(quantity);
-        cartItemDto.setTotalCost(quantity * pricePerItem);
-        return cartItemDto;
+        BigDecimal roundedTotalCost = BigDecimal.valueOf(dto.getQuantity() * dto.getPricePerItem())
+                .setScale(2, RoundingMode.HALF_UP);
+        dto.setTotalCost(roundedTotalCost);
+        return dto;
     }
 
     private double determinePrice(double priceLarge, double priceSmall) {
         return priceLarge != 0 ? priceLarge : priceSmall;
-    }
-
-    @Override
-    public CartItemDto add(Long itemId, int quantity, ItemType itemType) {
-        switch (itemType) {
-            case BEER:
-                BeerInfoDto beer = beerService.getBeerById(itemId);
-                if (beer == null) {
-                    log.error("Beer with ID {} not found", itemId);
-                    throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
-                }
-                log.debug("Add beer to cart {}", beer);
-                cart.add(itemId, quantity, itemType);
-                return createCartItemDto(beer, quantity, ItemType.BEER);
-            case SNACK:
-                SnackInfoDto snack = snackService.getSnackById(itemId);
-                if (snack == null) {
-                    log.error("Snack with ID {} not found", itemId);
-                    throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
-                }
-                log.debug("Add snack to cart {}", snack);
-                cart.add(itemId, quantity, itemType);
-                return createCartItemDto(snack, quantity, ItemType.SNACK);
-            case PRODUCT_BUNDLE:
-                ProductBundleInfoDto bundle = bundleService.getProductBundleById(itemId);
-                if (bundle == null) {
-                    log.error("Product bundle with ID {} not found", itemId);
-                    throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
-                }
-                log.debug("Add product bundle to cart {}", bundle);
-                cart.add(itemId, quantity, itemType);
-                return createCartItemDto(bundle, quantity, ItemType.PRODUCT_BUNDLE);
-            case CIDER:
-                CiderInfoDto cider = ciderService.getCiderById(itemId);
-                if (cider == null) {
-                    log.error("Cider with ID {} not found", itemId);
-                    throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
-                }
-                log.debug("Add cider to cart {}", cider);
-                cart.add(itemId, quantity, itemType);
-                return createCartItemDto(cider, quantity, ItemType.CIDER);
-            default:
-                throw new IllegalArgumentException("Unsupported item type: " + itemType);
-        }
-    }
-
-    @Override
-    public CartItemDto updateQuantity(Long itemId, int quantity, ItemType itemType) {
-        log.debug("Updating item quantity in cart, itemId: {}, quantity: {}, itemType: {}", itemId, quantity, itemType);
-        cart.updateQuantity(itemId, quantity, itemType);
-        CartItemDto updatedItem;
-        switch (itemType) {
-            case BEER:
-                BeerInfoDto beer = beerService.getBeerById(itemId);
-                updatedItem = createCartItemDto(beer, quantity, ItemType.BEER);
-                break;
-            case SNACK:
-                SnackInfoDto snack = snackService.getSnackById(itemId);
-                updatedItem = createCartItemDto(snack, quantity, ItemType.SNACK);
-                break;
-            case PRODUCT_BUNDLE:
-                ProductBundleInfoDto bundle = bundleService.getProductBundleById(itemId);
-                updatedItem = createCartItemDto(bundle, quantity, ItemType.PRODUCT_BUNDLE);
-                break;
-            case CIDER:
-                CiderInfoDto cider = ciderService.getCiderById(itemId);
-                updatedItem = createCartItemDto(cider, quantity, ItemType.CIDER);
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported item type: " + itemType);
-        }
-        return updatedItem;
-    }
-    @Override
-    public void removeItem(Long itemId, ItemType itemType){
-        log.debug("Removing item from cart, itemId: {}, itemType: {}", itemId, itemType);
-        cart.remove(itemId, itemType);
-    }
-
-    @Override
-    public void delete() {
-        log.debug("Clear cart");
-        cart.delete();
     }
 }

@@ -2,6 +2,8 @@ package com.example.hop_oasis.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,5 +15,5 @@ public final class CartItemDto {
     private String itemTitle;
     private double pricePerItem;
     private int quantity;
-    private double totalCost;
+    private BigDecimal totalCost;
 }

@@ -43,3 +43,9 @@ databaseChangeLog:
       file: classpath:/db/changelog/changes/026-delete-culomn-image-from-snack-images.sql
   - include:
       file: classpath:/db/changelog/changes/027-delete-culomn-image-from-product-bundle-images.sql
+  - include:
+      file: classpath:/db/changelog/changes/028-create-cart.sql
+  - include:
+      file: classpath:/db/changelog/changes/029-create-cart-item.sql
+
+

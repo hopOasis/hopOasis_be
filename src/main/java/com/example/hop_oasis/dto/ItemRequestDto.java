@@ -9,6 +9,7 @@ import lombok.*;
 @Getter
 @Setter
 public final class ItemRequestDto {
+    private Long cartId;
     private Long itemId;
     private int quantity;
     private ItemType itemType;
