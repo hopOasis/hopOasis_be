@@ -30,6 +30,8 @@ jobs:
 
       - name: Validate Liquibase Migrations
         uses: liquibase-github-actions/validate@v4.29.1
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
         with:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
