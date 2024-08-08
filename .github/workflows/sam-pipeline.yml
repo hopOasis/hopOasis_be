@@ -29,14 +29,15 @@ jobs:
         run: mvn clean package -P lambda
 
       - name: Validate Liquibase Migrations
-        uses: liquibase-github-actions/validate@v4.29.1
+      - uses: liquibase/liquibase-github-action@v7
         env:
           JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
         with:
+          operation: 'validate'
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          driver: com.mysql.cj.jdbc.Driver
+#          driver: com.mysql.cj.jdbc.Driver
           changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
           logLevel: INFO
 
