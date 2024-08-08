@@ -36,6 +36,7 @@ jobs:
           logLevel: info
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
+          INSTALL_MYSQL: true
 
       - name: Cache Maven packages
         uses: actions/cache@v2
