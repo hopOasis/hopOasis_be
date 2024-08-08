@@ -36,6 +36,18 @@ jobs:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
           INSTALL_MYSQL: true
 
+      - name: Liquibase Status
+        uses: liquibase-github-actions/status@v4.29.0
+        with:
+          url: ${{ secrets.DATABASE_URL }}
+          username: ${{ secrets.DATABASE_USERNAME }}
+          password: ${{ secrets.DATABASE_PASSWORD }}
+          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          logLevel: info
+        env:
+          JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
+          INSTALL_MYSQL: true
+
       - name: Cache Maven packages
         uses: actions/cache@v2
         with:
