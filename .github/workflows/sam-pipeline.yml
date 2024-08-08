@@ -33,7 +33,6 @@ jobs:
           password: ${{ secrets.DATABASE_PASSWORD }}
 #          driver: com.mysql.cj.jdbc.Driver
           changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
-          logLevel: INFO
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
 
