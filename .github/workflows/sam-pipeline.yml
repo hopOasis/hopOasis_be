@@ -27,11 +27,9 @@ jobs:
       - name: Validate Liquibase Migrations
         uses: liquibase-github-actions/validate@v4.29.0
         with:
-          operation: 'validate'
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-#          driver: com.mysql.cj.jdbc.Driver
           changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
           logLevel: info
         env:
@@ -64,6 +62,19 @@ jobs:
             --template-file template.yml \
             --output-template-file packaged.yml \
             --s3-bucket hop-be-lambda-builds
+
+      - name: Update Liquibase Migrations
+        uses: liquibase-github-actions/update@v4.29.0
+        with:
+          url: ${{ secrets.DATABASE_URL }}
+          username: ${{ secrets.DATABASE_USERNAME }}
+          password: ${{ secrets.DATABASE_PASSWORD }}
+          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          logLevel: info
+          showSummary: 'summary'
+        env:
+          JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
+          INSTALL_MYSQL: true
 
       - name: Deploy SAM application
         run: |
