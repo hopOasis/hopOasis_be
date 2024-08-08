@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.convertor.SnackMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.repository.SnackImageRepository;
 import com.example.hop_oasis.repository.SnackRepository;
@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor

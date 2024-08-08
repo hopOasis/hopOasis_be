@@ -4,7 +4,7 @@ import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.CartItemRepository;
 import com.example.hop_oasis.repository.CartRepository;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor

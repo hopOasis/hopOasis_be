@@ -1,7 +1,7 @@
 package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor

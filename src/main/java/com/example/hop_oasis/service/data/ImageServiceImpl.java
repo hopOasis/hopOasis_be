@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.dto.BeerInfoDto;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.repository.BeerRepository;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static com.example.hop_oasis.extractor.ImageNameExtractor.extractName;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor

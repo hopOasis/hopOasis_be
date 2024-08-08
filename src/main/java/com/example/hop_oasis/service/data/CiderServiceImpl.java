@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.CiderInfoMapper;
 import com.example.hop_oasis.convertor.CiderMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.service.CiderService;
@@ -14,8 +14,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_DELETED;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

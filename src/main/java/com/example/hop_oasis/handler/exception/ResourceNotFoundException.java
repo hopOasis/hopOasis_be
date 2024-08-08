@@ -1,4 +1,4 @@
-package com.example.hop_oasis.hendler.exception;
+package com.example.hop_oasis.handler.exception;
 
 import static java.lang.String.format;
 
