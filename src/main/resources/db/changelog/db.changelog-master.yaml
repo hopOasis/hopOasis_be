@@ -1,51 +1,75 @@
 databaseChangeLog:
   - include:
-      file: classpath:/db/changelog/changes/005-create-beer.sql
+      relativeToChangelogFile: true
+      file: changes/005-create-beer.sql
   - include:
-      file: classpath:/db/changelog/changes/006-create-image.sql
+      relativeToChangelogFile: true
+      file: changes/006-create-image.sql
   - include:
-      file: classpath:/db/changelog/changes/009-create-snacks.sql
+      relativeToChangelogFile: true
+      file: changes/009-create-snacks.sql
   - include:
-      file: classpath:/db/changelog/changes/010-create-snack-image.sql
+      relativeToChangelogFile: true
+      file: changes/010-create-snack-image.sql
   - include:
-      file: classpath:/db/changelog/changes/011-create-product-bundle.sql
+      relativeToChangelogFile: true
+      file: changes/011-create-product-bundle.sql
   - include:
-      file: classpath:/db/changelog/changes/012-create-products-images.sql
+      relativeToChangelogFile: true
+      file: changes/012-create-products-images.sql
   - include:
-      file: classpath:/db/changelog/changes/007-create-cider.sql
+      relativeToChangelogFile: true
+      file: changes/007-create-cider.sql
   - include:
-      file: classpath:/db/changelog/changes/008-create-cider_image.sql
+      relativeToChangelogFile: true
+      file: changes/008-create-cider_image.sql
   - include:
-      file: classpath:/db/changelog/changes/014-create-special-offer.sql
+      relativeToChangelogFile: true
+      file: changes/014-create-special-offer.sql
   - include:
-      file: classpath:/db/changelog/changes/019-create-beer-offer.sql
+      relativeToChangelogFile: true
+      file: changes/019-create-beer-offer.sql
   - include:
-      file: classpath:/db/changelog/changes/020-create-cider-offer.sql
+      relativeToChangelogFile: true
+      file: changes/020-create-cider-offer.sql
   - include:
-      file: classpath:/db/changelog/changes/021-create-snack-offer.sql
+      relativeToChangelogFile: true
+      file: changes/021-create-snack-offer.sql
   - include:
-      file: classpath:/db/changelog/changes/022-create-product-bundle-offer.sql
+      relativeToChangelogFile: true
+      file: changes/022-create-product-bundle-offer.sql
   - include:
-      file: classpath:/db/changelog/changes/023-add-name-and-active-to-special-offer.sql
+      relativeToChangelogFile: true
+      file: changes/023-add-name-and-active-to-special-offer.sql
   - include:
-      file: classpath:/db/changelog/changes/013-create-beer-rating.sql
+      relativeToChangelogFile: true
+      file: changes/013-create-beer-rating.sql
   - include:
-      file: classpath:/db/changelog/changes/015-create-cider-rating.sql
+      relativeToChangelogFile: true
+      file: changes/015-create-cider-rating.sql
   - include:
-      file: classpath:/db/changelog/changes/016-create-snack-rating.sql
+      relativeToChangelogFile: true
+      file: changes/016-create-snack-rating.sql
   - include:
-      file: classpath:/db/changelog/changes/017-create-product-rating.sql
+      relativeToChangelogFile: true
+      file: changes/017-create-product-rating.sql
   - include:
-      file: classpath:/db/changelog/changes/024-delete-culomn-image-from-images.sql
+      relativeToChangelogFile: true
+      file: changes/024-delete-culomn-image-from-images.sql
   - include:
-      file: classpath:/db/changelog/changes/025-delete-culomn-image-from-cider-images.sql
+      relativeToChangelogFile: true
+      file: changes/025-delete-culomn-image-from-cider-images.sql
   - include:
-      file: classpath:/db/changelog/changes/026-delete-culomn-image-from-snack-images.sql
+      relativeToChangelogFile: true
+      file: changes/026-delete-culomn-image-from-snack-images.sql
   - include:
-      file: classpath:/db/changelog/changes/027-delete-culomn-image-from-product-bundle-images.sql
+      relativeToChangelogFile: true
+      file: changes/027-delete-culomn-image-from-product-bundle-images.sql
   - include:
-      file: classpath:/db/changelog/changes/028-create-cart.sql
+      relativeToChangelogFile: true
+      file: changes/028-create-cart.sql
   - include:
-      file: classpath:/db/changelog/changes/029-create-cart-item.sql
+      relativeToChangelogFile: true
+      file: changes/029-create-cart-item.sql
 
 
