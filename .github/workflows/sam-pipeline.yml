@@ -30,8 +30,6 @@ jobs:
 
       - name: Validate Liquibase Migrations
       - uses: liquibase/liquibase-github-action@v7
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
         with:
           operation: 'validate'
           url: ${{ secrets.DATABASE_URL }}
