@@ -25,7 +25,7 @@ jobs:
           echo ${{steps.setup-java.outputs.java-home}}
 
       - name: Validate Liquibase Migrations
-        uses: liquibase-github-actions/validate@v4.29.1
+        uses: liquibase-github-actions/validate@v4.29.0
         with:
           operation: 'validate'
           url: ${{ secrets.DATABASE_URL }}
