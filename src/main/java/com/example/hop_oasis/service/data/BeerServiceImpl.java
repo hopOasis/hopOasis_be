@@ -56,7 +56,7 @@ public class BeerServiceImpl implements BeerService {
     public Page<BeerInfoDto> getAllBeers(Pageable pageable) {
         Page<Beer> beers = beerRepository.findAll(pageable);
         if (beers.isEmpty()) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+            return Page.empty(pageable);
         }
         return beers.map(this::convertToDtoWithRating);
     }

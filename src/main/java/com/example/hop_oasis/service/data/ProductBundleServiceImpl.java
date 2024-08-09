@@ -61,7 +61,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     public Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable) {
         Page<ProductBundle> productBundles = productBundleRepository.findAll(pageable);
         if (productBundles.isEmpty()) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+            return Page.empty(pageable);
         }
         return productBundles.map(this::convertToDtoWithRating);
     }

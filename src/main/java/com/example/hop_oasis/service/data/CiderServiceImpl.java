@@ -57,7 +57,7 @@ public class CiderServiceImpl implements CiderService {
     public Page<CiderInfoDto> getAllCiders(Pageable pageable) {
         Page<Cider> cider = ciderRepository.findAll(pageable);
         if (cider.isEmpty()) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+            return Page.empty(pageable);
         }
         return cider.map(this::convertToDtoWithRating);
     }

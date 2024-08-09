@@ -56,7 +56,7 @@ public class SnackServiceImpl implements SnackService {
     public Page<SnackInfoDto> getAllSnacks(Pageable pageable) {
         Page<Snack> snacks = snackRepository.findAll(pageable);
         if (snacks.isEmpty()) {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+          return Page.empty(pageable);
         }
         return snacks.map(this::convertToDtoWithRating);
     }
