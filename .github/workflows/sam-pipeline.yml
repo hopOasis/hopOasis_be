@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-deploy:
-
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,6 +17,36 @@ jobs:
         with:
           distribution: 'corretto'
           java-version: '21'
+
+      - name: Verify Java installation
+        run: |
+          echo $JAVA_HOME
+          java -version
+          echo ${{steps.setup-java.outputs.java-home}}
+
+      - name: Validate Liquibase Migrations
+        uses: liquibase-github-actions/validate@v4.29.0
+        with:
+          url: ${{ secrets.DATABASE_URL }}
+          username: ${{ secrets.DATABASE_USERNAME }}
+          password: ${{ secrets.DATABASE_PASSWORD }}
+          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          logLevel: info
+        env:
+          JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
+          INSTALL_MYSQL: true
+
+      - name: Liquibase Status
+        uses: liquibase-github-actions/status@v4.29.0
+        with:
+          url: ${{ secrets.DATABASE_URL }}
+          username: ${{ secrets.DATABASE_USERNAME }}
+          password: ${{ secrets.DATABASE_PASSWORD }}
+          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          logLevel: info
+        env:
+          JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
+          INSTALL_MYSQL: true
 
       - name: Cache Maven packages
         uses: actions/cache@v2
@@ -45,6 +74,19 @@ jobs:
             --template-file template.yml \
             --output-template-file packaged.yml \
             --s3-bucket hop-be-lambda-builds
+
+      - name: Update Liquibase Migrations
+        uses: liquibase-github-actions/update@v4.29.0
+        with:
+          url: ${{ secrets.DATABASE_URL }}
+          username: ${{ secrets.DATABASE_USERNAME }}
+          password: ${{ secrets.DATABASE_PASSWORD }}
+          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          logLevel: info
+          showSummary: 'summary'
+        env:
+          JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
+          INSTALL_MYSQL: true
 
       - name: Deploy SAM application
         run: |

@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
 
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleImage;
 import com.example.hop_oasis.repository.ProductBundleImageRepository;
@@ -16,8 +16,8 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static com.example.hop_oasis.extractor.ImageNameExtractor.extractName;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_DELETED;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
 
 @Service

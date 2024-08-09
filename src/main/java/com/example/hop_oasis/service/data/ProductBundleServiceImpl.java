@@ -4,7 +4,7 @@ import com.example.hop_oasis.convertor.ProductBundleMapper;
 import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.service.ProductBundleService;
@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
 @Service
 @RequiredArgsConstructor

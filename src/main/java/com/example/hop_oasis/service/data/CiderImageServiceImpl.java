@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.convertor.CiderInfoMapper;
 import com.example.hop_oasis.dto.CiderInfoDto;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderImage;
 import com.example.hop_oasis.repository.CiderImageRepository;
@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import static com.example.hop_oasis.extractor.ImageNameExtractor.extractName;
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

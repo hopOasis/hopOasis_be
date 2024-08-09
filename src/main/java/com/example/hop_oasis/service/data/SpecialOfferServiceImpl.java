@@ -1,25 +1,18 @@
 package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.convertor.*;
-import com.example.hop_oasis.dto.BeerDto;
-import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.SpecialOfferAllProductDto;
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
-import java.sql.SQLNonTransientException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.example.hop_oasis.hendler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor

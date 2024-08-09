@@ -1,6 +1,6 @@
-package com.example.hop_oasis.hendler;
+package com.example.hop_oasis.handler;
 
-import com.example.hop_oasis.hendler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.example.hop_oasis.hendler.ErrorDetails.getResponseEntityErrorMap;
+import static com.example.hop_oasis.handler.ErrorDetails.getResponseEntityErrorMap;
 
 @RestControllerAdvice
 public class ValidationHandler {

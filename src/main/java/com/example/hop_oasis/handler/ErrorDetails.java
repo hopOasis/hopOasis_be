@@ -1,4 +1,4 @@
-package com.example.hop_oasis.hendler;
+package com.example.hop_oasis.handler;
 
 import lombok.Builder;
 import org.springframework.http.HttpStatus;
