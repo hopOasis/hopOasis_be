@@ -6,6 +6,7 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.service.CiderService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -62,6 +63,7 @@ public class CiderServiceImpl implements CiderService {
         return cider.map(this::convertToDtoWithRating);
     }
     @Override
+    @Transactional
     public CiderInfoDto update(CiderInfoDto ciderInfo, Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
@@ -86,6 +88,7 @@ public class CiderServiceImpl implements CiderService {
         return ciderInfoMapper.toDto(ciderRepository.save(cider));
     }
     @Override
+    @Transactional
     public CiderInfoDto deleteCider(Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));

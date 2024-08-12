@@ -6,6 +6,7 @@ import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.service.BeerService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -61,6 +62,7 @@ public class BeerServiceImpl implements BeerService {
         return beers.map(this::convertToDtoWithRating);
     }
     @Override
+    @Transactional
     public BeerInfoDto update(BeerInfoDto beerInfo, Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
@@ -89,6 +91,7 @@ public class BeerServiceImpl implements BeerService {
         return beerInfoMapper.toDto(beerRepository.save(beer));
     }
     @Override
+    @Transactional
     public BeerInfoDto delete(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));

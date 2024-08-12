@@ -8,6 +8,7 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.service.ProductBundleService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -66,6 +67,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         return productBundles.map(this::convertToDtoWithRating);
     }
     @Override
+    @Transactional
     public ProductBundleInfoDto update(ProductBundleInfoDto productDto, Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
@@ -81,6 +83,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         return productBundleInfoMapper.toDto(productBundleRepository.save(productBundle));
     }
     @Override
+    @Transactional
     public ProductBundleInfoDto deleteProductBundle(Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
