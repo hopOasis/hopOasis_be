@@ -10,7 +10,7 @@ import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.service.ProductBundleService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
+@Slf4j
 public class ProductBundleServiceImpl implements ProductBundleService {
     private final ProductBundleRepository productBundleRepository;
     private final ProductBundleMapper productBundleMapper;
