@@ -42,6 +42,10 @@
   "name":"[Lcom.fasterxml.jackson.databind.ser.Serializers;"
 },
 {
+  "name":"[Lcom.zaxxer.hikari.util.ConcurrentBag$IConcurrentBagEntry;",
+  "unsafeAllocated":true
+},
+{
   "name":"[Ljava.lang.Class;"
 },
 {
@@ -388,6 +392,7 @@
   "name":"com.example.hop_oasis.config.S3Config",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"s3client","parameterTypes":[] }, {"name":"setBeanFactory","parameterTypes":["org.springframework.beans.factory.BeanFactory"] }]
 },
 {
@@ -410,6 +415,7 @@
   "name":"com.example.hop_oasis.config.WebConfig",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
+  "queryAllDeclaredConstructors":true,
   "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"addCorsMappings","parameterTypes":["org.springframework.web.servlet.config.annotation.CorsRegistry"] }, {"name":"setBeanFactory","parameterTypes":["org.springframework.beans.factory.BeanFactory"] }]
 },
 {
@@ -1461,6 +1467,10 @@
   "queryAllPublicMethods":true
 },
 {
+  "name":"com.sun.management.UnixOperatingSystemMXBean",
+  "queryAllPublicMethods":true
+},
+{
   "name":"com.sun.management.VMOption",
   "queryAllPublicMethods":true
 },
@@ -1511,9 +1521,6 @@
 {
   "name":"com.zaxxer.hikari.pool.HikariProxyConnection",
   "methods":[{"name":"getSchema","parameterTypes":[] }]
-}, {
-  "name": "[Lcom.zaxxer.hikari.util.ConcurrentBag$IConcurrentBagEntry;",
-  "unsafeAllocated": true
 },
 {
   "name":"com.zaxxer.hikari.pool.PoolBase",
@@ -3279,6 +3286,12 @@
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
 },
 {
+  "name":"org.hibernate.bytecode.enhance.spi.interceptor.BytecodeInterceptorLogging_$logger_en"
+},
+{
+  "name":"org.hibernate.bytecode.enhance.spi.interceptor.BytecodeInterceptorLogging_$logger_en_US"
+},
+{
   "name":"org.hibernate.bytecode.enhance.spi.interceptor.BytecodeInterceptorLogging_$logger_uk"
 },
 {
@@ -3306,6 +3319,12 @@
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
 },
 {
+  "name":"org.hibernate.dialect.DialectLogging_$logger_en"
+},
+{
+  "name":"org.hibernate.dialect.DialectLogging_$logger_en_US"
+},
+{
   "name":"org.hibernate.dialect.DialectLogging_$logger_uk"
 },
 {
@@ -3321,6 +3340,12 @@
 {
   "name":"org.hibernate.engine.jdbc.batch.JdbcBatchLogging_$logger",
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.engine.jdbc.batch.JdbcBatchLogging_$logger_en"
+},
+{
+  "name":"org.hibernate.engine.jdbc.batch.JdbcBatchLogging_$logger_en_US"
 },
 {
   "name":"org.hibernate.engine.jdbc.batch.JdbcBatchLogging_$logger_uk"
@@ -3400,6 +3425,12 @@
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
 },
 {
+  "name":"org.hibernate.internal.CoreMessageLogger_$logger_en"
+},
+{
+  "name":"org.hibernate.internal.CoreMessageLogger_$logger_en_US"
+},
+{
   "name":"org.hibernate.internal.CoreMessageLogger_$logger_uk"
 },
 {
@@ -3410,6 +3441,12 @@
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
 },
 {
+  "name":"org.hibernate.internal.EntityManagerMessageLogger_$logger_en"
+},
+{
+  "name":"org.hibernate.internal.EntityManagerMessageLogger_$logger_en_US"
+},
+{
   "name":"org.hibernate.internal.EntityManagerMessageLogger_$logger_uk"
 },
 {
@@ -3418,6 +3455,12 @@
 {
   "name":"org.hibernate.metamodel.mapping.MappingModelCreationLogging_$logger",
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.metamodel.mapping.MappingModelCreationLogging_$logger_en"
+},
+{
+  "name":"org.hibernate.metamodel.mapping.MappingModelCreationLogging_$logger_en_US"
 },
 {
   "name":"org.hibernate.metamodel.mapping.MappingModelCreationLogging_$logger_uk"
@@ -3472,6 +3515,12 @@
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
 },
 {
+  "name":"org.hibernate.query.QueryLogging_$logger_en"
+},
+{
+  "name":"org.hibernate.query.QueryLogging_$logger_en_US"
+},
+{
   "name":"org.hibernate.query.QueryLogging_$logger_uk"
 },
 {
@@ -3489,6 +3538,12 @@
 {
   "name":"org.hibernate.query.hql.HqlLogging_$logger",
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.query.hql.HqlLogging_$logger_en"
+},
+{
+  "name":"org.hibernate.query.hql.HqlLogging_$logger_en_US"
 },
 {
   "name":"org.hibernate.query.hql.HqlLogging_$logger_uk"
@@ -3519,6 +3574,12 @@
 {
   "name":"org.hibernate.sql.ast.tree.SqlAstTreeLogger_$logger",
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
+},
+{
+  "name":"org.hibernate.sql.ast.tree.SqlAstTreeLogger_$logger_en"
+},
+{
+  "name":"org.hibernate.sql.ast.tree.SqlAstTreeLogger_$logger_en_US"
 },
 {
   "name":"org.hibernate.sql.ast.tree.SqlAstTreeLogger_$logger_uk"
@@ -3584,6 +3645,12 @@
   "methods":[{"name":"<init>","parameterTypes":["org.jboss.logging.Logger"] }]
 },
 {
+  "name":"org.hibernate.validator.internal.util.logging.Log_$logger_en"
+},
+{
+  "name":"org.hibernate.validator.internal.util.logging.Log_$logger_en_US"
+},
+{
   "name":"org.hibernate.validator.internal.util.logging.Log_$logger_uk"
 },
 {
@@ -3592,6 +3659,12 @@
 {
   "name":"org.hibernate.validator.internal.util.logging.Messages_$bundle",
   "fields":[{"name":"INSTANCE"}]
+},
+{
+  "name":"org.hibernate.validator.internal.util.logging.Messages_$bundle_en"
+},
+{
+  "name":"org.hibernate.validator.internal.util.logging.Messages_$bundle_en_US"
 },
 {
   "name":"org.hibernate.validator.internal.util.logging.Messages_$bundle_uk"
@@ -4084,6 +4157,7 @@
 },
 {
   "name":"org.springframework.aop.TargetClassAware",
+  "queryAllDeclaredMethods":true,
   "methods":[{"name":"getTargetClass","parameterTypes":[] }]
 },
 {
@@ -6181,6 +6255,15 @@
   "name":"org.springframework.cache.interceptor.CacheAspectSupport"
 },
 {
+  "name":"org.springframework.cglib.proxy.Dispatcher"
+},
+{
+  "name":"org.springframework.cglib.proxy.MethodInterceptor"
+},
+{
+  "name":"org.springframework.cglib.proxy.NoOp"
+},
+{
   "name":"org.springframework.cloud.function.serverless.web.ServerlessAutoConfiguration",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
@@ -6633,7 +6716,7 @@
   "name":"org.springframework.data.mapping.context.MappingContext",
   "queryAllDeclaredMethods":true,
   "queryAllPublicMethods":true,
-  "methods":[{"name":"<init>","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }, {"name":"from","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }, {"name":"getPersistentEntity","parameterTypes":["java.lang.Class"] }, {"name":"getPersistentEntity","parameterTypes":["org.springframework.data.util.TypeInformation"] }, {"name":"getRequiredPersistentEntity","parameterTypes":["java.lang.Class"] }, {"name":"getRequiredPersistentEntity","parameterTypes":["org.springframework.data.mapping.PersistentProperty"] }, {"name":"getRequiredPersistentEntity","parameterTypes":["org.springframework.data.util.TypeInformation"] }, {"name":"of","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }, {"name":"valueOf","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }]
+  "methods":[{"name":"<init>","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }, {"name":"from","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }, {"name":"getPersistentEntity","parameterTypes":["java.lang.Class"] }, {"name":"getPersistentEntity","parameterTypes":["org.springframework.data.mapping.PersistentProperty"] }, {"name":"getPersistentEntity","parameterTypes":["org.springframework.data.util.TypeInformation"] }, {"name":"getRequiredPersistentEntity","parameterTypes":["java.lang.Class"] }, {"name":"getRequiredPersistentEntity","parameterTypes":["org.springframework.data.mapping.PersistentProperty"] }, {"name":"getRequiredPersistentEntity","parameterTypes":["org.springframework.data.util.TypeInformation"] }, {"name":"of","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }, {"name":"valueOf","parameterTypes":["org.springframework.data.jpa.mapping.JpaMetamodelMappingContext"] }]
 },
 {
   "name":"org.springframework.data.querydsl.QuerydslPredicateExecutor"
@@ -8117,6 +8200,10 @@
 {
   "name":"sun.security.provider.MD5",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["java.security.SecureRandomParameters"] }]
 },
 {
   "name":"sun.security.provider.SHA",
