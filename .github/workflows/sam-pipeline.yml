@@ -106,5 +106,5 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }} 
           subject: "Branch 'dev' has been updated"
           body: "The 'dev' branch has been updated. Please review the changes."
-          to: "user1@example.com,user2@example.com"  
+          to: "roananik1988@gmail.com,anna2511xxx@gmail.com,oksana.mixulya.88@gmail.com"  
           from: ${{ secrets.EMAIL_USERNAME }}
