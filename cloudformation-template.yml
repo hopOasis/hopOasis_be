@@ -1,18 +1,17 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: An AWS Serverless Application Model template describing your Docker-based function.
-
+Description: An AWS Serverless Application Model template describing your function.
 Resources:
   hopBeResource:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: hop-be-function-native-image
-      PackageType: Image
+      Description: ''
+      ImageUri: ghcr.io/hopoasis/hop_oasis_be:latest
       MemorySize: 512
       Timeout: 90
       Architectures:
         - x86_64
-      ImageUri: ghcr.io/hopoasis/hop_oasis_be:latest
       EphemeralStorage:
         Size: 512
       EventInvokeConfig:
@@ -21,6 +20,7 @@ Resources:
       FunctionUrlConfig:
         AuthType: NONE
         InvokeMode: BUFFERED
+      PackageType: Image
       Policies:
         - Statement:
             - Effect: Allow
@@ -32,9 +32,10 @@ Resources:
                 - logs:CreateLogStream
                 - logs:PutLogEvents
               Resource:
-                - >-
-                  arn:aws:logs:eu-central-1:851725266218:log-group:/aws/lambda/hop-be:*
+                - arn:aws:logs:eu-central-1:851725266218:log-group:/aws/lambda/hop-be:*
       SnapStart:
         ApplyOn: None
       RuntimeManagementConfig:
         UpdateRuntimeOn: Auto
+    Metadata:
+      SamResourceId: hopBeResource
