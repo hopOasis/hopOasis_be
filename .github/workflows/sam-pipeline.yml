@@ -104,8 +104,12 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: Set up AWS SAM CLI
-        uses: aws-actions/setup-sam@v1
+#      - name: Set up AWS SAM CLI
+#        uses: aws-actions/setup-sam@v1
+
+
+      - name: Print Full Image Name
+        run: echo ${{ env.FULL_IMAGE_NAME }}
 
       - name: Package SAM application
         run: |
@@ -114,9 +118,6 @@ jobs:
             --output-template-file packaged.yml \
             --s3-bucket hop-be-lambda-builds \
             --image-repository ${{ env.FULL_IMAGE_NAME }}
-
-      - name: Set up AWS SAM CLI
-        uses: aws-actions/setup-sam@v1
 
 #      - name: Update Liquibase Migrations
 #        uses: liquibase-github-actions/update@v4.29.0
