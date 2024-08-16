@@ -115,13 +115,12 @@ jobs:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
           INSTALL_MYSQL: true
 
-      - name: Deploy SAM application
+      - name: Deploy CloudFormation application
         run: |
-          sam deploy \
+          aws cloudformation deploy \
             --template-file cloudformation-template.yml \
             --stack-name hop-be-native-image-stack \
-            --capabilities CAPABILITY_IAM \
-            --region eu-central-1
+            --capabilities CAPABILITY_IAM
 
   send-email:
     runs-on: ubuntu-latest
