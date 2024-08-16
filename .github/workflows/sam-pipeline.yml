@@ -52,11 +52,11 @@ jobs:
           registry-type: public
 
       - name: Prepare environment variables
-        env:
-          REGISTRY: ${{ steps.login-ecr-public.outputs.registry }}
-          REGISTRY_ALIAS: p5i7r0u0
-          REPOSITORY: hop_oasis/be
-          IMAGE_TAG: latest
+        run: |
+          echo "REGISTRY=${{ steps.login-ecr-public.outputs.registry }}" >> $GITHUB_ENV
+          echo "REGISTRY_ALIAS=p5i7r0u0" >> $GITHUB_ENV
+          echo "REPOSITORY=hop_oasis/be" >> $GITHUB_ENV
+          echo "IMAGE_TAG=latest" >> $GITHUB_ENV
 
       - name: Set FULL_IMAGE_NAME
         run: echo "FULL_IMAGE_NAME=${{ env.REGISTRY }}/${{env.REGISTRY_ALIAS}}/${{env.REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_ENV
