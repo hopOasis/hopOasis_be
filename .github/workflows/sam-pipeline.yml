@@ -52,24 +52,20 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # us_east-1 region must be used for Amazon ECR Public login.
-          aws-region: us-east-1
+          aws-region: eu-central-1
 
-      - name: Login to Amazon ECR Public
-        id: login-ecr-public
+      - name: Login to Amazon ECR
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-        with:
-          registry-type: public
 
       - name: Prepare environment variables
         run: |
-          echo "REGISTRY=${{ steps.login-ecr-public.outputs.registry }}" >> $GITHUB_ENV
-          echo "REGISTRY_ALIAS=p5i7r0u0" >> $GITHUB_ENV
-          echo "REPOSITORY=hop_oasis/be" >> $GITHUB_ENV
+          echo "REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+          echo "REPOSITORY=hop_oasis" >> $GITHUB_ENV
           echo "IMAGE_TAG=latest" >> $GITHUB_ENV
 
       - name: Set FULL_IMAGE_NAME
-        run: echo "FULL_IMAGE_NAME=${{ env.REGISTRY }}/${{env.REGISTRY_ALIAS}}/${{env.REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_ENV
+        run: echo "FULL_IMAGE_NAME=${{ env.REGISTRY }}/${{env.REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_ENV
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -77,12 +73,12 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-#      - name: Build native image
-#        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
-#
-#      - name: Push docker image to Amazon ECR Public
-#        run: |
-#          docker push ${{ env.FULL_IMAGE_NAME }}
+      - name: Build native image
+        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
+
+      - name: Push docker image to Amazon ECR Public
+        run: |
+          docker push ${{ env.FULL_IMAGE_NAME }}
 
   configure-deploy:
     runs-on: ubuntu-latest
@@ -113,8 +109,8 @@ jobs:
             --template-file template.yml \
             --output-template-file packaged.yml \
             --s3-bucket hop-be-lambda-builds \
-            --region us-east-1 \
-            --image-repository public.ecr.aws/p5i7r0u0/hop_oasis/be
+            --region eu-central-1 \
+            --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis
 
 #      - name: Update Liquibase Migrations
 #        uses: liquibase-github-actions/update@v4.29.0
@@ -136,7 +132,7 @@ jobs:
             --stack-name hop-be-stack \
             --capabilities CAPABILITY_IAM \
             --region eu-central-1 \
-            --image-repository public.ecr.aws/p5i7r0u0/hop_oasis/be
+            --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis
 
 #  send-email:
 #    runs-on: ubuntu-latest
