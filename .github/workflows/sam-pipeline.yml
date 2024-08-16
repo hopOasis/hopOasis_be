@@ -53,7 +53,8 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-central-1
+          # us_east-1 region must be used for Amazon ECR Public login.
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR Public
         id: login-ecr-public
