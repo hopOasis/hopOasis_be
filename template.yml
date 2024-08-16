@@ -12,7 +12,7 @@ Resources:
       Timeout: 90
       Architectures:
         - x86_64
-      ImageUri: <image>
+      ImageUri: 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis:latest
       EphemeralStorage:
         Size: 512
       EventInvokeConfig:
