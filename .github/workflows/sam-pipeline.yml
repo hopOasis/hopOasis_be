@@ -104,12 +104,8 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-#      - name: Set up AWS SAM CLI
-#        uses: aws-actions/setup-sam@v1
-
-
-      - name: Print Full Image Name
-        run: echo ${{ env.FULL_IMAGE_NAME }}
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v1
 
       - name: Package SAM application
         run: |
@@ -117,7 +113,7 @@ jobs:
             --template-file template.yml \
             --output-template-file packaged.yml \
             --s3-bucket hop-be-lambda-builds \
-            --image-repository ${{ env.FULL_IMAGE_NAME }}
+            --image-repository public.ecr.aws/p5i7r0u0/hop_oasis/be
 
 #      - name: Update Liquibase Migrations
 #        uses: liquibase-github-actions/update@v4.29.0
@@ -139,7 +135,7 @@ jobs:
             --stack-name hop-be-stack \
             --capabilities CAPABILITY_IAM \
             --region eu-central-1 \
-            --image-repository ${{ env.FULL_IMAGE_NAME }}
+            --image-repository public.ecr.aws/p5i7r0u0/hop_oasis/be
 
 #  send-email:
 #    runs-on: ubuntu-latest
