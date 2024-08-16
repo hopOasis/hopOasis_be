@@ -1,12 +1,15 @@
 name: Deploy to AWS Lambda
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
     branches:
-      - dev
-
+      - add-graalvm-support
 jobs:
-  build-deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,19 +21,13 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: Verify Java installation
-        run: |
-          echo $JAVA_HOME
-          java -version
-          echo ${{steps.setup-java.outputs.java-home}}
-
       - name: Validate Liquibase Migrations
         uses: liquibase-github-actions/validate@v4.29.0
         with:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          changeLogFile: 'src/main/resources/db/changelog/db.changelog-master.yaml'
           logLevel: info
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
@@ -42,28 +39,60 @@ jobs:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          changeLogFile: 'src/main/resources/db/changelog/db.changelog-master.yaml'
           logLevel: info
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
           INSTALL_MYSQL: true
 
-      - name: Cache Maven packages
-        uses: actions/cache@v2
+  build-push:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: hop_oasis_be
+      IMAGE_TAG: latest
+    steps:
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set lower case owner name
+        env:
+          OWNER: '${{ github.repository_owner }}'
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+
+      - name: Set FULL_IMAGE_NAME
+        run: echo "FULL_IMAGE_NAME=ghcr.io/${{ env.OWNER_LC }}/${{env.IMAGE_NAME}}:${{env.IMAGE_TAG}}" >> $GITHUB_ENV
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          distribution: 'corretto'
+          java-version: '21'
 
-      - name: Build with Maven
-        run: mvn clean package -P lambda
+      - name: Build native image
+        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
 
+      - name: Push the image
+        run: docker push ${{ env.FULL_IMAGE_NAME }}
+
+  configure-deploy:
+      runs-on: ubuntu-latest
+      steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
 
       - name: Set up AWS SAM CLI
         uses: aws-actions/setup-sam@v1
@@ -81,7 +110,7 @@ jobs:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
+          changeLogFile: 'src/main/resources/db/changelog/db.changelog-master.yaml'
           logLevel: info
           showSummary: 'summary'
         env:
@@ -96,6 +125,9 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --region eu-central-1
 
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
       - name: Check commit message for keywords
         id: check_message
         run: | 
@@ -103,17 +135,16 @@ jobs:
            echo "send_email=true" >> $GITHUB_ENV
           else
            echo "send_email=false" >> $GITHUB_ENV
-          fi
-      
-      
+          fi      
+
       - name: Send email notification
         if: env.send_email == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com  
+          server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}  
-          password: ${{ secrets.EMAIL_PASSWORD }} 
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Branch 'dev' has been updated"
           body: "The 'dev' branch has been updated. Please review the changes."
           to: "roananik1988@gmail.com,anna2511xxx@gmail.com,oksana.mixulya.88@gmail.com,denzava30@gmail.com"
