@@ -21,19 +21,7 @@ Resources:
       FunctionUrlConfig:
         AuthType: NONE
         InvokeMode: BUFFERED
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-              Resource: arn:aws:logs:eu-central-1:851725266218:*
-            - Effect: Allow
-              Action:
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource:
-                - >-
-                  arn:aws:logs:eu-central-1:851725266218:log-group:/aws/lambda/hop-be:*
+      Role: arn:aws:iam::851725266218:role/hop-be-stack-hopBeResourceRole-V5wqrSnx3fqb
       SnapStart:
         ApplyOn: None
       RuntimeManagementConfig:
