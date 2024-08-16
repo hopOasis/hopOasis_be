@@ -1,0 +1,26 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - add-graalvm-support
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: hop_oasis_be
+      IMAGE_TAG: latest
+    steps:
+      - name: Set FULL_IMAGE_NAME
+        run: echo "FULL_IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Build native image
+        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=ghcr.io/${{ github.repository_owner }}/<image_name>:<tag>
+
+      - name: Push to GitHub Container Registry
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ${{ env.FULL_IMAGE_NAME }}
