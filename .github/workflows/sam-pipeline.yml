@@ -95,9 +95,19 @@ jobs:
             --stack-name hop-be-stack \
             --capabilities CAPABILITY_IAM \
             --region eu-central-1
-            
 
+      - name: Check commit message for keywords
+        id: check_message
+        run: | 
+          if git log -1 --pretty=%B | grep -q -E "feature|bugfix|fix|refactor|update"; then
+           echo "send_email=true" >> $GITHUB_ENV
+          else
+           echo "send_email=false" >> $GITHUB_ENV
+          fi
+      
+      
       - name: Send email notification
+        if: env.send_email == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: smtp.gmail.com  
@@ -106,5 +116,5 @@ jobs:
           password: ${{ secrets.EMAIL_PASSWORD }} 
           subject: "Branch 'dev' has been updated"
           body: "The 'dev' branch has been updated. Please review the changes."
-          to: "roananik1988@gmail.com,anna2511xxx@gmail.com,oksana.mixulya.88@gmail.com"  
+          to: "roananik1988@gmail.com,anna2511xxx@gmail.com,oksana.mixulya.88@gmail.com,denzava30@gmail.com"
           from: ${{ secrets.EMAIL_USERNAME }}
