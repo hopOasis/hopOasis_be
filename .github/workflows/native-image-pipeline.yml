@@ -11,8 +11,18 @@ jobs:
       IMAGE_NAME: hop_oasis_be
       IMAGE_TAG: latest
     steps:
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Set lower case owner name
+        env:
+          OWNER: '${{ github.repository_owner }}'
+        run: |
+          echo "OWNER_LC=${OWNER,,}" >>${GITHUB_ENV}
+
       - name: Set FULL_IMAGE_NAME
-        run: echo "FULL_IMAGE_NAME=ghcr.io/hop_oasis_registry/${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
+        run: echo "FULL_IMAGE_NAME=ghcr.io/${{ env.OWNER_LC }}/${IMAGE_NAME}:${IMAGE_TAG}" >> $GITHUB_ENV
+
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -22,11 +32,14 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: Build native image
-        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
+#      - name: Build native image
+#        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
 
-      - name: Log in to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Create a test Docker image
+        run: |
+          echo "FROM alpine:latest" > Dockerfile
+          echo "CMD echo Hello World" >> Dockerfile
+          docker build -t ${{ env.FULL_IMAGE_NAME }} .
 
       - name: Push the image
         run: docker push ${{ env.FULL_IMAGE_NAME }}
