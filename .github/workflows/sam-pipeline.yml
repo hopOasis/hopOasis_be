@@ -113,6 +113,7 @@ jobs:
             --template-file template.yml \
             --output-template-file packaged.yml \
             --s3-bucket hop-be-lambda-builds \
+            --region us-east-1 \
             --image-repository public.ecr.aws/p5i7r0u0/hop_oasis/be
 
 #      - name: Update Liquibase Migrations
