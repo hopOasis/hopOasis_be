@@ -73,12 +73,12 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-#      - name: Build native image
-#        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
-#
-#      - name: Push docker image to Amazon ECR Public
-#        run: |
-#          docker push ${{ env.FULL_IMAGE_NAME }}
+      - name: Build native image
+        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
+
+      - name: Push docker image to Amazon ECR Public
+        run: |
+          docker push ${{ env.FULL_IMAGE_NAME }}
 
   configure-deploy:
     runs-on: ubuntu-latest
