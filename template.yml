@@ -24,5 +24,3 @@ Resources:
       Role: arn:aws:iam::851725266218:role/hop-be-stack-hopBeResourceRole-V5wqrSnx3fqb
       SnapStart:
         ApplyOn: None
-      RuntimeManagementConfig:
-        UpdateRuntimeOn: Auto
