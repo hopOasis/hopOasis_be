@@ -6,10 +6,11 @@ Resources:
   hopBeResource:
     Type: AWS::Serverless::Function
     Properties:
+      Tracing: Active
       FunctionName: hop-be-function-native-image
       PackageType: Image
       MemorySize: 512
-      Timeout: 90
+      Timeout: 15
       Architectures:
         - x86_64
       ImageUri: 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis:latest
