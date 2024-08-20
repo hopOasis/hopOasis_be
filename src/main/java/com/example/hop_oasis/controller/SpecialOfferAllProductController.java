@@ -23,6 +23,10 @@ public class SpecialOfferAllProductController {
 
     @GetMapping("/active")
     public ResponseEntity<SpecialOfferAllProductDto> getActiveSpecialOffer() {
+        SpecialOfferAllProductDto activeSpecialOffer = specialOfferService.getActiveSpecialOffer();
+        if(activeSpecialOffer.getId() == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok().body(specialOfferService.getActiveSpecialOffer());
     }
 
