@@ -52,12 +52,20 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItemDto add(Long cartId, Long itemId, int quantity, ItemType itemType) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    return cartRepository.save(newCart);
-                });
+        Cart cart;
 
+        if (cartId != null) {
+            cart = cartRepository.findById(cartId).orElse(null);
+        } else {
+            cart = new Cart();
+            cart = cartRepository.save(cart);
+            cartId = cart.getId();
+        }
+        if (cart == null) {
+            cart = new Cart();
+            cart = cartRepository.save(cart);
+            cartId = cart.getId();
+        }
 
         List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId, itemId, itemType);
 
@@ -67,14 +75,18 @@ public class CartServiceImpl implements CartService {
             cartItem.setCart(cart);
             cartItem.setItemId(itemId);
             cartItem.setItemType(itemType);
+            cartItem.setQuantity(quantity);
         } else {
-            cartItem = cartItems.getFirst();
+            cartItem = cartItems.get(0);
+            cartItem.setQuantity(cartItem.getQuantity() + quantity);
         }
-        cartItem.setQuantity(quantity + cartItem.getQuantity());
 
         cartItemRepository.save(cartItem);
 
-        return createCartItemDto(cartItem);
+        CartItemDto dto = createCartItemDto(cartItem);
+        dto.setCartId(cartId);
+
+        return dto;
     }
 
 
@@ -82,9 +94,7 @@ public class CartServiceImpl implements CartService {
     public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
-        //перетворити айтемс в картайтемс
-        // засетити картайтемс в карт
-        //cart.setCartItems();
+
         for (ItemRequestDto item : items) {
             List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId
                     , item.getItemId(), item.getItemType());
@@ -128,6 +138,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDto createCartItemDto(CartItem cartItem) {
         CartItemDto dto = new CartItemDto();
+        dto.setCartId((cartItem.getCart().getId()));
         dto.setItemId(cartItem.getItemId());
         dto.setQuantity(cartItem.getQuantity());
 

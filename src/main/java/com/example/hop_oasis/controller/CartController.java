@@ -7,8 +7,10 @@ import com.example.hop_oasis.dto.ItemRequestDto;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.service.CartService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/carts")
@@ -19,7 +21,11 @@ public class CartController {
 
     @GetMapping("/{cartId}")
     public ResponseEntity<CartDto> find(@PathVariable Long cartId) {
-        return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
+        CartDto cartDto = cartService.getAllItemsByCartId(cartId);
+        if(cartDto.getItems().isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return ResponseEntity.ok().body(cartDto);
     }
 
     @PostMapping
