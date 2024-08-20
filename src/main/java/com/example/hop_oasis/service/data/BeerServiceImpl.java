@@ -26,7 +26,7 @@ public class BeerServiceImpl implements BeerService {
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
     @Override
-    public Beer save( BeerDto beerDto)  {
+    public Beer save(BeerDto beerDto) {
         Beer beer = beerMapper.toEntity(beerDto);
         beerRepository.save(beer);
         return beer;

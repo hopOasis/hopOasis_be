@@ -27,7 +27,7 @@ public class CiderServiceImpl implements CiderService {
     private final CiderRatingServiceImpl ciderRatingService;
 
     @Override
-    public Cider saveCider( CiderDto ciderDto) {
+    public Cider saveCider(CiderDto ciderDto) {
         Cider cider = ciderMapper.toEntity(ciderDto);
         ciderRepository.save(cider);
         return cider;

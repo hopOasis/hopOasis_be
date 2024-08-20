@@ -15,13 +15,13 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring",
 unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface SnackInfoMapper extends  Mappable<Snack,SnackInfoDto>{
+public interface SnackInfoMapper extends Mappable<Snack, SnackInfoDto> {
     @Mapping(target = "snackImageName", source = "snackImage")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
     SnackInfoDto toDto(Snack snack);
 
-    default List<String> mapSnackImagesName(List<SnackImage> images){
-        if(images == null) {
+    default List<String> mapSnackImagesName(List<SnackImage> images) {
+        if (images == null) {
             return null;
         }
         return images.stream()
@@ -29,7 +29,7 @@ public interface SnackInfoMapper extends  Mappable<Snack,SnackInfoDto>{
                 .collect(Collectors.toList());
     }
     default List<Long> mapOffersToIds(List<SpecialOfferProduct> offers) {
-        if(offers == null) {
+        if (offers == null) {
             return null;
         }
         return offers.stream()

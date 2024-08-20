@@ -33,7 +33,7 @@ public class CiderImageServiceImpl implements CiderImageService {
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ciderId));
         String fileName;
         try {
-            fileName ="ciders/" + file.getOriginalFilename();
+            fileName = "ciders/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");

@@ -12,5 +12,5 @@ public interface SnackService {
     SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long itemId, double ratingValue);
     Page<SnackInfoDto> getAllSnacks(Pageable pageable);
     SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id);
-    SnackInfoDto  deleteSnack(Long id);
+    SnackInfoDto deleteSnack(Long id);
 }

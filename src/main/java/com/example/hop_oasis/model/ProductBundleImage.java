@@ -9,16 +9,16 @@ import lombok.*;
 @Getter
 @Setter
 @Entity
-@Table(name="products_images")
+@Table(name = "products_images")
 public class ProductBundleImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name ="id")
+    @Column(name = "id")
     private Long id;
     @Column(name = "name")
     private String name;
     @ManyToOne
-    @JoinColumn(name ="product_image_id")
+    @JoinColumn(name = "product_image_id")
     private ProductBundle productBundle;
 
 }

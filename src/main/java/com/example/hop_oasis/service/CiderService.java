@@ -6,7 +6,7 @@ import com.example.hop_oasis.model.Cider;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 public interface CiderService {
-    Cider saveCider (CiderDto ciderDto);
+    Cider saveCider(CiderDto ciderDto);
     CiderInfoDto getCiderById(Long id);
     CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long itemId, double ratingValue);
     Page<CiderInfoDto> getAllCiders(Pageable pageable);

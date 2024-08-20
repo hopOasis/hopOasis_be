@@ -6,5 +6,5 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
-public interface CiderImageMapper extends Mappable<CiderImage, CiderImageDto>{
+public interface CiderImageMapper extends Mappable<CiderImage, CiderImageDto> {
 }

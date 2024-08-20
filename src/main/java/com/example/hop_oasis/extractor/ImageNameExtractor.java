@@ -9,7 +9,7 @@ public final class ImageNameExtractor {
     public static String extractName(String name) {
         if (name.startsWith("http://") || name.startsWith("https://")) {
             return name.substring(name.lastIndexOf('/') + 1);
-        }else {
+        } else {
             return name;
         }
     }

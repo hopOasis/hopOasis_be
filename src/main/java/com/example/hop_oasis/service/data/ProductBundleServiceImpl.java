@@ -49,7 +49,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
                 .orElseThrow(() -> new IllegalArgumentException("Bundle not found with id " + id));
         return convertToDtoWithRating(productBundle);
     }
-    private ProductBundleInfoDto convertToDtoWithRating(ProductBundle productBundle ) {
+    private ProductBundleInfoDto convertToDtoWithRating(ProductBundle productBundle) {
         ProductBundleInfoDto bundleInfoDto = productBundleInfoMapper.toDto(productBundle);
         ItemRatingDto rating = productBundleRatingService.getItemRating(productBundle.getId());
         BigDecimal roundedAverageRating = BigDecimal.valueOf(rating.getAverageRating())

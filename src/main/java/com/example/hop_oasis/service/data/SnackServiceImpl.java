@@ -32,7 +32,7 @@ public class SnackServiceImpl implements SnackService {
     }
     @Override
     public SnackInfoDto getSnackById(Long id) {
-        Snack snack = snackRepository.findById(id).orElseThrow(()->
+        Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(snack);
     }
@@ -64,7 +64,7 @@ public class SnackServiceImpl implements SnackService {
     @Override
     @Transactional
     public SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id) {
-        Snack snack = snackRepository.findById(id).orElseThrow(()->
+        Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
         if (!snackInfo.getSnackName().isEmpty()) {
@@ -90,7 +90,7 @@ public class SnackServiceImpl implements SnackService {
     @Override
     @Transactional
     public SnackInfoDto deleteSnack(Long id) {
-        Snack snack = snackRepository.findById(id).orElseThrow(()->
+        Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         snackRepository.deleteById(id);
         return snackInfoMapper.toDto(snack);

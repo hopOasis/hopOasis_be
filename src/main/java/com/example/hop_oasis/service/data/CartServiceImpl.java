@@ -82,12 +82,10 @@ public class CartServiceImpl implements CartService {
     public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
-        //перетворити айтемс в картайтемс
-        // засетити картайтемс в карт
-        //cart.setCartItems();
         for (ItemRequestDto item : items) {
-            List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId
-                    , item.getItemId(), item.getItemType());
+            List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId,
+                                                                                           item.getItemId(),
+                                                                                           item.getItemType());
             CartItem cartItem;
 
             if (cartItems.isEmpty()) {
@@ -132,34 +130,35 @@ public class CartServiceImpl implements CartService {
         dto.setQuantity(cartItem.getQuantity());
 
         switch (cartItem.getItemType()) {
-            case BEER:
+            case BEER -> {
                 BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
                 if (beerInfo != null) {
                     dto.setItemTitle(beerInfo.getBeerName());
                     dto.setPricePerItem(determinePrice(beerInfo.getPriceLarge(), beerInfo.getPriceSmall()));
                 }
-                break;
-            case SNACK:
+            }
+            case SNACK -> {
                 SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
                 if (snackInfo != null) {
                     dto.setItemTitle(snackInfo.getSnackName());
                     dto.setPricePerItem(determinePrice(snackInfo.getPriceLarge(), snackInfo.getPriceSmall()));
                 }
-                break;
-            case PRODUCT_BUNDLE:
+            }
+            case PRODUCT_BUNDLE -> {
                 ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
                 if (bundleInfo != null) {
                     dto.setItemTitle(bundleInfo.getName());
                     dto.setPricePerItem(bundleInfo.getPrice());
                 }
-                break;
-            case CIDER:
+            }
+            case CIDER -> {
                 CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
                 if (ciderInfo != null) {
                     dto.setItemTitle(ciderInfo.getCiderName());
                     dto.setPricePerItem(determinePrice(ciderInfo.getPriceLarge(), ciderInfo.getPriceSmall()));
                 }
-                break;
+            }
+            default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         BigDecimal roundedTotalCost = BigDecimal.valueOf(dto.getQuantity() * dto.getPricePerItem())
                 .setScale(2, RoundingMode.HALF_UP);

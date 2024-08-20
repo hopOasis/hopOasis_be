@@ -26,10 +26,9 @@ public class ProductBundleController {
     private final ProductBundleImageService imageService;
     private final ProductBundleInfoMapper productBundleInfoMapper;
     @GetMapping
-    public ResponseEntity<Page<ProductBundleInfoDto>> getAllProductBundles(@RequestParam(value =
-                                                                           "page",defaultValue = "0") int page,
-                                                                           @RequestParam(value =
-                                                                                   "size",defaultValue = "10") int size) {
+    public ResponseEntity<Page<ProductBundleInfoDto>> getAllProductBundles(
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         Page<ProductBundleInfoDto> productBundlePage =
                 productBundleService.getAllProductBundle(PageRequest.of(page, size));
         return ResponseEntity.ok().body(productBundlePage);

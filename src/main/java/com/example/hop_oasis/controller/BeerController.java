@@ -16,9 +16,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,9 +39,9 @@ public class BeerController {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(beerDto));
         return ResponseEntity.ok().body(beerInfoDto);
     }
-    @PostMapping(path="/{beerId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<BeerInfoDto>  addImageToBeer(@PathVariable("beerId") Long beerId,
-                                                       @RequestParam("image") MultipartFile image){
+    @PostMapping(path = "/{beerId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<BeerInfoDto> addImageToBeer(@PathVariable("beerId") Long beerId,
+                                                       @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(imageService.addImageToBeer(beerId, image));
     }
     @GetMapping("/{id}")

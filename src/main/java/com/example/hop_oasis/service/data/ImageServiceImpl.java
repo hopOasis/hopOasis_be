@@ -32,7 +32,7 @@ public class ImageServiceImpl implements ImageService {
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));
         String fileName;
         try {
-             fileName = "beers/"+ file.getOriginalFilename();
+             fileName = "beers/" + file.getOriginalFilename();
             s3Service.uploadFile(fileName, file);
         } catch (IOException e) {
             throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
