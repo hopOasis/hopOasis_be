@@ -18,7 +18,6 @@ unmappedTargetPolicy = ReportingPolicy.IGNORE,
 public interface SnackInfoMapper extends Mappable<Snack, SnackInfoDto> {
     @Mapping(target = "snackImageName", source = "snackImage")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
-    @Mapping(target = "itemType", constant = "SNACK")
     SnackInfoDto toDto(Snack snack);
 
     default List<String> mapSnackImagesName(List<SnackImage> images) {

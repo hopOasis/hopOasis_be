@@ -22,5 +22,6 @@ public final class SnackInfoDto {
     private double averageRating;
     private int ratingCount;
     private List<Long> specialOfferIds;
+    @Builder.Default
     private ItemType itemType = ItemType.SNACK;
 }

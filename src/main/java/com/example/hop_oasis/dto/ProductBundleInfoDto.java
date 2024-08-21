@@ -19,5 +19,6 @@ public final class ProductBundleInfoDto {
     private double averageRating;
     private int ratingCount;
     private List<Long> specialOfferIds;
+    @Builder.Default
     private ItemType itemType = ItemType.PRODUCT_BUNDLE;
 }

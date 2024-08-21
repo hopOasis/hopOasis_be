@@ -23,6 +23,7 @@ public final class CiderInfoDto {
     private double averageRating;
     private int ratingCount;
     private List<Long> specialOfferIds;
+    @Builder.Default
     private ItemType itemType = ItemType.CIDER;
 
 }

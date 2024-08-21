@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 public interface ProductBundleInfoMapper extends Mappable<ProductBundle, ProductBundleInfoDto> {
     @Mapping(target = "productImageName", source = "productImage")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
-    @Mapping(target = "itemType", constant = "PRODUCT_BUNDLE")
     ProductBundleInfoDto toDto(ProductBundle productBundle);
 
     default List<String> mapSnackImagesName(List<ProductBundleImage> images) {

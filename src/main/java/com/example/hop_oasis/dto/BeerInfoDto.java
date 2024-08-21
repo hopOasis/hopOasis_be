@@ -23,5 +23,7 @@ public final class BeerInfoDto {
     private double averageRating;
     private int ratingCount;
     private List<Long> specialOfferIds;
+    @Builder.Default
     private ItemType itemType = ItemType.BEER;
+
 }

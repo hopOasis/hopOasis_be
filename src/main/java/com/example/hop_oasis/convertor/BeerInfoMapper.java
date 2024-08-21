@@ -20,7 +20,6 @@ unmappedTargetPolicy = ReportingPolicy.IGNORE,
 public interface BeerInfoMapper extends Mappable<Beer, BeerInfoDto> {
     @Mapping(target = "imageName", source = "image")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
-    @Mapping(target = "itemType", constant = "BEER")
     BeerInfoDto toDto(Beer beer);
 
     default List<String> mapImagesToNames(List<Image> images) {
