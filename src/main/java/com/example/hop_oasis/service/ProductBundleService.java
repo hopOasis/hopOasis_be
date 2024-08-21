@@ -10,6 +10,8 @@ public interface ProductBundleService {
     ProductBundleInfoDto getProductBundleById(Long id);
     ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long itemId, double ratingValue);
     Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable);
-    ProductBundleInfoDto update(ProductBundleInfoDto productBundleInfoDto, Long id);
+
+    ProductBundleInfoDto update(ProductBundleDto productBundleDto, Long id);
+
     ProductBundleInfoDto deleteProductBundle(Long id);
 }

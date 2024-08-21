@@ -1,5 +1,6 @@
 package com.example.hop_oasis.dto;
 
+import com.example.hop_oasis.model.ItemType;
 import lombok.*;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
-public final class CiderInfoDto{
+public final class CiderInfoDto {
     private Long id;
     private String ciderName;
     private double volumeLarge;
@@ -22,6 +23,8 @@ public final class CiderInfoDto{
     private double averageRating;
     private int ratingCount;
     private List<Long> specialOfferIds;
+    @Builder.Default
+    private ItemType itemType = ItemType.CIDER;
 
 }
 

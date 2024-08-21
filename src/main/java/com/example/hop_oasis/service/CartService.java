@@ -11,7 +11,7 @@ public interface CartService {
 
     CartDto getAllItemsByCartId(Long cartId);
 
-    CartItemDto add(Long cartId, Long itemId,int quantity, ItemType itemType);
+    CartItemDto add(Long cartId, Long itemId, int quantity, ItemType itemType);
 
     void removeItem(Long cartId, Long itemId, ItemType itemType);
 

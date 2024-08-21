@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = "spring",
     unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface CiderInfoMapper extends Mappable<Cider, CiderInfoDto>{
+public interface CiderInfoMapper extends Mappable<Cider, CiderInfoDto> {
 
     @Mapping(target = "ciderImageName", source = "image")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
     CiderInfoDto toDto(Cider cider);
 
-    default List<String> mapCiderImagesName(List<CiderImage> images){
-        if(images == null) {
+    default List<String> mapCiderImagesName(List<CiderImage> images) {
+        if (images == null) {
             return null;
         }
         return images.stream()
@@ -30,7 +30,7 @@ public interface CiderInfoMapper extends Mappable<Cider, CiderInfoDto>{
                 .collect(Collectors.toList());
     }
     default List<Long> mapOffersToIds(List<SpecialOfferProduct> offers) {
-        if(offers == null) {
+        if (offers == null) {
             return null;
         }
         return offers.stream()
