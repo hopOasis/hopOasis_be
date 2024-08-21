@@ -62,28 +62,29 @@ public class CiderServiceImpl implements CiderService {
         }
         return cider.map(this::convertToDtoWithRating);
     }
+
     @Override
     @Transactional
-    public CiderInfoDto update(CiderInfoDto ciderInfo, Long id) {
+    public CiderInfoDto update(CiderDto ciderDto, Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
-        if (!ciderInfo.getCiderName().isEmpty()) {
-            cider.setCiderName(ciderInfo.getCiderName());
+        if (!ciderDto.getCiderName().isEmpty()) {
+            cider.setCiderName(ciderDto.getCiderName());
         }
-        if (ciderInfo.getVolumeLarge() != 0.0) {
-            cider.setVolumeLarge(ciderInfo.getVolumeLarge());
+        if (ciderDto.getVolumeLarge() != 0.0) {
+            cider.setVolumeLarge(ciderDto.getVolumeLarge());
         }
-        if (ciderInfo.getVolumeSmall() != 0.0) {
-            cider.setVolumeSmall(ciderInfo.getVolumeSmall());
+        if (ciderDto.getVolumeSmall() != 0.0) {
+            cider.setVolumeSmall(ciderDto.getVolumeSmall());
         }
-        if (ciderInfo.getPriceLarge() != 0.0) {
-            cider.setPriceLarge(ciderInfo.getPriceLarge());
+        if (ciderDto.getPriceLarge() != 0.0) {
+            cider.setPriceLarge(ciderDto.getPriceLarge());
         }
-        if (ciderInfo.getPriceSmall() != 0.0) {
-            cider.setPriceSmall(ciderInfo.getPriceSmall());
+        if (ciderDto.getPriceSmall() != 0.0) {
+            cider.setPriceSmall(ciderDto.getPriceSmall());
         }
-        if (!ciderInfo.getDescription().isEmpty()) {
-            cider.setDescription(ciderInfo.getDescription());
+        if (!ciderDto.getDescription().isEmpty()) {
+            cider.setDescription(ciderDto.getDescription());
         }
         return ciderInfoMapper.toDto(ciderRepository.save(cider));
     }

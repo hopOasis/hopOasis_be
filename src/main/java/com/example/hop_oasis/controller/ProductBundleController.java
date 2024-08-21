@@ -58,11 +58,13 @@ public class ProductBundleController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<ProductBundleInfoDto> updateProductBundle(@RequestParam("id") Long id,
-                                                    @RequestBody ProductBundleInfoDto productBundleInfo) {
-        return ResponseEntity.ok().body(productBundleService.update(productBundleInfo, id));
+                                                                    @RequestBody ProductBundleDto productBundleDto) {
+        return ResponseEntity.ok().body(productBundleService.update(productBundleDto, id));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ProductBundleInfoDto> delete(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(productBundleService.deleteProductBundle(id));

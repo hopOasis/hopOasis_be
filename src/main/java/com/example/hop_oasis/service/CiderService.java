@@ -10,6 +10,8 @@ public interface CiderService {
     CiderInfoDto getCiderById(Long id);
     CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long itemId, double ratingValue);
     Page<CiderInfoDto> getAllCiders(Pageable pageable);
-    CiderInfoDto update(CiderInfoDto ciderInfo, Long id);
+
+    CiderInfoDto update(CiderDto ciderDto, Long id);
+
     CiderInfoDto deleteCider(Long id);
 }
