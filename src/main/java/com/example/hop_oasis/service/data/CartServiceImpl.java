@@ -2,14 +2,15 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.*;
-import com.example.hop_oasis.repository.CartItemRepository;
-import com.example.hop_oasis.repository.CartRepository;
+import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -35,58 +36,38 @@ public class CartServiceImpl implements CartService {
     public CartDto getAllItemsByCartId(Long cartId) {
         List<CartItemDto> items = new ArrayList<>();
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
+        if (cartItems.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } else {
 
-        for (CartItem cartItem : cartItems) {
-            CartItemDto dto = createCartItemDto(cartItem);
-            items.add(dto);
+            for (CartItem cartItem : cartItems) {
+                CartItemDto dto = createCartItemDto(cartItem);
+                items.add(dto);
+            }
+
+            CartDto result = new CartDto();
+            result.setItems(items);
+            result.setPriceForAll(items.stream()
+                    .map(CartItemDto::getTotalCost)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+            log.debug("Return cart with all items: {}", result);
+            return result;
         }
-
-        CartDto result = new CartDto();
-        result.setItems(items);
-        result.setPriceForAll(items.stream()
-                .map(CartItemDto::getTotalCost)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-        log.debug("Return cart with all items: {}", result);
-        return result;
     }
 
     @Override
-    public CartItemDto add(Long cartId, Long itemId, int quantity, ItemType itemType) {
-        Cart cart;
-
-        if (cartId != null) {
-            cart = cartRepository.findById(cartId).orElse(null);
-        } else {
-            cart = new Cart();
-            cart = cartRepository.save(cart);
-            cartId = cart.getId();
-        }
-        if (cart == null) {
-            cart = new Cart();
-            cart = cartRepository.save(cart);
-            cartId = cart.getId();
-        }
-
-        List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId, itemId, itemType);
-
-        CartItem cartItem;
-        if (cartItems.isEmpty()) {
-            cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setItemId(itemId);
-            cartItem.setItemType(itemType);
-            cartItem.setQuantity(quantity);
-        } else {
-            cartItem = cartItems.get(0);
-            cartItem.setQuantity(cartItem.getQuantity() + quantity);
-        }
+    public CartItemDto create(ItemRequestDto itemRequestDto) {
+        Cart cart = new Cart();
+        cart = cartRepository.save(cart);
+        CartItem cartItem = new CartItem();
+        cartItem.setCart(cart);
+        cartItem.setItemId(itemRequestDto.getItemId());
+        cartItem.setItemType(itemRequestDto.getItemType());
+        cartItem.setQuantity(itemRequestDto.getQuantity());
 
         cartItemRepository.save(cartItem);
 
-        CartItemDto dto = createCartItemDto(cartItem);
-        dto.setCartId(cartId);
-
-        return dto;
+        return createCartItemDto(cartItem);
     }
 
 
