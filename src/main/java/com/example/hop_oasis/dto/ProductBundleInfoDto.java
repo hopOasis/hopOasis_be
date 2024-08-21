@@ -1,5 +1,6 @@
 package com.example.hop_oasis.dto;
 
+import com.example.hop_oasis.model.ItemType;
 import lombok.*;
 
 import java.util.List;
@@ -18,4 +19,5 @@ public final class ProductBundleInfoDto {
     private double averageRating;
     private int ratingCount;
     private List<Long> specialOfferIds;
+    private ItemType itemType = ItemType.PRODUCT_BUNDLE;
 }

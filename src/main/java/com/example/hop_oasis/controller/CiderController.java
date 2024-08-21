@@ -60,11 +60,13 @@ public class CiderController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<CiderInfoDto> updateCider(@RequestParam("id") Long id,
-                                            @RequestBody CiderInfoDto ciderInfo) {
-        return ResponseEntity.ok().body(ciderService.update(ciderInfo, id));
+                                                    @RequestBody CiderDto ciderDto) {
+        return ResponseEntity.ok().body(ciderService.update(ciderDto, id));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<CiderInfoDto> deleteCider(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(ciderService.deleteCider(id));

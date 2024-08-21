@@ -59,12 +59,14 @@ public class BeerController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<BeerInfoDto> updateBeer(@PathVariable("id") Long id,
-                                                  @RequestBody BeerInfoDto beerInfo) {
+                                                  @RequestBody BeerDto beerInfo) {
         BeerInfoDto dto = beerService.update(beerInfo, id);
         return ResponseEntity.ok().body(dto);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<BeerInfoDto> delete(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.delete(id));

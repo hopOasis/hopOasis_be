@@ -66,9 +66,10 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         }
         return productBundles.map(this::convertToDtoWithRating);
     }
+
     @Override
     @Transactional
-    public ProductBundleInfoDto update(ProductBundleInfoDto productDto, Long id) {
+    public ProductBundleInfoDto update(ProductBundleDto productDto, Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         if (!productDto.getName().isEmpty()) {

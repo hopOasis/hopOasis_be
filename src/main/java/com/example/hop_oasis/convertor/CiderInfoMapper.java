@@ -19,6 +19,7 @@ public interface CiderInfoMapper extends Mappable<Cider, CiderInfoDto> {
 
     @Mapping(target = "ciderImageName", source = "image")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
+    @Mapping(target = "itemType", constant = "CIDER")
     CiderInfoDto toDto(Cider cider);
 
     default List<String> mapCiderImagesName(List<CiderImage> images) {

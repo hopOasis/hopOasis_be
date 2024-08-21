@@ -57,35 +57,36 @@ public class SnackServiceImpl implements SnackService {
     public Page<SnackInfoDto> getAllSnacks(Pageable pageable) {
         Page<Snack> snacks = snackRepository.findAll(pageable);
         if (snacks.isEmpty()) {
-          return Page.empty(pageable);
+            return Page.empty(pageable);
         }
         return snacks.map(this::convertToDtoWithRating);
     }
+
     @Override
     @Transactional
-    public SnackInfoDto updateSnack(SnackInfoDto snackInfo, Long id) {
+    public SnackInfoDto updateSnack(SnackDto snackDto, Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
-        if (!snackInfo.getSnackName().isEmpty()) {
-            snack.setSnackName(snackInfo.getSnackName());
+        if (!snackDto.getSnackName().isEmpty()) {
+            snack.setSnackName(snackDto.getSnackName());
         }
-        if (snackInfo.getWeightLarge() != 0.0) {
-            snack.setWeightLarge(snackInfo.getWeightLarge());
+        if (snackDto.getWeightLarge() != 0.0) {
+            snack.setWeightLarge(snackDto.getWeightLarge());
         }
-        if (snackInfo.getWeightSmall() != 0.0) {
-            snack.setWeightSmall(snackInfo.getWeightSmall());
+        if (snackDto.getWeightSmall() != 0.0) {
+            snack.setWeightSmall(snackDto.getWeightSmall());
         }
-        if (snackInfo.getPriceLarge() != 0.0) {
-            snack.setPriceLarge(snackInfo.getPriceLarge());
+        if (snackDto.getPriceLarge() != 0.0) {
+            snack.setPriceLarge(snackDto.getPriceLarge());
         }
-        if (snackInfo.getPriceSmall() != 0.0) {
-            snack.setPriceSmall(snackInfo.getPriceSmall());
+        if (snackDto.getPriceSmall() != 0.0) {
+            snack.setPriceSmall(snackDto.getPriceSmall());
         }
-        if (!snackInfo.getDescription().isEmpty()) {
-            snack.setDescription(snackInfo.getDescription());
+        if (!snackDto.getDescription().isEmpty()) {
+            snack.setDescription(snackDto.getDescription());
         }
-       return snackInfoMapper.toDto(snackRepository.save(snack));
+        return snackInfoMapper.toDto(snackRepository.save(snack));
     }
     @Override
     @Transactional
