@@ -3,6 +3,7 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.*;
 import com.example.hop_oasis.dto.SpecialOfferAllProductDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.SpecialOfferException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -181,7 +182,7 @@ public class SpecialOfferServiceImpl {
     public SpecialOfferAllProductDto getActiveSpecialOffer() {
         Long id = specialOfferRepository.findActiveSpecialOfferProductIds();
         if (id == null) {
-            return new SpecialOfferAllProductDto();
+           throw new SpecialOfferException();
         }
         return getSpecialOffer(id);
     }

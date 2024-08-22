@@ -1,6 +1,7 @@
 package com.example.hop_oasis.handler;
 
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.SpecialOfferException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class ValidationHandler {
         Map<String, String> errorMap = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        field->field.getDefaultMessage()!=null?field.getDefaultMessage(): ""
+                        field -> field.getDefaultMessage() != null ? field.getDefaultMessage() : ""
                 ));
         return getResponseEntityErrorMap(request.getRequestURI(), errorMap);
     }
@@ -33,8 +34,12 @@ public class ValidationHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorDetails> handleNotFoundExceptions(HttpServletRequest request,
                                                                  Exception ex) {
-        return getResponseEntityErrorMap(request.getRequestURI(),makeMapFromException (ex));
-
+        return getResponseEntityErrorMap(request.getRequestURI(), makeMapFromException(ex));
+    }
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(SpecialOfferException.class)
+    public ResponseEntity<?> handleSpecialOfferExceptions() {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
     private Map<String, String> makeMapFromException(Exception ex) {
         return Map.of(ex.getClass().getSimpleName(), ex.getLocalizedMessage());

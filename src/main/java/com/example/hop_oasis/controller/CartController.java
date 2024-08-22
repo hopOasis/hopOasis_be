@@ -19,8 +19,7 @@ public class CartController {
 
     @GetMapping("/{cartId}")
     public ResponseEntity<CartDto> find(@PathVariable Long cartId) {
-        CartDto cartDto = cartService.getAllItemsByCartId(cartId);
-        return ResponseEntity.ok().body(cartDto);
+        return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
     }
 
     @PostMapping

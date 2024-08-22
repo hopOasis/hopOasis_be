@@ -33,7 +33,7 @@ public class S3Service {
     public S3Object getFile(String keyName) {
         return s3client.getObject(bucketName, keyName);
     }
-    public void deleteFile(String keyName){
+    public void deleteFile(String keyName) {
         s3client.deleteObject(bucketName, keyName);
     }
     public URL getFileUrl(String fileName) {

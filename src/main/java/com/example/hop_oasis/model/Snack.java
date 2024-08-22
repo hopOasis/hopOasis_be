@@ -30,7 +30,7 @@ public class Snack {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "snack",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @OneToMany(mappedBy = "snack", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<SnackImage> snackImage;
     @ManyToMany
     @JoinTable(

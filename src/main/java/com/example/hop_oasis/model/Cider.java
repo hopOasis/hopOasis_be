@@ -30,7 +30,7 @@ public class Cider {
     @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "cider",cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @OneToMany(mappedBy = "cider", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<CiderImage> image;
 
     @ManyToMany

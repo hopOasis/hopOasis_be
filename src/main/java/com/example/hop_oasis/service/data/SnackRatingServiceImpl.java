@@ -3,7 +3,6 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ItemRatingMapper;
 import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.model.Snack;
-import com.example.hop_oasis.model.CiderRating;
 import com.example.hop_oasis.model.SnackRating;
 import com.example.hop_oasis.repository.SnackRatingRepository;
 import com.example.hop_oasis.repository.SnackRepository;
