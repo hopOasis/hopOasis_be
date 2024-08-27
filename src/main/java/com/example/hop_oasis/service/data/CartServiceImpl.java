@@ -120,6 +120,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDto createCartItemDto(CartItem cartItem) {
         CartItemDto dto = new CartItemDto();
+        dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
         dto.setQuantity(cartItem.getQuantity());
 
@@ -154,10 +155,13 @@ public class CartServiceImpl implements CartService {
             }
             default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        BigDecimal roundedTotalCost = BigDecimal.valueOf(dto.getQuantity() * dto.getPricePerItem())
-                .setScale(2, RoundingMode.HALF_UP);
-        dto.setTotalCost(roundedTotalCost);
+        dto.setTotalCost(roundTotalCost(dto.getQuantity(), dto.getPricePerItem()));
         return dto;
+    }
+
+    private BigDecimal roundTotalCost(int quantity, double pricePerItem) {
+        return BigDecimal.valueOf(quantity * pricePerItem)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     private double determinePrice(double priceLarge, double priceSmall) {
