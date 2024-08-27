@@ -1,4 +1,4 @@
-package com.example.hop_oasis.service.sheduler;
+package com.example.hop_oasis.utils;
 
 import com.example.hop_oasis.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-public class CartCleanupService {
+public class CartCleanupUtil {
     private final CartRepository cartRepository;
 
     @Scheduled(cron = "0 0 0 * * ?")

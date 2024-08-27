@@ -5,6 +5,7 @@ import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.service.*;
+import com.example.hop_oasis.utils.Rounder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -120,6 +120,7 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDto createCartItemDto(CartItem cartItem) {
         CartItemDto dto = new CartItemDto();
+        dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
         dto.setQuantity(cartItem.getQuantity());
 
@@ -154,9 +155,7 @@ public class CartServiceImpl implements CartService {
             }
             default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        BigDecimal roundedTotalCost = BigDecimal.valueOf(dto.getQuantity() * dto.getPricePerItem())
-                .setScale(2, RoundingMode.HALF_UP);
-        dto.setTotalCost(roundedTotalCost);
+        dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
         return dto;
     }
 
