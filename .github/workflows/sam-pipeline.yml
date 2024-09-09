@@ -67,14 +67,8 @@ jobs:
       - name: Set FULL_IMAGE_NAME
         run: echo "FULL_IMAGE_NAME=${{ env.REGISTRY }}/${{env.REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_ENV
 
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'corretto'
-          java-version: '21'
-
       - name: Build native image
-        run: mvn -Pnative clean spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.FULL_IMAGE_NAME }}
+        run: docker build --progress=plain --platform linux/amd64 -t ${{ env.FULL_IMAGE_NAME }} -f Dockerfile-native .
 
       - name: Push docker image to Amazon ECR Public
         run: |
@@ -132,7 +126,9 @@ jobs:
             --stack-name hop-be-native-image-stack \
             --capabilities CAPABILITY_IAM \
             --region eu-central-1 \
-            --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis
+            --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis \
+            --force-upload \
+            --parameter-overrides ImageUri=${{ env.FULL_IMAGE_NAME }}
 
 #  send-email:
 #    runs-on: ubuntu-latest

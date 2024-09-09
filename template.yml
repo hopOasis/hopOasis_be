@@ -2,6 +2,12 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application Model template describing your Docker-based function.
 
+Parameters:
+  ImageUri:
+    Type: String
+    Default: 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis:latest
+    Description: The URI of the Docker image to use for the Lambda function.
+
 Resources:
   hopBeResource:
     Type: AWS::Serverless::Function
@@ -13,7 +19,7 @@ Resources:
       Timeout: 15
       Architectures:
         - x86_64
-      ImageUri: 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis:latest
+      ImageUri: !Ref ImageUri
       EphemeralStorage:
         Size: 512
       EventInvokeConfig:
