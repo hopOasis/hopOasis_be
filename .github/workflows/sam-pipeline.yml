@@ -73,6 +73,8 @@ jobs:
       - name: Push docker image to Amazon ECR Public
         run: |
           docker push ${{ env.FULL_IMAGE_NAME }}
+    outputs:
+        full_image_name: ${{ env.FULL_IMAGE_NAME }}
 
   configure-deploy:
     runs-on: ubuntu-latest
@@ -127,8 +129,8 @@ jobs:
             --capabilities CAPABILITY_IAM \
             --region eu-central-1 \
             --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis \
-            --force-upload \
-            --parameter-overrides ImageUri=${{ env.FULL_IMAGE_NAME }}
+            --parameter-overrides ImageUri=${{ needs.build-push.outputs.full_image_name }} \
+            --force-upload
 
 #  send-email:
 #    runs-on: ubuntu-latest
