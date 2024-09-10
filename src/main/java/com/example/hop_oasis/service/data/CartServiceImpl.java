@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.model.MeasureValue.*;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +42,7 @@ public class CartServiceImpl implements CartService {
         } else {
 
             for (CartItem cartItem : cartItems) {
-                CartItemDto dto = createCartItemDto(cartItem);
+                CartItemDto dto = createCartItemDto(cartItem, cartItem.getMeasureValue());
                 items.add(dto);
             }
 
@@ -64,10 +65,11 @@ public class CartServiceImpl implements CartService {
         cartItem.setItemId(itemRequestDto.getItemId());
         cartItem.setItemType(itemRequestDto.getItemType());
         cartItem.setQuantity(itemRequestDto.getQuantity());
+        cartItem.setMeasureValue(itemRequestDto.getMeasureValue());
 
         cartItemRepository.save(cartItem);
 
-        return createCartItemDto(cartItem);
+        return createCartItemDto(cartItem, itemRequestDto.getMeasureValue());
     }
 
 
@@ -78,8 +80,8 @@ public class CartServiceImpl implements CartService {
 
         for (ItemRequestDto item : items) {
             List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId,
-                                                                                           item.getItemId(),
-                                                                                           item.getItemType());
+                    item.getItemId(),
+                    item.getItemType());
             CartItem cartItem;
 
             if (cartItems.isEmpty()) {
@@ -87,11 +89,11 @@ public class CartServiceImpl implements CartService {
                 cartItem.setCart(cart);
                 cartItem.setItemId(item.getItemId());
                 cartItem.setItemType(item.getItemType());
-                cartItem.setQuantity(item.getQuantity());
             } else {
                 cartItem = cartItems.getFirst();
-                cartItem.setQuantity(item.getQuantity());
             }
+            cartItem.setQuantity(item.getQuantity());
+            cartItem.setMeasureValue(item.getMeasureValue());
 
             cartItemRepository.save(cartItem);
         }
@@ -118,7 +120,7 @@ public class CartServiceImpl implements CartService {
         cartItemRepository.deleteByCartId(cartId);
     }
 
-    private CartItemDto createCartItemDto(CartItem cartItem) {
+    private CartItemDto createCartItemDto(CartItem cartItem, MeasureValue measureValue) {
         CartItemDto dto = new CartItemDto();
         dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
@@ -129,14 +131,14 @@ public class CartServiceImpl implements CartService {
                 BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
                 if (beerInfo != null) {
                     dto.setItemTitle(beerInfo.getBeerName());
-                    dto.setPricePerItem(determinePrice(beerInfo.getPriceLarge(), beerInfo.getPriceSmall()));
+                    dto.setPricePerItem(chooseMeasureValue(cartItem, measureValue).getPricePerItem());
                 }
             }
             case SNACK -> {
                 SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
                 if (snackInfo != null) {
                     dto.setItemTitle(snackInfo.getSnackName());
-                    dto.setPricePerItem(determinePrice(snackInfo.getPriceLarge(), snackInfo.getPriceSmall()));
+                    dto.setPricePerItem(chooseMeasureValue(cartItem, measureValue).getPricePerItem());
                 }
             }
             case PRODUCT_BUNDLE -> {
@@ -150,7 +152,7 @@ public class CartServiceImpl implements CartService {
                 CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
                 if (ciderInfo != null) {
                     dto.setItemTitle(ciderInfo.getCiderName());
-                    dto.setPricePerItem(determinePrice(ciderInfo.getPriceLarge(), ciderInfo.getPriceSmall()));
+                    dto.setPricePerItem(chooseMeasureValue(cartItem, measureValue).getPricePerItem());
                 }
             }
             default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
@@ -159,7 +161,47 @@ public class CartServiceImpl implements CartService {
         return dto;
     }
 
-    private double determinePrice(double priceLarge, double priceSmall) {
-        return priceLarge != 0 ? priceLarge : priceSmall;
+
+    private CartItemDto chooseMeasureValue(CartItem cartItem, MeasureValue measureValue) {
+        CartItemDto dto = new CartItemDto();
+        switch (cartItem.getItemType()) {
+            case BEER -> {
+                BeerInfoDto beerInfoDto = beerService.getBeerById(cartItem.getItemId());
+                if (beerInfoDto != null) {
+                    if (measureValue == VALUE_LARGE) {
+                        dto.setPricePerItem(beerInfoDto.getPriceLarge());
+                    } else if (measureValue == VALUE_SMALL) {
+                        dto.setPricePerItem(beerInfoDto.getPriceSmall());
+                    }
+                    dto.setItemTitle(beerInfoDto.getBeerName());
+                }
+            }
+            case CIDER -> {
+                CiderInfoDto ciderInfoDto = ciderService.getCiderById(cartItem.getItemId());
+                if (ciderInfoDto != null) {
+                    if (measureValue == VALUE_LARGE) {
+                        dto.setPricePerItem(ciderInfoDto.getPriceLarge());
+                    } else if (measureValue == VALUE_SMALL) {
+                        dto.setPricePerItem(ciderInfoDto.getPriceSmall());
+                    }
+                    dto.setItemTitle(ciderInfoDto.getCiderName());
+                }
+            }
+            case SNACK -> {
+                SnackInfoDto snackInfoDto = snackService.getSnackById(cartItem.getItemId());
+                if (snackInfoDto != null) {
+                    if (measureValue == VALUE_LARGE) {
+                        dto.setPricePerItem(snackInfoDto.getPriceLarge());
+                    } else if (measureValue == VALUE_SMALL) {
+                        dto.setPricePerItem(snackInfoDto.getPriceSmall());
+                    }
+                    dto.setItemTitle(snackInfoDto.getSnackName());
+                }
+            }
+            default -> throw new ResourceNotFoundException("Item type not supported", "");
+        }
+        return dto;
+
     }
+
 }
