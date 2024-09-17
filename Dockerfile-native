@@ -23,4 +23,4 @@ COPY --from=builder /build/target/hop_oasis ${LAMBDA_TASK_ROOT}/
 RUN chmod +x ${LAMBDA_TASK_ROOT}/
 
 # Set command to run bytecode
-CMD ["./graalvm-demo"]
+CMD ["./hop_oasis"]
