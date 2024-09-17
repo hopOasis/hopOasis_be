@@ -13,7 +13,6 @@ RUN chmod +x ./mvnw
 RUN ./mvnw clean --no-transfer-progress -Pnative native:compile -DskipTests
 
 # Stage 2: Runtime stage
-
 FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal
 
 # Copy bytecode into the path to your Lambda function code as per https://repost.aws/knowledge-center/lambda-container-images
