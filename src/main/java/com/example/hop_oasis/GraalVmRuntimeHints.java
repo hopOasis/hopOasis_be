@@ -22,7 +22,6 @@ public class GraalVmRuntimeHints implements RuntimeHintsRegistrar {
 
     @Override
     public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-        hints.reflection().registerType(StreamLambdaHandler.class);
         registerClass(hints, HttpApiV2ProxyRequest.class);
         registerClass(hints, HttpApiV2ProxyRequestContext.class);
         registerClass(hints, HttpApiV2HttpContext.class);
