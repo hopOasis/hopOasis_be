@@ -28,8 +28,10 @@ public class CiderController {
     private final CiderInfoMapper ciderInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@RequestParam(value = "page",defaultValue = "0") int page,
-                                                           @RequestParam(value = "size",defaultValue = "10") int size) {
+    public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@RequestParam(
+                                                                   value = "page", defaultValue = "0") int page,
+                                                           @RequestParam(
+                                                                   value = "size", defaultValue = "10") int size) {
         Page<CiderInfoDto> ciderPage = ciderService.getAllCiders(PageRequest.of(page, size));
         return ResponseEntity.ok().body(ciderPage);
     }
@@ -38,7 +40,7 @@ public class CiderController {
         CiderInfoDto ciderInfoDto = ciderInfoMapper.toDto(ciderService.saveCider(ciderDto));
         return ResponseEntity.ok().body(ciderInfoDto);
     }
-    @PostMapping(path = "/{ciderId}/images",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PostMapping(path = "/{ciderId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CiderInfoDto> addImageToCider(@PathVariable("ciderId") Long ciderId,
                                                 @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(ciderImageService.addCiderImageToCider(ciderId, image));
@@ -58,11 +60,13 @@ public class CiderController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
     @PutMapping("/{id}")
     public ResponseEntity<CiderInfoDto> updateCider(@RequestParam("id") Long id,
-                                            @RequestBody CiderInfoDto ciderInfo) {
-        return ResponseEntity.ok().body(ciderService.update(ciderInfo, id));
+                                                    @RequestBody CiderDto ciderDto) {
+        return ResponseEntity.ok().body(ciderService.update(ciderDto, id));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<CiderInfoDto> deleteCider(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(ciderService.deleteCider(id));

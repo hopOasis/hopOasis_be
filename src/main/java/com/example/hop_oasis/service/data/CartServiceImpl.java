@@ -2,17 +2,18 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.*;
-import com.example.hop_oasis.repository.CartItemRepository;
-import com.example.hop_oasis.repository.CartRepository;
+import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.service.*;
+import com.example.hop_oasis.utils.Rounder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,42 +36,34 @@ public class CartServiceImpl implements CartService {
     public CartDto getAllItemsByCartId(Long cartId) {
         List<CartItemDto> items = new ArrayList<>();
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
+        if (cartItems.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        } else {
 
-        for (CartItem cartItem : cartItems) {
-            CartItemDto dto = createCartItemDto(cartItem);
-            items.add(dto);
+            for (CartItem cartItem : cartItems) {
+                CartItemDto dto = createCartItemDto(cartItem);
+                items.add(dto);
+            }
+
+            CartDto result = new CartDto();
+            result.setItems(items);
+            result.setPriceForAll(items.stream()
+                    .map(CartItemDto::getTotalCost)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add));
+            log.debug("Return cart with all items: {}", result);
+            return result;
         }
-
-        CartDto result = new CartDto();
-        result.setItems(items);
-        result.setPriceForAll(items.stream()
-                .map(CartItemDto::getTotalCost)
-                .reduce(BigDecimal.ZERO, BigDecimal::add));
-        log.debug("Return cart with all items: {}", result);
-        return result;
     }
 
     @Override
-    public CartItemDto add(Long cartId, Long itemId, int quantity, ItemType itemType) {
-        Cart cart = cartRepository.findById(cartId)
-                .orElseGet(() -> {
-                    Cart newCart = new Cart();
-                    return cartRepository.save(newCart);
-                });
-
-
-        List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId, itemId, itemType);
-
-        CartItem cartItem;
-        if (cartItems.isEmpty()) {
-            cartItem = new CartItem();
-            cartItem.setCart(cart);
-            cartItem.setItemId(itemId);
-            cartItem.setItemType(itemType);
-        } else {
-            cartItem = cartItems.getFirst();
-        }
-        cartItem.setQuantity(quantity + cartItem.getQuantity());
+    public CartItemDto create(ItemRequestDto itemRequestDto) {
+        Cart cart = new Cart();
+        cart = cartRepository.save(cart);
+        CartItem cartItem = new CartItem();
+        cartItem.setCart(cart);
+        cartItem.setItemId(itemRequestDto.getItemId());
+        cartItem.setItemType(itemRequestDto.getItemType());
+        cartItem.setQuantity(itemRequestDto.getQuantity());
 
         cartItemRepository.save(cartItem);
 
@@ -82,12 +75,11 @@ public class CartServiceImpl implements CartService {
     public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
         Cart cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
-        //перетворити айтемс в картайтемс
-        // засетити картайтемс в карт
-        //cart.setCartItems();
+
         for (ItemRequestDto item : items) {
-            List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId
-                    , item.getItemId(), item.getItemType());
+            List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId,
+                                                                                           item.getItemId(),
+                                                                                           item.getItemType());
             CartItem cartItem;
 
             if (cartItems.isEmpty()) {
@@ -128,42 +120,42 @@ public class CartServiceImpl implements CartService {
 
     private CartItemDto createCartItemDto(CartItem cartItem) {
         CartItemDto dto = new CartItemDto();
+        dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
         dto.setQuantity(cartItem.getQuantity());
 
         switch (cartItem.getItemType()) {
-            case BEER:
+            case BEER -> {
                 BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
                 if (beerInfo != null) {
                     dto.setItemTitle(beerInfo.getBeerName());
                     dto.setPricePerItem(determinePrice(beerInfo.getPriceLarge(), beerInfo.getPriceSmall()));
                 }
-                break;
-            case SNACK:
+            }
+            case SNACK -> {
                 SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
                 if (snackInfo != null) {
                     dto.setItemTitle(snackInfo.getSnackName());
                     dto.setPricePerItem(determinePrice(snackInfo.getPriceLarge(), snackInfo.getPriceSmall()));
                 }
-                break;
-            case PRODUCT_BUNDLE:
+            }
+            case PRODUCT_BUNDLE -> {
                 ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
                 if (bundleInfo != null) {
                     dto.setItemTitle(bundleInfo.getName());
                     dto.setPricePerItem(bundleInfo.getPrice());
                 }
-                break;
-            case CIDER:
+            }
+            case CIDER -> {
                 CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
                 if (ciderInfo != null) {
                     dto.setItemTitle(ciderInfo.getCiderName());
                     dto.setPricePerItem(determinePrice(ciderInfo.getPriceLarge(), ciderInfo.getPriceSmall()));
                 }
-                break;
+            }
+            default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
-        BigDecimal roundedTotalCost = BigDecimal.valueOf(dto.getQuantity() * dto.getPricePerItem())
-                .setScale(2, RoundingMode.HALF_UP);
-        dto.setTotalCost(roundedTotalCost);
+        dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
         return dto;
     }
 

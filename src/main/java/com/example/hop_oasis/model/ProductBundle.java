@@ -11,20 +11,20 @@ import java.util.List;
 @Setter
 @Getter
 @Entity
-@Table(name ="products_bundle")
+@Table(name = "products_bundle")
 public class ProductBundle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name ="product_name")
+    @Column(name = "product_name")
     private String name;
-    @Column(name="price")
+    @Column(name = "price")
     private double price;
-    @Column(name ="description")
+    @Column(name = "description")
     private String description;
 
-    @OneToMany(mappedBy = "productBundle", cascade = {CascadeType.PERSIST,CascadeType.REMOVE})
+    @OneToMany(mappedBy = "productBundle", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<ProductBundleImage> productImage;
 
     @ManyToMany

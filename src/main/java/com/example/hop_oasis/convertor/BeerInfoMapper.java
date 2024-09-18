@@ -23,7 +23,7 @@ public interface BeerInfoMapper extends Mappable<Beer, BeerInfoDto> {
     BeerInfoDto toDto(Beer beer);
 
     default List<String> mapImagesToNames(List<Image> images) {
-        if(images == null) {
+        if (images == null) {
             return null;
         }
         return images.stream()
@@ -31,7 +31,7 @@ public interface BeerInfoMapper extends Mappable<Beer, BeerInfoDto> {
                 .collect(Collectors.toList());
     }
     default List<Long> mapOffersToIds(List<SpecialOfferProduct> offers) {
-        if(offers == null) {
+        if (offers == null) {
             return null;
         }
         return offers.stream()

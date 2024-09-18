@@ -49,7 +49,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
                 .orElseThrow(() -> new IllegalArgumentException("Bundle not found with id " + id));
         return convertToDtoWithRating(productBundle);
     }
-    private ProductBundleInfoDto convertToDtoWithRating(ProductBundle productBundle ) {
+    private ProductBundleInfoDto convertToDtoWithRating(ProductBundle productBundle) {
         ProductBundleInfoDto bundleInfoDto = productBundleInfoMapper.toDto(productBundle);
         ItemRatingDto rating = productBundleRatingService.getItemRating(productBundle.getId());
         BigDecimal roundedAverageRating = BigDecimal.valueOf(rating.getAverageRating())
@@ -66,9 +66,10 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         }
         return productBundles.map(this::convertToDtoWithRating);
     }
+
     @Override
     @Transactional
-    public ProductBundleInfoDto update(ProductBundleInfoDto productDto, Long id) {
+    public ProductBundleInfoDto update(ProductBundleDto productDto, Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_DELETED, id));
         if (!productDto.getName().isEmpty()) {

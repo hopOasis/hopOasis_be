@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public final class CartItemDto {
+    private Long cartId;
     private Long itemId;
     private String itemTitle;
     private double pricePerItem;

@@ -20,6 +20,8 @@
     <aws.serverless.spring.version>2.0.0</aws.serverless.spring.version>
     <aws.sdk.java.version>2.24.1</aws.sdk.java.version>
     <spring-cloud.version>2022.0.5</spring-cloud.version>
+    <checkstyle.maven.plugin.version>3.1.2</checkstyle.maven.plugin.version>
+    <com.puppycrawl.tools.checkstyle.version>10.15.0</com.puppycrawl.tools.checkstyle.version>
   </properties>
 
   <dependencyManagement>
@@ -124,6 +126,40 @@
           <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
       </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-checkstyle-plugin</artifactId>
+            <version>${checkstyle.maven.plugin.version}</version>
+            <dependencies>
+              <dependency>
+                <groupId>com.puppycrawl.tools</groupId>
+                <artifactId>checkstyle</artifactId>
+                <version>${com.puppycrawl.tools.checkstyle.version}</version>
+              </dependency>
+            </dependencies>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <configLocation>check_style.xml</configLocation>
+              <consoleOutput>true</consoleOutput>
+              <logViolationsToConsole>true</logViolationsToConsole>
+              <failsOnError>true</failsOnError>
+              <linkXRef>false</linkXRef>
+              <excludes>dao/*.java</excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <id>check-style</id>
+                <phase>validate</phase>
+                <goals>
+                  <goal>check</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>native</id>
