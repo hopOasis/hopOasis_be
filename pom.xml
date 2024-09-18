@@ -148,30 +148,30 @@
         </plugins>
       </build>
     </profile>
-<!--    <profile>-->
-<!--      <id>native</id>-->
-<!--      <dependencies>-->
-<!--        <dependency>-->
-<!--          <groupId>org.springframework.boot</groupId>-->
-<!--          <artifactId>spring-boot-starter-web</artifactId>-->
+    <profile>
+      <id>native</id>
+      <dependencies>
+        <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
 <!--          <exclusions>-->
 <!--            <exclusion>-->
 <!--              <groupId>org.springframework.boot</groupId>-->
 <!--              <artifactId>spring-boot-starter-tomcat</artifactId>-->
 <!--            </exclusion>-->
 <!--          </exclusions>-->
-<!--        </dependency>-->
-<!--      </dependencies>-->
-<!--    </profile>-->
+        </dependency>
+      </dependencies>
+    </profile>
   </profiles>
 
-<!--  <build>-->
-<!--    <plugins>-->
-<!--      <plugin>-->
-<!--        <groupId>org.springframework.boot</groupId>-->
-<!--        <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--      </plugin>-->
-<!--    </plugins>-->
-<!--  </build>-->
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
