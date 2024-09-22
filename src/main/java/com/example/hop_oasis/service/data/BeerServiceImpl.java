@@ -3,6 +3,7 @@ import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
+import com.example.hop_oasis.repository.BeerOptionsRepository;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.service.BeerService;
@@ -25,10 +26,19 @@ public class BeerServiceImpl implements BeerService {
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
+    private final BeerOptionsRepository beerOptionsRepository;
     @Override
     public Beer save(BeerDto beerDto) {
         Beer beer = beerMapper.toEntity(beerDto);
         beerRepository.save(beer);
+        for (BeerOptionsDto optionsDto : beerDto.getOptions()) {
+            BeerOptions options = new BeerOptions();
+            options.setBeer(beer);
+            options.setVolume(optionsDto.getVolume());
+            options.setQuantity(optionsDto.getQuantity());
+            options.setPrice(optionsDto.getPrice());
+            beerOptionsRepository.save(options);
+        }
         return beer;
     }
     @Override
@@ -71,23 +81,19 @@ public class BeerServiceImpl implements BeerService {
         if (!beerDto.getBeerName().isEmpty()) {
             beer.setBeerName(beerDto.getBeerName());
         }
-        if (beerDto.getVolumeLarge() != 0.0) {
-            beer.setVolumeLarge(beerDto.getVolumeLarge());
-        }
-        if (beerDto.getVolumeLarge() != 0.0) {
-            beer.setVolumeSmall(beerDto.getVolumeSmall());
-        }
-        if (beerDto.getVolumeSmall() != 0.0) {
-            beer.setPriceLarge(beerDto.getPriceLarge());
-        }
-        if (beerDto.getPriceSmall() != 0.0) {
-            beer.setPriceSmall(beerDto.getPriceSmall());
-        }
+
         if (Objects.nonNull(beerDto.getDescription())) {
             beer.setDescription(beerDto.getDescription());
         }
         if (Objects.nonNull(beerDto.getBeerColor())) {
             beer.setBeerColor(beerDto.getBeerColor());
+        }
+        for (BeerOptionsDto optionsDto : beerDto.getOptions()) {
+            BeerOptions options = new BeerOptions();
+            options.setVolume(optionsDto.getVolume());
+            options.setQuantity(optionsDto.getQuantity());
+            options.setPrice(optionsDto.getPrice());
+            beerOptionsRepository.save(options);
         }
         return beerInfoMapper.toDto(beerRepository.save(beer));
     }

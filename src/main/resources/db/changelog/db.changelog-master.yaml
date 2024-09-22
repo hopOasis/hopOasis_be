@@ -71,5 +71,7 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/029-create-cart-item.sql
-
+  - include:
+      relativeToChangelogFile: true
+      file: changes/030-create-beer-options.sql
 

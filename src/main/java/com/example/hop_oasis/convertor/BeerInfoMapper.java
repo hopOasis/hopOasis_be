@@ -14,12 +14,12 @@ import org.mapstruct.ReportingPolicy;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring",
-unmappedTargetPolicy = ReportingPolicy.IGNORE,
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface BeerInfoMapper extends Mappable<Beer, BeerInfoDto> {
     @Mapping(target = "imageName", source = "image")
     @Mapping(target = "specialOfferIds", source = "specialOfferProduct")
+    @Mapping(target = "options", source = "beerOptions")
     BeerInfoDto toDto(Beer beer);
 
     default List<String> mapImagesToNames(List<Image> images) {
