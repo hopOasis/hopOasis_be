@@ -13,7 +13,7 @@ public interface CartService {
 
     CartItemDto create(ItemRequestDto itemRequestDto);
 
-    void removeItem(Long cartId, Long itemId, ItemType itemType);
+    void removeItem(Long cartId, Long itemId, ItemType itemType, double measureValue);
 
     void delete(Long cartId);
 

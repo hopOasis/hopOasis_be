@@ -16,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
@@ -58,6 +59,18 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItemDto create(ItemRequestDto itemRequestDto) {
+        Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+        BeerOptions beerOptions = optionalBeerOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
+        if (beerOptions.getQuantity() < itemRequestDto.getQuantity()) {
+            throw new IllegalArgumentException("Not enough beer in stock");
+        }
+
+        int newQuantity = beerOptions.getQuantity() - itemRequestDto.getQuantity();
+        beerOptions.setQuantity(newQuantity);
+        beerOptionsRepository.save(beerOptions);
+
         Cart cart = new Cart();
         cart = cartRepository.save(cart);
         CartItem cartItem = new CartItem();
@@ -66,16 +79,6 @@ public class CartServiceImpl implements CartService {
         cartItem.setItemType(itemRequestDto.getItemType());
         cartItem.setQuantity(itemRequestDto.getQuantity());
         cartItem.setMeasureValue(itemRequestDto.getMeasureValue());
-
-        BeerOptions beerOptions = beerOptionsRepository.findByBeerIdAndVolume(
-                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
-        if (beerOptions.getQuantity() < itemRequestDto.getQuantity()) {
-            throw new IllegalArgumentException("Not enough beer in stock");
-        }
-        beerOptionsRepository.decreaseQuantity(
-                itemRequestDto.getItemId(),
-                itemRequestDto.getMeasureValue(),
-                itemRequestDto.getQuantity());
 
 
         cartItemRepository.save(cartItem);
@@ -86,12 +89,15 @@ public class CartServiceImpl implements CartService {
     @Transactional
     @Override
     public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
-        Cart cart = cartRepository.findById(cartId)
+        Optional<Cart> optionalCart = cartRepository.findById(cartId);
+        Cart cart = optionalCart
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
 
         for (ItemRequestDto item : items) {
-            CartItem cartItem = cartItemRepository.findByCartIdAndItemIdAndMeasureValueAndItemType(
+            Optional<CartItem> optionalCartItem = cartItemRepository.findByCartIdAndItemIdAndMeasureValueAndItemType(
                     cartId, item.getItemId(), item.getMeasureValue(), item.getItemType());
+            CartItem cartItem = optionalCartItem
+                    .orElseThrow(() -> new ResourceNotFoundException("Item not found", ""));
 
             if (cartItem == null) {
                 cartItem = new CartItem();
@@ -105,18 +111,21 @@ public class CartServiceImpl implements CartService {
             int newQuantity = item.getQuantity();
             int currentQuantity = cartItem.getQuantity();
 
-            BeerOptions beerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+            Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
                     item.getItemId(), item.getMeasureValue());
+
+            BeerOptions beerOptions = optionalBeerOptions
+                    .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
 
             if (newQuantity > currentQuantity) {
                 int quantityToDecrease = newQuantity - currentQuantity;
                 if (beerOptions.getQuantity() < quantityToDecrease) {
                     throw new IllegalArgumentException("Not enough beer in stock");
                 }
-                beerOptionsRepository.decreaseQuantity(item.getItemId(), item.getMeasureValue(), quantityToDecrease);
+                beerOptions.setQuantity(beerOptions.getQuantity() - quantityToDecrease);
             } else if (newQuantity < currentQuantity) {
                 int quantityToIncrease = currentQuantity - newQuantity;
-                beerOptionsRepository.increaseQuantity(item.getItemId(), item.getMeasureValue(), quantityToIncrease);
+                beerOptions.setQuantity(beerOptions.getQuantity() + quantityToIncrease);
             }
 
             cartItem.setQuantity(newQuantity);
@@ -128,13 +137,23 @@ public class CartServiceImpl implements CartService {
 
 
     @Override
-    public void removeItem(Long cartId, Long itemId, ItemType itemType) {
-        List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemType(cartId, itemId, itemType);
+    public void removeItem(Long cartId, Long itemId, ItemType itemType, double measureValue) {
+        List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemTypeAndMeasureValue(
+                cartId,
+                itemId,
+                itemType,
+                measureValue);
         if (!cartItems.isEmpty()) {
             for (CartItem cartItem : cartItems) {
-                BeerOptions beerOptions = beerOptionsRepository.findByBeerIdAndVolume(cartItem.getItemId(), cartItem.getMeasureValue());
+                Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+                        cartItem.getItemId(),
+                        cartItem.getMeasureValue());
+                BeerOptions beerOptions = optionalBeerOptions
+                        .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
                 if (beerOptions != null) {
-                    beerOptionsRepository.increaseQuantity(cartItem.getItemId(), cartItem.getMeasureValue(), cartItem.getQuantity());
+                    int newQuantity = beerOptions.getQuantity() + cartItem.getQuantity();
+                    beerOptions.setQuantity(newQuantity);
+                    beerOptionsRepository.save(beerOptions);
                 }
                 cartItemRepository.delete(cartItem);
             }
@@ -149,9 +168,16 @@ public class CartServiceImpl implements CartService {
         log.debug("Clear cart");
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
         for (CartItem cartItem : cartItems) {
-            BeerOptions beerOptions = beerOptionsRepository.findByBeerIdAndVolume(cartItem.getItemId(), cartItem.getMeasureValue());
+            Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+                    cartItem.getItemId(),
+                    cartItem.getMeasureValue());
+            BeerOptions beerOptions = optionalBeerOptions
+                    .orElseThrow(() -> new IllegalArgumentException("Beer options not found for this beer"));
+
             if (beerOptions != null) {
-                beerOptionsRepository.increaseQuantity(cartItem.getItemId(), cartItem.getMeasureValue(), cartItem.getQuantity());
+                int newQuantity = beerOptions.getQuantity() + cartItem.getQuantity();
+                beerOptions.setQuantity(newQuantity);
+                beerOptionsRepository.save(beerOptions);
             }
 
         }
