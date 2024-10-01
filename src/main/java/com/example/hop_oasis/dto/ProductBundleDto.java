@@ -12,8 +12,8 @@ import java.util.List;
 public final class ProductBundleDto {
     private Long id;
     private String name;
-    private double price;
     private String description;
     private List<ProductBundleImageDto> imageDto;
+    private List<ProductBundleOptionsDto> options;
 
 }

@@ -4,8 +4,11 @@ import com.example.hop_oasis.convertor.ProductBundleMapper;
 import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
+import com.example.hop_oasis.dto.ProductBundleOptionsDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ProductBundle;
+import com.example.hop_oasis.model.ProductBundleOptions;
+import com.example.hop_oasis.repository.ProductBundleOptionsRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.service.ProductBundleService;
 import jakarta.transaction.Transactional;
@@ -17,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
 
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
@@ -29,10 +33,18 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     private final ProductBundleMapper productBundleMapper;
     private final ProductBundleInfoMapper productBundleInfoMapper;
     private final ProductBundleRatingServiceImpl productBundleRatingService;
+    private final ProductBundleOptionsRepository productBundleOptionsRepository;
     @Override
     public ProductBundle saveProductBundle(ProductBundleDto productBundleDto) {
         ProductBundle productBundle = productBundleMapper.toEntity(productBundleDto);
         productBundleRepository.save(productBundle);
+        for (ProductBundleOptionsDto optionsDto : productBundleDto.getOptions()) {
+            ProductBundleOptions options = new ProductBundleOptions();
+            options.setProductBundle(productBundle);
+            options.setQuantity(optionsDto.getQuantity());
+            options.setPrice(optionsDto.getPrice());
+            productBundleOptionsRepository.save(options);
+        }
         return productBundle;
     }
     @Override
@@ -75,11 +87,15 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         if (!productDto.getName().isEmpty()) {
             productBundle.setName(productDto.getName());
         }
-        if (productDto.getPrice() != 0.0) {
-            productBundle.setPrice(productDto.getPrice());
-        }
-        if (!productDto.getDescription().isEmpty()) {
+
+        if (Objects.nonNull(productDto.getDescription())) {
             productBundle.setDescription(productDto.getDescription());
+        }
+        for (ProductBundleOptionsDto optionsDto : productDto.getOptions()) {
+            ProductBundleOptions options = new ProductBundleOptions();
+            options.setQuantity(optionsDto.getQuantity());
+            options.setPrice(optionsDto.getPrice());
+            productBundleOptionsRepository.save(options);
         }
         return productBundleInfoMapper.toDto(productBundleRepository.save(productBundle));
     }

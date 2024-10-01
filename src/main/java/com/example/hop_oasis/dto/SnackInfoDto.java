@@ -3,6 +3,7 @@ package com.example.hop_oasis.dto;
 import com.example.hop_oasis.model.ItemType;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -13,10 +14,6 @@ import java.util.List;
 public final class SnackInfoDto {
     private Long id;
     private String snackName;
-    private double weightLarge;
-    private double weightSmall;
-    private double priceLarge;
-    private double priceSmall;
     private String description;
     private List<String> snackImageName;
     private double averageRating;
@@ -24,4 +21,5 @@ public final class SnackInfoDto {
     private List<Long> specialOfferIds;
     @Builder.Default
     private ItemType itemType = ItemType.SNACK;
+    private List<SnackOptionsDto> options = new ArrayList<>();
 }

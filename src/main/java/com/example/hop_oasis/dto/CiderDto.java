@@ -12,10 +12,7 @@ import java.util.List;
 public final class CiderDto {
     private Long id;
     private String ciderName;
-    private double volumeLarge;
-    private double volumeSmall;
-    private double priceLarge;
-    private double priceSmall;
     private String description;
     private List<CiderImageDto> image;
+    private List<CiderOptionsDto> options;
 }

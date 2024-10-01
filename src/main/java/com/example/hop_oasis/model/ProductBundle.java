@@ -19,10 +19,11 @@ public class ProductBundle {
     private Long id;
     @Column(name = "product_name")
     private String name;
-    @Column(name = "price")
-    private double price;
     @Column(name = "description")
     private String description;
+    @OneToMany(mappedBy = "productBundle", cascade = CascadeType.ALL)
+    private List<ProductBundleOptions> productBundleOptions;
+
 
     @OneToMany(mappedBy = "productBundle", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<ProductBundleImage> productImage;

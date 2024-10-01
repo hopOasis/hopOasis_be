@@ -3,6 +3,7 @@ package com.example.hop_oasis.dto;
 import com.example.hop_oasis.model.ItemType;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -13,7 +14,6 @@ import java.util.List;
 public final class ProductBundleInfoDto {
     private Long id;
     private String name;
-    private double price;
     private String description;
     private List<String> productImageName;
     private double averageRating;
@@ -21,4 +21,5 @@ public final class ProductBundleInfoDto {
     private List<Long> specialOfferIds;
     @Builder.Default
     private ItemType itemType = ItemType.PRODUCT_BUNDLE;
+    private List<ProductBundleOptionsDto> options = new ArrayList<>();
 }

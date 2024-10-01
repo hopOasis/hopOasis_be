@@ -19,16 +19,10 @@ public class Snack {
     private Long id;
     @Column(name = "snack_name")
     private String snackName;
-    @Column(name = "weight_large")
-    private double weightLarge;
-    @Column(name = "weight_small")
-    private double weightSmall;
-    @Column(name = "price_large")
-    private double priceLarge;
-    @Column(name = "price_small")
-    private double priceSmall;
     @Column(name = "description")
     private String description;
+    @OneToMany(mappedBy = "snack", cascade = CascadeType.ALL)
+    private List<SnackOptions> snackOptions;
 
     @OneToMany(mappedBy = "snack", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<SnackImage> snackImage;

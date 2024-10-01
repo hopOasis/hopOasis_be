@@ -3,6 +3,7 @@ package com.example.hop_oasis.dto;
 import com.example.hop_oasis.model.ItemType;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -14,10 +15,6 @@ import java.util.List;
 public final class CiderInfoDto {
     private Long id;
     private String ciderName;
-    private double volumeLarge;
-    private double volumeSmall;
-    private double priceLarge;
-    private double priceSmall;
     private String description;
     private List<String> ciderImageName;
     private double averageRating;
@@ -25,6 +22,7 @@ public final class CiderInfoDto {
     private List<Long> specialOfferIds;
     @Builder.Default
     private ItemType itemType = ItemType.CIDER;
+    private List<CiderOptionsDto> options = new ArrayList<>();
 
 }
 

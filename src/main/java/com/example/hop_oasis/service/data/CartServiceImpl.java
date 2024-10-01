@@ -13,6 +13,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.function.Function;
+
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +28,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 @Slf4j
 @Transactional
 public class CartServiceImpl implements CartService {
+    private static int newQuantity;
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
@@ -33,6 +37,9 @@ public class CartServiceImpl implements CartService {
     private final ProductBundleService bundleService;
     private final CiderService ciderService;
     private final BeerOptionsRepository beerOptionsRepository;
+    private final CiderOptionsRepository ciderOptionsRepository;
+    private final SnackOptionsRepository snackOptionsRepository;
+    private final ProductBundleOptionsRepository productBundleOptionsRepository;
 
     @Override
     public CartDto getAllItemsByCartId(Long cartId) {
@@ -43,7 +50,7 @@ public class CartServiceImpl implements CartService {
         } else {
 
             for (CartItem cartItem : cartItems) {
-                CartItemDto dto = createCartItemDto(cartItem, cartItem.getMeasureValue());
+                CartItemDto dto = createCartItemDto(cartItem);
                 items.add(dto);
             }
 
@@ -59,17 +66,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItemDto create(ItemRequestDto itemRequestDto) {
-        Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
-                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
-        BeerOptions beerOptions = optionalBeerOptions
-                .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
-        if (beerOptions.getQuantity() < itemRequestDto.getQuantity()) {
-            throw new IllegalArgumentException("Not enough beer in stock");
-        }
-
-        int newQuantity = beerOptions.getQuantity() - itemRequestDto.getQuantity();
-        beerOptions.setQuantity(newQuantity);
-        beerOptionsRepository.save(beerOptions);
+        updateStockAfterCreating(itemRequestDto, itemRequestDto.getItemType());
 
         Cart cart = new Cart();
         cart = cartRepository.save(cart);
@@ -80,10 +77,88 @@ public class CartServiceImpl implements CartService {
         cartItem.setQuantity(itemRequestDto.getQuantity());
         cartItem.setMeasureValue(itemRequestDto.getMeasureValue());
 
-
         cartItemRepository.save(cartItem);
 
-        return createCartItemDto(cartItem, itemRequestDto.getMeasureValue());
+        return createCartItemDto(cartItem);
+    }
+
+    private void updateStockAfterCreating(ItemRequestDto itemRequestDto, ItemType itemType) {
+        switch (itemType) {
+            case BEER:
+                updateBeerStockAfterCreating(itemRequestDto);
+                break;
+            case CIDER:
+                updateCiderStockAfterCreating(itemRequestDto);
+                break;
+            case SNACK:
+                updateSnackStockAfterCreating(itemRequestDto);
+                break;
+            case PRODUCT_BUNDLE:
+                updateBundleStockAfterCreating(itemRequestDto);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported item type: " + itemType);
+
+        }
+
+    }
+
+    private void updateBeerStockAfterCreating(ItemRequestDto itemRequestDto) {
+        Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+        BeerOptions beerOptions = optionalBeerOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
+        if (beerOptions.getQuantity() < itemRequestDto.getQuantity()) {
+            throw new IllegalArgumentException("Not enough beer in stock");
+        }
+
+        newQuantity = beerOptions.getQuantity() - itemRequestDto.getQuantity();
+        beerOptions.setQuantity(newQuantity);
+        beerOptionsRepository.save(beerOptions);
+
+    }
+
+    private void updateCiderStockAfterCreating(ItemRequestDto itemRequestDto) {
+        Optional<CiderOptions> optionalCiderOptions = ciderOptionsRepository.findByCiderIdAndVolume(
+                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+        CiderOptions ciderOptions = optionalCiderOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Cider options not found for this cider", ""));
+        if (ciderOptions.getQuantity() < itemRequestDto.getQuantity()) {
+            throw new IllegalArgumentException("Not enough cider in stock");
+        }
+
+        newQuantity = ciderOptions.getQuantity() - itemRequestDto.getQuantity();
+        ciderOptions.setQuantity(newQuantity);
+        ciderOptionsRepository.save(ciderOptions);
+    }
+
+    private void updateSnackStockAfterCreating(ItemRequestDto itemRequestDto) {
+        Optional<SnackOptions> optionalSnackOptions = snackOptionsRepository.findBySnackIdAndWeight(
+                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+        SnackOptions snackOptions = optionalSnackOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Snack options not found for this snack", ""));
+        if (snackOptions.getQuantity() < itemRequestDto.getQuantity()) {
+            throw new IllegalArgumentException("Not enough snack in stock");
+        }
+        newQuantity = snackOptions.getQuantity() - itemRequestDto.getQuantity();
+        snackOptions.setQuantity(newQuantity);
+        snackOptionsRepository.save(snackOptions);
+
+
+
+    }
+    private void updateBundleStockAfterCreating(ItemRequestDto itemRequestDto) {
+        Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
+                .findByProductBundleId(
+                itemRequestDto.getItemId());
+        ProductBundleOptions productBundleOptions = optionalProductBundleOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
+        if (productBundleOptions.getQuantity() < itemRequestDto.getQuantity()) {
+            throw new IllegalArgumentException("Not enough bundle in stock");
+        }
+        newQuantity = productBundleOptions.getQuantity() - itemRequestDto.getQuantity();
+        productBundleOptions.setQuantity(newQuantity);
+        productBundleOptionsRepository.save(productBundleOptions);
     }
 
     @Transactional
@@ -94,10 +169,9 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
 
         for (ItemRequestDto item : items) {
-            Optional<CartItem> optionalCartItem = cartItemRepository.findByCartIdAndItemIdAndMeasureValueAndItemType(
+            CartItem cartItem = cartItemRepository.findByCartIdAndItemIdAndMeasureValueAndItemType(
                     cartId, item.getItemId(), item.getMeasureValue(), item.getItemType());
-            CartItem cartItem = optionalCartItem
-                    .orElseThrow(() -> new ResourceNotFoundException("Item not found", ""));
+
 
             if (cartItem == null) {
                 cartItem = new CartItem();
@@ -108,24 +182,77 @@ public class CartServiceImpl implements CartService {
                 cartItem.setQuantity(0);
             }
 
-            int newQuantity = item.getQuantity();
+            newQuantity = item.getQuantity();
             int currentQuantity = cartItem.getQuantity();
 
-            Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
-                    item.getItemId(), item.getMeasureValue());
+            if (item.getItemType() == ItemType.BEER) {
+                Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+                        item.getItemId(), item.getMeasureValue());
 
-            BeerOptions beerOptions = optionalBeerOptions
-                    .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
+                BeerOptions beerOptions = optionalBeerOptions
+                        .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
 
-            if (newQuantity > currentQuantity) {
-                int quantityToDecrease = newQuantity - currentQuantity;
-                if (beerOptions.getQuantity() < quantityToDecrease) {
-                    throw new IllegalArgumentException("Not enough beer in stock");
+                if (newQuantity > currentQuantity) {
+                    int quantityToDecrease = newQuantity - currentQuantity;
+                    if (beerOptions.getQuantity() < quantityToDecrease) {
+                        throw new IllegalArgumentException("Not enough beer in stock");
+                    }
+                    beerOptions.setQuantity(beerOptions.getQuantity() - quantityToDecrease);
+                } else if (newQuantity < currentQuantity) {
+                    int quantityToIncrease = currentQuantity - newQuantity;
+                    beerOptions.setQuantity(beerOptions.getQuantity() + quantityToIncrease);
                 }
-                beerOptions.setQuantity(beerOptions.getQuantity() - quantityToDecrease);
-            } else if (newQuantity < currentQuantity) {
-                int quantityToIncrease = currentQuantity - newQuantity;
-                beerOptions.setQuantity(beerOptions.getQuantity() + quantityToIncrease);
+                beerOptionsRepository.save(beerOptions);
+            } else if (item.getItemType() == ItemType.CIDER) {
+                Optional<CiderOptions> optionalCiderOptions = ciderOptionsRepository.findByCiderIdAndVolume(
+                        item.getItemId(), item.getMeasureValue());
+                CiderOptions ciderOptions = optionalCiderOptions
+                        .orElseThrow(() -> new ResourceNotFoundException("Cider options not found for this cider", ""));
+                if (newQuantity > currentQuantity) {
+                    int quantityToDecrease = newQuantity - currentQuantity;
+                    if (ciderOptions.getQuantity() < quantityToDecrease) {
+                        throw new IllegalArgumentException("Not enough cider in stock");
+                    }
+                    ciderOptions.setQuantity(ciderOptions.getQuantity() - quantityToDecrease);
+                } else if (newQuantity < currentQuantity) {
+                    int quantityToIncrease = currentQuantity - newQuantity;
+                    ciderOptions.setQuantity(ciderOptions.getQuantity() + quantityToIncrease);
+                }
+                ciderOptionsRepository.save(ciderOptions);
+
+            } else if (item.getItemType() == ItemType.SNACK) {
+                Optional<SnackOptions> optionalSnackOptions = snackOptionsRepository.findBySnackIdAndWeight(
+                        item.getItemId(), item.getMeasureValue());
+                SnackOptions snackOptions = optionalSnackOptions
+                        .orElseThrow(() -> new ResourceNotFoundException("Snack options not found for this snack", ""));
+                if (newQuantity > currentQuantity) {
+                    int quantityToDecrease = newQuantity - currentQuantity;
+                    if (snackOptions.getQuantity() < quantityToDecrease) {
+                        throw new IllegalArgumentException("Not enough snack in stock");
+                    }
+                    snackOptions.setQuantity(snackOptions.getQuantity() - quantityToDecrease);
+                } else if (newQuantity < currentQuantity) {
+                    int quantityToIncrease = currentQuantity - newQuantity;
+                    snackOptions.setQuantity(snackOptions.getQuantity() + quantityToIncrease);
+                }
+
+                snackOptionsRepository.save(snackOptions);
+            } else if (item.getItemType() == ItemType.PRODUCT_BUNDLE) {
+                Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
+                        .findByProductBundleId(item.getItemId());
+                ProductBundleOptions productBundleOptions = optionalProductBundleOptions
+                        .orElseThrow(() -> new ResourceNotFoundException("Options not found for this bundle", ""));
+                if (newQuantity > currentQuantity) {
+                    int quantityToDecrease = newQuantity - currentQuantity;
+                    if (productBundleOptions.getQuantity() < quantityToDecrease) {
+                        throw new IllegalArgumentException("Not enough bundle in stock");
+                    }
+                    productBundleOptions.setQuantity(productBundleOptions.getQuantity() - quantityToDecrease);
+                } else if (newQuantity < currentQuantity) {
+                    int quantityToIncrease = currentQuantity - newQuantity;
+                    productBundleOptions.setQuantity(productBundleOptions.getQuantity() + quantityToIncrease);
+                }
+                productBundleOptionsRepository.save(productBundleOptions);
             }
 
             cartItem.setQuantity(newQuantity);
@@ -143,23 +270,78 @@ public class CartServiceImpl implements CartService {
                 itemId,
                 itemType,
                 measureValue);
-        if (!cartItems.isEmpty()) {
-            for (CartItem cartItem : cartItems) {
-                Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
-                        cartItem.getItemId(),
-                        cartItem.getMeasureValue());
-                BeerOptions beerOptions = optionalBeerOptions
-                        .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
-                if (beerOptions != null) {
-                    int newQuantity = beerOptions.getQuantity() + cartItem.getQuantity();
-                    beerOptions.setQuantity(newQuantity);
-                    beerOptionsRepository.save(beerOptions);
-                }
-                cartItemRepository.delete(cartItem);
-            }
-        } else {
-            throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+        if (cartItems.isEmpty()) {
+            throw new ResourceNotFoundException("Cart item not found", "");
         }
+        for (CartItem cartItem : cartItems) {
+            updateStockAfterRemove(cartItem, itemType);
+            cartItemRepository.delete(cartItem);
+
+        }
+
+    }
+
+    private void updateStockAfterRemove(CartItem cartItem, ItemType itemType) {
+        switch (itemType) {
+            case BEER:
+                updateBeerStockAfterRemove(cartItem);
+                break;
+            case CIDER:
+                updateCiderStockAfterRemove(cartItem);
+                break;
+            case SNACK:
+                updateSnackStockAfterRemove(cartItem);
+                break;
+            case PRODUCT_BUNDLE:
+                updateBundleStockAfterRemove(cartItem);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported item type: " + itemType);
+        }
+
+    }
+
+    private void updateBeerStockAfterRemove(CartItem cartItem) {
+        Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
+                cartItem.getItemId(), cartItem.getMeasureValue());
+        BeerOptions beerOptions = optionalBeerOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
+        newQuantity = beerOptions.getQuantity() + cartItem.getQuantity();
+        beerOptions.setQuantity(newQuantity);
+        beerOptionsRepository.save(beerOptions);
+    }
+
+    private void updateCiderStockAfterRemove(CartItem cartItem) {
+        Optional<CiderOptions> optionalCiderOptions = ciderOptionsRepository.findByCiderIdAndVolume(
+                cartItem.getItemId(), cartItem.getMeasureValue());
+        CiderOptions ciderOptions = optionalCiderOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Cider options not found for this cider", ""));
+        newQuantity = ciderOptions.getQuantity() + cartItem.getQuantity();
+        ciderOptions.setQuantity(newQuantity);
+        ciderOptionsRepository.save(ciderOptions);
+
+    }
+
+    private void updateSnackStockAfterRemove(CartItem cartItem) {
+        Optional<SnackOptions> optionalSnackOptions = snackOptionsRepository.findBySnackIdAndWeight(
+                cartItem.getItemId(), cartItem.getMeasureValue());
+        SnackOptions snackOptions = optionalSnackOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Snack options not found for this snack", ""));
+        newQuantity = snackOptions.getQuantity() + cartItem.getQuantity();
+        snackOptions.setQuantity(newQuantity);
+        snackOptionsRepository.save(snackOptions);
+    }
+
+    private void updateBundleStockAfterRemove(CartItem cartItem) {
+        Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository.
+                findByProductBundleId(cartItem.getId());
+        ProductBundleOptions productBundleOptions = optionalProductBundleOptions
+                .orElseThrow(() -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
+        newQuantity = productBundleOptions.getQuantity() + cartItem.getQuantity();
+        productBundleOptions.setQuantity(newQuantity);
+        productBundleOptionsRepository.save(productBundleOptions);
+
+
     }
 
 
@@ -168,23 +350,14 @@ public class CartServiceImpl implements CartService {
         log.debug("Clear cart");
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
         for (CartItem cartItem : cartItems) {
-            Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
-                    cartItem.getItemId(),
-                    cartItem.getMeasureValue());
-            BeerOptions beerOptions = optionalBeerOptions
-                    .orElseThrow(() -> new IllegalArgumentException("Beer options not found for this beer"));
-
-            if (beerOptions != null) {
-                int newQuantity = beerOptions.getQuantity() + cartItem.getQuantity();
-                beerOptions.setQuantity(newQuantity);
-                beerOptionsRepository.save(beerOptions);
-            }
-
+            updateStockAfterRemove(cartItem, cartItem.getItemType());
         }
         cartItemRepository.deleteByCartId(cartId);
+        cartRepository.deleteById(cartId);
+
     }
 
-    private CartItemDto createCartItemDto(CartItem cartItem, double measureValue) {
+    private CartItemDto createCartItemDto(CartItem cartItem) {
         CartItemDto dto = new CartItemDto();
         dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
@@ -195,33 +368,50 @@ public class CartServiceImpl implements CartService {
                 BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
                 if (beerInfo != null) {
                     dto.setItemTitle(beerInfo.getBeerName());
-                    BeerOptionsDto selectedVolume = chooseVolume(beerInfo.getOptions(), cartItem.getMeasureValue());
-                    if (selectedVolume != null) {
-                        dto.setPricePerItem(selectedVolume.getPrice());
+                    if (cartItem.getMeasureValue() != null) {
+                        BeerOptionsDto selectedVolume = chooseOptionByCriteria(
+                                beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
+                        if (selectedVolume != null) {
+                            dto.setPricePerItem(selectedVolume.getPrice());
+                        }
                     }
-                }
-            }
-           /* case SNACK -> {
-                SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
-                if (snackInfo != null) {
-                    dto.setItemTitle(snackInfo.getSnackName());
-                    dto.setPricePerItem(chooseMeasureValue(cartItem, measureValue).getPricePerItem());
-                }
-            }
-            case PRODUCT_BUNDLE -> {
-                ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
-                if (bundleInfo != null) {
-                    dto.setItemTitle(bundleInfo.getName());
-                    dto.setPricePerItem(bundleInfo.getPrice());
                 }
             }
             case CIDER -> {
                 CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
                 if (ciderInfo != null) {
                     dto.setItemTitle(ciderInfo.getCiderName());
-                    dto.setPricePerItem(chooseMeasureValue(cartItem, measureValue).getPricePerItem());
+                    if (cartItem.getMeasureValue() != null) {
+                        CiderOptionsDto selectedVolume = chooseOptionByCriteria(
+                                ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
+                        if (selectedVolume != null) {
+                            dto.setPricePerItem(selectedVolume.getPrice());
+                        }
+                    }
                 }
-            }*/
+            }
+            case SNACK -> {
+                SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
+                if (snackInfo != null) {
+                    dto.setItemTitle(snackInfo.getSnackName());
+                    if (cartItem.getMeasureValue() != null) {
+                        SnackOptionsDto selectedWeight = chooseOptionByCriteria(
+                                snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
+                        if (selectedWeight != null) {
+                            dto.setPricePerItem(selectedWeight.getPrice());
+                        }
+                    }
+                }
+            }
+            case PRODUCT_BUNDLE -> {
+                ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
+                if (bundleInfo != null) {
+                    dto.setItemTitle(bundleInfo.getName());
+                    ProductBundleOptionsDto selectedOption = new ProductBundleOptionsDto();
+                    dto.setQuantity(selectedOption.getQuantity());
+                }
+            }
+
             default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
         dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
@@ -229,11 +419,21 @@ public class CartServiceImpl implements CartService {
     }
 
 
-    private BeerOptionsDto chooseVolume(List<BeerOptionsDto> volumes, double measureValue) {
-        return volumes.stream()
-                .filter(volume -> volume.getVolume() == measureValue)
+    public <T> T chooseOptionByCriteria(List<T> options, double criteriaValue, Function<T, Double> getCriteriaFunction) {
+        return options.stream()
+                .filter(option -> getCriteriaFunction.apply(option).equals(criteriaValue))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Volume not found", measureValue));
+                .orElseThrow(() -> new ResourceNotFoundException("Option not found with criteria value:"  + criteriaValue,
+                        ""));
     }
+    // З цим методом також пробував, не шукає по кількості
+    public <T> T chooseOptionByIntCriteria(List<T> options, int criteriaValue, Function<T, Integer> getCriteriaFunction) {
+        return options.stream()
+                .filter(option -> getCriteriaFunction.apply(option) == criteriaValue)
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Option not found with criteria value: " + criteriaValue, ""));
+    }
+
+
 
 }

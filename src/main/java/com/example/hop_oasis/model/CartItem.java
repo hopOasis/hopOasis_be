@@ -21,7 +21,7 @@ public class CartItem {
     private Cart cart;
     private Long itemId;
     private int quantity;
-    private double measureValue;
+    private Double measureValue;
     @Enumerated(EnumType.STRING)
     private ItemType itemType;
 }

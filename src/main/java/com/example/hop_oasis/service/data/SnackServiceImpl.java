@@ -1,10 +1,13 @@
 package com.example.hop_oasis.service.data;
+
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.convertor.SnackMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Snack;
+import com.example.hop_oasis.model.SnackOptions;
 import com.example.hop_oasis.repository.SnackImageRepository;
+import com.example.hop_oasis.repository.SnackOptionsRepository;
 import com.example.hop_oasis.repository.SnackRepository;
 import com.example.hop_oasis.service.SnackService;
 import jakarta.transaction.Transactional;
@@ -12,8 +15,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Objects;
+
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
 @Service
@@ -24,18 +30,30 @@ public class SnackServiceImpl implements SnackService {
     private final SnackMapper snackMapper;
     private final SnackInfoMapper snackInfoMapper;
     private final SnackRatingServiceImpl snackRatingService;
+    private final SnackOptionsRepository snackOptionsRepository;
+
     @Override
     public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
         snackRepository.save(snack);
+        for (SnackOptionsDto optionsDto : snackDto.getOptions()) {
+            SnackOptions options = new SnackOptions();
+            options.setSnack(snack);
+            options.setWeight(optionsDto.getWeight());
+            options.setQuantity(optionsDto.getQuantity());
+            options.setPrice(optionsDto.getPrice());
+            snackOptionsRepository.save(options);
+        }
         return snack;
     }
+
     @Override
     public SnackInfoDto getSnackById(Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(snack);
     }
+
     @Override
     public SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long id, double ratingValue) {
 
@@ -44,6 +62,7 @@ public class SnackServiceImpl implements SnackService {
                 .orElseThrow(() -> new IllegalArgumentException("Snack not found with id " + id));
         return convertToDtoWithRating(snack);
     }
+
     private SnackInfoDto convertToDtoWithRating(Snack snack) {
         SnackInfoDto snackInfoDto = snackInfoMapper.toDto(snack);
         ItemRatingDto rating = snackRatingService.getItemRating(snack.getId());
@@ -53,6 +72,7 @@ public class SnackServiceImpl implements SnackService {
         snackInfoDto.setRatingCount(rating.getRatingCount());
         return snackInfoDto;
     }
+
     @Override
     public Page<SnackInfoDto> getAllSnacks(Pageable pageable) {
         Page<Snack> snacks = snackRepository.findAll(pageable);
@@ -71,23 +91,20 @@ public class SnackServiceImpl implements SnackService {
         if (!snackDto.getSnackName().isEmpty()) {
             snack.setSnackName(snackDto.getSnackName());
         }
-        if (snackDto.getWeightLarge() != 0.0) {
-            snack.setWeightLarge(snackDto.getWeightLarge());
-        }
-        if (snackDto.getWeightSmall() != 0.0) {
-            snack.setWeightSmall(snackDto.getWeightSmall());
-        }
-        if (snackDto.getPriceLarge() != 0.0) {
-            snack.setPriceLarge(snackDto.getPriceLarge());
-        }
-        if (snackDto.getPriceSmall() != 0.0) {
-            snack.setPriceSmall(snackDto.getPriceSmall());
-        }
-        if (!snackDto.getDescription().isEmpty()) {
+
+        if (Objects.nonNull(snackDto.getDescription())) {
             snack.setDescription(snackDto.getDescription());
+        }
+        for (SnackOptionsDto optionsDto : snackDto.getOptions()) {
+            SnackOptions options = new SnackOptions();
+            options.setWeight(optionsDto.getWeight());
+            options.setQuantity(optionsDto.getQuantity());
+            options.setPrice(optionsDto.getPrice());
+            snackOptionsRepository.save(options);
         }
         return snackInfoMapper.toDto(snackRepository.save(snack));
     }
+
     @Override
     @Transactional
     public SnackInfoDto deleteSnack(Long id) {
