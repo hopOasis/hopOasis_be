@@ -66,7 +66,6 @@ public class CartServiceImpl implements CartService {
 
     @Override
     public CartItemDto create(ItemRequestDto itemRequestDto) {
-        updateStockAfterCreating(itemRequestDto, itemRequestDto.getItemType());
 
         Cart cart = new Cart();
         cart = cartRepository.save(cart);
@@ -75,7 +74,17 @@ public class CartServiceImpl implements CartService {
         cartItem.setItemId(itemRequestDto.getItemId());
         cartItem.setItemType(itemRequestDto.getItemType());
         cartItem.setQuantity(itemRequestDto.getQuantity());
-        cartItem.setMeasureValue(itemRequestDto.getMeasureValue());
+        //cartItem.setMeasureValue(itemRequestDtoWithMeasure.getMeasureValue());
+        if (itemRequestDto instanceof ItemRequestDtoWithMeasure) {
+            ItemRequestDtoWithMeasure dtoWithMeasure = (ItemRequestDtoWithMeasure) itemRequestDto;
+            updateStockAfterCreating(dtoWithMeasure, dtoWithMeasure.getItemType());
+            cartItem.setMeasureValue(dtoWithMeasure.getMeasureValue());
+        } else if (itemRequestDto instanceof ProductBundleRequestDto) {
+            updateBundleStockAfterCreating((ProductBundleRequestDto) itemRequestDto);
+
+        } else {
+            throw new IllegalArgumentException("Unsupported item type: " + itemRequestDto.getItemType());
+        }
 
         cartItemRepository.save(cartItem);
 
@@ -85,16 +94,20 @@ public class CartServiceImpl implements CartService {
     private void updateStockAfterCreating(ItemRequestDto itemRequestDto, ItemType itemType) {
         switch (itemType) {
             case BEER:
-                updateBeerStockAfterCreating(itemRequestDto);
+                updateBeerStockAfterCreating((ItemRequestDtoWithMeasure) itemRequestDto);
                 break;
             case CIDER:
-                updateCiderStockAfterCreating(itemRequestDto);
+                updateCiderStockAfterCreating((ItemRequestDtoWithMeasure) itemRequestDto);
                 break;
             case SNACK:
-                updateSnackStockAfterCreating(itemRequestDto);
+                updateSnackStockAfterCreating((ItemRequestDtoWithMeasure) itemRequestDto);
                 break;
             case PRODUCT_BUNDLE:
-                updateBundleStockAfterCreating(itemRequestDto);
+                if (itemRequestDto instanceof ProductBundleRequestDto) {
+                    updateBundleStockAfterCreating((ProductBundleRequestDto) itemRequestDto);
+                } else {
+                    throw new IllegalArgumentException("Unsupported item type for Product Bundle");
+                }
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported item type: " + itemType);
@@ -103,72 +116,72 @@ public class CartServiceImpl implements CartService {
 
     }
 
-    private void updateBeerStockAfterCreating(ItemRequestDto itemRequestDto) {
+    private void updateBeerStockAfterCreating(ItemRequestDtoWithMeasure itemRequestDtoWithMeasure) {
         Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
-                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+                itemRequestDtoWithMeasure.getItemId(), itemRequestDtoWithMeasure.getMeasureValue());
         BeerOptions beerOptions = optionalBeerOptions
                 .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
-        if (beerOptions.getQuantity() < itemRequestDto.getQuantity()) {
+        if (beerOptions.getQuantity() < itemRequestDtoWithMeasure.getQuantity()) {
             throw new IllegalArgumentException("Not enough beer in stock");
         }
 
-        newQuantity = beerOptions.getQuantity() - itemRequestDto.getQuantity();
+        newQuantity = beerOptions.getQuantity() - itemRequestDtoWithMeasure.getQuantity();
         beerOptions.setQuantity(newQuantity);
         beerOptionsRepository.save(beerOptions);
 
     }
 
-    private void updateCiderStockAfterCreating(ItemRequestDto itemRequestDto) {
+    private void updateCiderStockAfterCreating(ItemRequestDtoWithMeasure itemRequestDtoWithMeasure) {
         Optional<CiderOptions> optionalCiderOptions = ciderOptionsRepository.findByCiderIdAndVolume(
-                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+                itemRequestDtoWithMeasure.getItemId(), itemRequestDtoWithMeasure.getMeasureValue());
         CiderOptions ciderOptions = optionalCiderOptions
                 .orElseThrow(() -> new ResourceNotFoundException("Cider options not found for this cider", ""));
-        if (ciderOptions.getQuantity() < itemRequestDto.getQuantity()) {
+        if (ciderOptions.getQuantity() < itemRequestDtoWithMeasure.getQuantity()) {
             throw new IllegalArgumentException("Not enough cider in stock");
         }
 
-        newQuantity = ciderOptions.getQuantity() - itemRequestDto.getQuantity();
+        newQuantity = ciderOptions.getQuantity() - itemRequestDtoWithMeasure.getQuantity();
         ciderOptions.setQuantity(newQuantity);
         ciderOptionsRepository.save(ciderOptions);
     }
 
-    private void updateSnackStockAfterCreating(ItemRequestDto itemRequestDto) {
+    private void updateSnackStockAfterCreating(ItemRequestDtoWithMeasure itemRequestDtoWithMeasure) {
         Optional<SnackOptions> optionalSnackOptions = snackOptionsRepository.findBySnackIdAndWeight(
-                itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
+                itemRequestDtoWithMeasure.getItemId(), itemRequestDtoWithMeasure.getMeasureValue());
         SnackOptions snackOptions = optionalSnackOptions
                 .orElseThrow(() -> new ResourceNotFoundException("Snack options not found for this snack", ""));
-        if (snackOptions.getQuantity() < itemRequestDto.getQuantity()) {
+        if (snackOptions.getQuantity() < itemRequestDtoWithMeasure.getQuantity()) {
             throw new IllegalArgumentException("Not enough snack in stock");
         }
-        newQuantity = snackOptions.getQuantity() - itemRequestDto.getQuantity();
+        int newQuantity = snackOptions.getQuantity() - itemRequestDtoWithMeasure.getQuantity();
         snackOptions.setQuantity(newQuantity);
         snackOptionsRepository.save(snackOptions);
 
 
-
     }
-    private void updateBundleStockAfterCreating(ItemRequestDto itemRequestDto) {
+
+    private void updateBundleStockAfterCreating(ProductBundleRequestDto bundleRequestDto) {
         Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
                 .findByProductBundleId(
-                itemRequestDto.getItemId());
+                        bundleRequestDto.getItemId());
         ProductBundleOptions productBundleOptions = optionalProductBundleOptions
-                .orElseThrow(() -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
-        if (productBundleOptions.getQuantity() < itemRequestDto.getQuantity()) {
+                .orElseThrow(() -> new ResourceNotFoundException("Bundle выавы options not found for this bundle", ""));
+        if (productBundleOptions.getQuantity() < bundleRequestDto.getQuantity()) {
             throw new IllegalArgumentException("Not enough bundle in stock");
         }
-        newQuantity = productBundleOptions.getQuantity() - itemRequestDto.getQuantity();
+        newQuantity = productBundleOptions.getQuantity() - bundleRequestDto.getQuantity();
         productBundleOptions.setQuantity(newQuantity);
         productBundleOptionsRepository.save(productBundleOptions);
     }
 
     @Transactional
     @Override
-    public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
+    public CartDto updateCart(Long cartId, List<ItemRequestDtoWithMeasure> items) {
         Optional<Cart> optionalCart = cartRepository.findById(cartId);
         Cart cart = optionalCart
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
 
-        for (ItemRequestDto item : items) {
+        for (ItemRequestDtoWithMeasure item : items) {
             CartItem cartItem = cartItemRepository.findByCartIdAndItemIdAndMeasureValueAndItemType(
                     cartId, item.getItemId(), item.getMeasureValue(), item.getItemType());
 
@@ -395,11 +408,11 @@ public class CartServiceImpl implements CartService {
                 if (snackInfo != null) {
                     dto.setItemTitle(snackInfo.getSnackName());
                     if (cartItem.getMeasureValue() != null) {
-                        SnackOptionsDto selectedWeight = chooseOptionByCriteria(
-                                snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
-                        if (selectedWeight != null) {
-                            dto.setPricePerItem(selectedWeight.getPrice());
-                        }
+                    SnackOptionsDto selectedWeight = chooseOptionByCriteria(
+                            snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
+                    if (selectedWeight != null) {
+                        dto.setPricePerItem(selectedWeight.getPrice());
+                    }
                     }
                 }
             }
@@ -407,8 +420,11 @@ public class CartServiceImpl implements CartService {
                 ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
                 if (bundleInfo != null) {
                     dto.setItemTitle(bundleInfo.getName());
-                    ProductBundleOptionsDto selectedOption = new ProductBundleOptionsDto();
-                    dto.setQuantity(selectedOption.getQuantity());
+                    ProductBundleOptionsDto selectedQuantity = chooseOptionByIntCriteria(
+                            bundleInfo.getOptions(), cartItem.getQuantity(), ProductBundleOptionsDto::getQuantity);
+                    if (selectedQuantity != null) {
+                        dto.setPricePerItem(selectedQuantity.getPrice());
+                    }
                 }
             }
 
@@ -423,9 +439,10 @@ public class CartServiceImpl implements CartService {
         return options.stream()
                 .filter(option -> getCriteriaFunction.apply(option).equals(criteriaValue))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Option not found with criteria value:"  + criteriaValue,
+                .orElseThrow(() -> new ResourceNotFoundException("Option not found with criteria value:" + criteriaValue,
                         ""));
     }
+
     // З цим методом також пробував, не шукає по кількості
     public <T> T chooseOptionByIntCriteria(List<T> options, int criteriaValue, Function<T, Integer> getCriteriaFunction) {
         return options.stream()
@@ -433,7 +450,6 @@ public class CartServiceImpl implements CartService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Option not found with criteria value: " + criteriaValue, ""));
     }
-
 
 
 }

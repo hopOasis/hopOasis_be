@@ -10,4 +10,6 @@ import java.util.List;
 public interface SnackOptionsMapper {
     SnackOptionsDto toDto(SnackOptions snackOptions);
     List<SnackOptionsDto> toDto(List<SnackOptions> snackOptions);
+    SnackOptions toEntity(SnackOptionsDto snackOptionsDto);
+    List<SnackOptions> toEntity(List<SnackOptionsDto> snackOptionsDtos);
 }

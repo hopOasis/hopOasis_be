@@ -8,6 +8,7 @@ import lombok.*;
 @Setter
 @Builder
 public class ProductBundleOptionsDto {
+    private Long id;
     private int quantity;
     private double price;
 }

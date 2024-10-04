@@ -18,7 +18,7 @@ public class CiderOptions {
     @JoinColumn(name = "cider_id")
     private Cider cider;
     @Column(name = "volume")
-    private double volume;
+    private Double volume;
     @Column(name = "quantity")
     private int quantity;
     @Column(name = "price")

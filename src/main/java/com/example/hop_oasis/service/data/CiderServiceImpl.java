@@ -2,6 +2,7 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.convertor.CiderInfoMapper;
 import com.example.hop_oasis.convertor.CiderMapper;
+import com.example.hop_oasis.convertor.CiderOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
@@ -17,7 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
@@ -29,20 +34,17 @@ public class CiderServiceImpl implements CiderService {
     private final CiderMapper ciderMapper;
     private final CiderInfoMapper ciderInfoMapper;
     private final CiderRatingServiceImpl ciderRatingService;
-    private final CiderOptionsRepository ciderOptionsRepository;
+    private final CiderOptionsMapper ciderOptionsMapper;
 
     @Override
     public Cider saveCider(CiderDto ciderDto) {
         Cider cider = ciderMapper.toEntity(ciderDto);
-        ciderRepository.save(cider);
-        for (CiderOptionsDto optionsDto : ciderDto.getOptions()) {
-            CiderOptions options = new CiderOptions();
+        List<CiderOptions> ciderOptionsList = ciderOptionsMapper.toEntity(ciderDto.getOptions());
+        for (CiderOptions options : ciderOptionsList) {
             options.setCider(cider);
-            options.setVolume(optionsDto.getVolume());
-            options.setQuantity(optionsDto.getQuantity());
-            options.setPrice(optionsDto.getPrice());
-            ciderOptionsRepository.save(options);
         }
+        cider.setCiderOptions(ciderOptionsList);
+        ciderRepository.save(cider);
         return cider;
     }
 
@@ -91,13 +93,25 @@ public class CiderServiceImpl implements CiderService {
         if (Objects.nonNull(ciderDto.getDescription())) {
             cider.setDescription(ciderDto.getDescription());
         }
-        for (CiderOptionsDto optionsDto : ciderDto.getOptions()) {
-            CiderOptions options = new CiderOptions();
-            options.setVolume(optionsDto.getVolume());
-            options.setQuantity(optionsDto.getQuantity());
-            options.setPrice(optionsDto.getPrice());
-            ciderOptionsRepository.save(options);
+        List<CiderOptions> currentOptions = cider.getCiderOptions();
+        List<CiderOptions> newOptions = ciderOptionsMapper.toEntity(ciderDto.getOptions());
+
+        Map<Double, CiderOptions> currentOptionsMap = currentOptions.stream()
+                        .collect(Collectors.toMap(CiderOptions::getVolume, Function.identity()));
+        for (CiderOptions newOption : newOptions) {
+            CiderOptions exitingOption = currentOptionsMap.get(newOption.getVolume());
+            if (exitingOption != null) {
+                exitingOption.setQuantity(newOption.getQuantity());
+                exitingOption.setPrice(newOption.getPrice());
+            } else {
+                newOption.setCider(cider);
+                currentOptions.add(newOption);
+            }
         }
+        currentOptions.removeIf(option ->
+                newOptions.stream().noneMatch(newOpt -> newOpt.getVolume().equals(option.getVolume())));
+
+        cider.setCiderOptions(currentOptions);
         return ciderInfoMapper.toDto(ciderRepository.save(cider));
     }
 

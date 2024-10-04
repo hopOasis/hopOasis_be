@@ -8,7 +8,8 @@ import lombok.*;
 @Setter
 @Builder
 public class CiderOptionsDto {
-    private double volume;
+    private Long id;
+    private Double volume;
     private int quantity;
     private double price;
 }

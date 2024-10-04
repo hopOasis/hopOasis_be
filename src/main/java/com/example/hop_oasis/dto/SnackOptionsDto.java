@@ -8,7 +8,8 @@ import lombok.*;
 @Setter
 @Builder
 public class SnackOptionsDto {
-    private double weight;
+    private Long id;
+    private Double weight;
     private int quantity;
     private double price;
 }

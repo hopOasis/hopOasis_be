@@ -62,7 +62,7 @@ public class SnackController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SnackInfoDto> updateSnack(@RequestParam("id") Long id,
+    public ResponseEntity<SnackInfoDto> updateSnack(@PathVariable("id") Long id,
                                                     @RequestBody SnackDto snackDto) {
         return ResponseEntity.ok().body(snackService.updateSnack(snackDto, id));
     }

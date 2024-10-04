@@ -2,8 +2,10 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.convertor.SnackMapper;
+import com.example.hop_oasis.convertor.SnackOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.model.CiderOptions;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackOptions;
 import com.example.hop_oasis.repository.SnackImageRepository;
@@ -18,7 +20,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
@@ -26,24 +32,21 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 @RequiredArgsConstructor
 public class SnackServiceImpl implements SnackService {
     private final SnackRepository snackRepository;
-    private final SnackImageRepository snackImageRepository;
     private final SnackMapper snackMapper;
     private final SnackInfoMapper snackInfoMapper;
     private final SnackRatingServiceImpl snackRatingService;
     private final SnackOptionsRepository snackOptionsRepository;
+    private final SnackOptionsMapper snackOptionsMapper;
 
     @Override
     public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
-        snackRepository.save(snack);
-        for (SnackOptionsDto optionsDto : snackDto.getOptions()) {
-            SnackOptions options = new SnackOptions();
+        List<SnackOptions> snackOptionsList = snackOptionsMapper.toEntity(snackDto.getOptions());
+        for (SnackOptions options : snackOptionsList) {
             options.setSnack(snack);
-            options.setWeight(optionsDto.getWeight());
-            options.setQuantity(optionsDto.getQuantity());
-            options.setPrice(optionsDto.getPrice());
-            snackOptionsRepository.save(options);
         }
+        snack.setSnackOptions(snackOptionsList);
+        snackRepository.save(snack);
         return snack;
     }
 
@@ -95,13 +98,25 @@ public class SnackServiceImpl implements SnackService {
         if (Objects.nonNull(snackDto.getDescription())) {
             snack.setDescription(snackDto.getDescription());
         }
-        for (SnackOptionsDto optionsDto : snackDto.getOptions()) {
-            SnackOptions options = new SnackOptions();
-            options.setWeight(optionsDto.getWeight());
-            options.setQuantity(optionsDto.getQuantity());
-            options.setPrice(optionsDto.getPrice());
-            snackOptionsRepository.save(options);
+        List<SnackOptions> currentOptions = snack.getSnackOptions();
+        List<SnackOptions> newOptions = snackOptionsMapper.toEntity(snackDto.getOptions());
+
+        Map<Double, SnackOptions> currentOptionsMap = currentOptions.stream()
+                        .collect(Collectors.toMap(SnackOptions :: getWeight, Function.identity()));
+        for (SnackOptions newOption : newOptions) {
+            SnackOptions excitingOption = currentOptionsMap.get(newOption.getWeight());
+            if (excitingOption != null) {
+                excitingOption.setQuantity(newOption.getQuantity());
+                excitingOption.setPrice(newOption.getPrice());
+            } else {
+                newOption.setSnack(snack);
+                currentOptions.add(newOption);
+            }
         }
+        currentOptions.removeIf(option ->
+                newOptions.stream().noneMatch(newOpt -> newOpt.getWeight().equals(option.getWeight())));
+
+        snack.setSnackOptions(currentOptions);
         return snackInfoMapper.toDto(snackRepository.save(snack));
     }
 

@@ -10,4 +10,6 @@ import java.util.List;
 public interface ProductBundleOptionsMapper {
     ProductBundleOptionsDto toDto(ProductBundleOptions productBundleOptions);
     List<ProductBundleOptionsDto> toDto(List<ProductBundleOptions> productBundleOptions);
+    ProductBundleOptions toEntity(ProductBundleOptionsDto productBundleOptionsDto);
+    List<ProductBundleOptions> toEntity(List<ProductBundleOptionsDto> productBundleOptionsDtos);
 }

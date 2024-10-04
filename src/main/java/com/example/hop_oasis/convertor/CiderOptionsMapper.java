@@ -10,4 +10,6 @@ import java.util.List;
 public interface CiderOptionsMapper {
     CiderOptionsDto toDto(CiderOptions ciderOptions);
     List<CiderOptionsDto> toDto(List<CiderOptions> ciderOptions);
+    CiderOptions toEntity(CiderOptionsDto ciderOptionsDto);
+    List<CiderOptions> toEntity(List<CiderOptionsDto> ciderOptionsDtos);
 }

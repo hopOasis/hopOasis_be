@@ -17,7 +17,7 @@ public class SnackOptions {
     @JoinColumn(name = "snack_id")
     private Snack snack;
     @Column(name = "weight")
-    private double weight;
+    private Double weight;
     @Column(name = "quantity")
     private int quantity;
     @Column(name = "price")

@@ -49,7 +49,8 @@ public class ProductBundleController {
         return ResponseEntity.ok().body(productBundleService.getProductBundleById(id));
     }
     @PostMapping("/{id}/ratings")
-    public ResponseEntity<?> addRating(@PathVariable("id") Long id, @Valid @RequestBody RatingDto ratingDto) {
+    public ResponseEntity<?> addRating(@PathVariable("id") Long id,
+                                       @Valid @RequestBody RatingDto ratingDto) {
         try {
             double ratingValue = ratingDto.getRatingValue();
             ProductBundleInfoDto dto = productBundleService.addRatingAndReturnUpdatedProductBundleInfo(id, ratingValue);
@@ -60,7 +61,7 @@ public class ProductBundleController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductBundleInfoDto> updateProductBundle(@RequestParam("id") Long id,
+    public ResponseEntity<ProductBundleInfoDto> updateProductBundle(@PathVariable("id") Long id,
                                                                     @RequestBody ProductBundleDto productBundleDto) {
         return ResponseEntity.ok().body(productBundleService.update(productBundleDto, id));
     }

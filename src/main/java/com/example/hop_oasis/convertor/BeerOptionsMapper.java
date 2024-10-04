@@ -11,6 +11,8 @@ public interface BeerOptionsMapper {
     BeerOptionsDto toDto(BeerOptions beerOptions);
 
     List<BeerOptionsDto> toDto(List<BeerOptions> options);
+    BeerOptions toEntity(BeerOptionsDto beerOptionsDto);
+    List<BeerOptions> toEntity(List<BeerOptionsDto> beerOptionsDtos);
 
 
 }
