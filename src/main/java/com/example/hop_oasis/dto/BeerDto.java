@@ -12,11 +12,8 @@ import java.util.List;
 public final class BeerDto {
     private Long id;
     private String beerName;
-    private double volumeLarge;
-    private double volumeSmall;
-    private double priceLarge;
-    private double priceSmall;
     private String description;
     private String beerColor;
     private List<ImageDto> image;
+    private List<BeerOptionsDto> options;
 }

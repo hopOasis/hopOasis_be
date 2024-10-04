@@ -1,10 +1,6 @@
 package com.example.hop_oasis.controller;
 
-import com.example.hop_oasis.dto.CartDto;
-import com.example.hop_oasis.dto.CartItemDto;
-import com.example.hop_oasis.dto.CartUpdateRequestDto;
-import com.example.hop_oasis.dto.ItemRequestDto;
-import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +32,11 @@ public class CartController {
 
     @DeleteMapping("/remove/{cartId}")
     public ResponseEntity<String> removeItem(@PathVariable ("cartId") Long cartId,
-                                             @RequestParam("itemId") Long itemId,
-                                             @RequestParam("itemType") ItemType itemType) {
-        cartService.removeItem(cartId, itemId, itemType);
+                                             @RequestBody RemoveItemRequestDto removeItemRequestDto) {
+        cartService.removeItem(cartId,
+                removeItemRequestDto.getItemId(),
+                removeItemRequestDto.getItemType(),
+                removeItemRequestDto.getMeasureValue());
         return ResponseEntity.ok("Done");
     }
 

@@ -1,8 +1,11 @@
 package com.example.hop_oasis.service.data;
+
+import com.example.hop_oasis.convertor.BeerOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
+import com.example.hop_oasis.repository.BeerOptionsRepository;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.service.BeerService;
@@ -14,7 +17,11 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
@@ -25,18 +32,29 @@ public class BeerServiceImpl implements BeerService {
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
+    private final BeerOptionsRepository beerOptionsRepository;
+    private final BeerOptionsMapper beerOptionsMapper;
+
     @Override
     public Beer save(BeerDto beerDto) {
         Beer beer = beerMapper.toEntity(beerDto);
+        List<BeerOptions> beerOptionsList = beerOptionsMapper.toEntity(beerDto.getOptions());
+        for (BeerOptions options : beerOptionsList) {
+            options.setBeer(beer);
+        }
+        beer.setBeerOptions(beerOptionsList);
         beerRepository.save(beer);
+
         return beer;
     }
+
     @Override
     public BeerInfoDto getBeerById(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(beer);
     }
+
     @Override
     public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long id, double ratingValue) {
         beerRatingService.addRating(id, ratingValue);
@@ -44,6 +62,7 @@ public class BeerServiceImpl implements BeerService {
                 .orElseThrow(() -> new IllegalArgumentException("Beer not found with id " + id));
         return convertToDtoWithRating(beer);
     }
+
     private BeerInfoDto convertToDtoWithRating(Beer beer) {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beer);
         ItemRatingDto rating = beerRatingService.getItemRating(beer.getId());
@@ -53,6 +72,7 @@ public class BeerServiceImpl implements BeerService {
         beerInfoDto.setRatingCount(rating.getRatingCount());
         return beerInfoDto;
     }
+
     @Override
     public Page<BeerInfoDto> getAllBeers(Pageable pageable) {
         Page<Beer> beers = beerRepository.findAll(pageable);
@@ -65,32 +85,45 @@ public class BeerServiceImpl implements BeerService {
     @Override
     @Transactional
     public BeerInfoDto update(BeerDto beerDto, Long id) {
-        Beer beer = beerRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
+        Beer beer = beerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
         if (!beerDto.getBeerName().isEmpty()) {
             beer.setBeerName(beerDto.getBeerName());
         }
-        if (beerDto.getVolumeLarge() != 0.0) {
-            beer.setVolumeLarge(beerDto.getVolumeLarge());
-        }
-        if (beerDto.getVolumeLarge() != 0.0) {
-            beer.setVolumeSmall(beerDto.getVolumeSmall());
-        }
-        if (beerDto.getVolumeSmall() != 0.0) {
-            beer.setPriceLarge(beerDto.getPriceLarge());
-        }
-        if (beerDto.getPriceSmall() != 0.0) {
-            beer.setPriceSmall(beerDto.getPriceSmall());
-        }
+
         if (Objects.nonNull(beerDto.getDescription())) {
             beer.setDescription(beerDto.getDescription());
         }
+
         if (Objects.nonNull(beerDto.getBeerColor())) {
             beer.setBeerColor(beerDto.getBeerColor());
         }
+
+        List<BeerOptions> currentOptions = beer.getBeerOptions();
+        List<BeerOptions> newOptions = beerOptionsMapper.toEntity(beerDto.getOptions());
+
+        Map<Double, BeerOptions> currentOptionsMap = currentOptions.stream()
+                .collect(Collectors.toMap(BeerOptions::getVolume, Function.identity()));
+
+        for (BeerOptions newOption : newOptions) {
+            BeerOptions existingOption = currentOptionsMap.get(newOption.getVolume());
+            if (existingOption != null) {
+                existingOption.setQuantity(newOption.getQuantity());
+                existingOption.setPrice(newOption.getPrice());
+            } else {
+                newOption.setBeer(beer);
+                currentOptions.add(newOption);
+            }
+        }
+
+        currentOptions.removeIf(option ->
+                newOptions.stream().noneMatch(newOpt -> newOpt.getVolume().equals(option.getVolume())));
+
+        beer.setBeerOptions(currentOptions);
         return beerInfoMapper.toDto(beerRepository.save(beer));
     }
+
     @Override
     @Transactional
     public BeerInfoDto delete(Long id) {

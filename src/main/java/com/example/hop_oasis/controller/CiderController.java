@@ -62,7 +62,7 @@ public class CiderController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CiderInfoDto> updateCider(@RequestParam("id") Long id,
+    public ResponseEntity<CiderInfoDto> updateCider(@PathVariable("id") Long id,
                                                     @RequestBody CiderDto ciderDto) {
         return ResponseEntity.ok().body(ciderService.update(ciderDto, id));
     }

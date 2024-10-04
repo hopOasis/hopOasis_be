@@ -12,11 +12,8 @@ import java.util.List;
 public final class SnackDto {
     private Long id;
     private String snackName;
-    private double weightLarge;
-    private double weightSmall;
-    private double priceLarge;
-    private double priceSmall;
     private String description;
     private List<SnackImageDto> snackImageDto;
+    private List<SnackOptionsDto> options;
 
 }

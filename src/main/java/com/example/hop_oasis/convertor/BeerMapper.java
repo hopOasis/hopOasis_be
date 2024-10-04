@@ -14,4 +14,5 @@ public interface BeerMapper extends Mappable<Beer, BeerDto> {
 
 
 
+
 }
