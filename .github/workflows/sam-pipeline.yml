@@ -3,26 +3,19 @@ name: Deploy to AWS Lambda
 on:
   push:
     branches:
-      - dev
-
+      - add-graalvm-support
 jobs:
-  build-deploy:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-
+        uses: actions/checkout@v4
+        
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
-
-      - name: Verify Java installation
-        run: |
-          echo $JAVA_HOME
-          java -version
-          echo ${{steps.setup-java.outputs.java-home}}
 
       - name: Validate Liquibase Migrations
         uses: liquibase-github-actions/validate@v4.29.0
@@ -30,40 +23,78 @@ jobs:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
           logLevel: info
+          changelogFile: 'src/main/resources/db/changelog/db.changelog-master.yaml'
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
           INSTALL_MYSQL: true
-
       - name: Liquibase Status
         uses: liquibase-github-actions/status@v4.29.0
         with:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
           logLevel: info
+          changelogFile: 'src/main/resources/db/changelog/db.changelog-master.yaml'
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
           INSTALL_MYSQL: true
 
-      - name: Cache Maven packages
-        uses: actions/cache@v2
+  build-push:
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-maven-
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-central-1
 
-      - name: Build with Maven
-        run: mvn clean package -P lambda
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Prepare environment variables
+        run: |
+          echo "REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+          echo "REPOSITORY=hop_oasis" >> $GITHUB_ENV
+          echo "IMAGE_TAG=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
+
+      - name: Set FULL_IMAGE_NAME
+        run: echo "FULL_IMAGE_NAME=${{ env.REGISTRY }}/${{env.REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_ENV
+
+      - name: Build native image
+        run: docker build --progress=plain --platform linux/amd64 -t ${{ env.FULL_IMAGE_NAME }} -f Dockerfile-native .
+
+      - name: Push docker image to Amazon ECR Public
+        run: |
+          docker push ${{ env.FULL_IMAGE_NAME }}
+    outputs:
+        full_image_name: ${{ env.FULL_IMAGE_NAME }}
+
+  configure-deploy:
+    runs-on: ubuntu-latest
+    needs: build-push
+    steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-central-1
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
 
       - name: Set up AWS SAM CLI
         uses: aws-actions/setup-sam@v1
@@ -73,7 +104,9 @@ jobs:
           sam package \
             --template-file template.yml \
             --output-template-file packaged.yml \
-            --s3-bucket hop-be-lambda-builds
+            --s3-bucket hop-be-lambda-builds \
+            --region eu-central-1 \
+            --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis
 
       - name: Update Liquibase Migrations
         uses: liquibase-github-actions/update@v4.29.0
@@ -81,9 +114,9 @@ jobs:
           url: ${{ secrets.DATABASE_URL }}
           username: ${{ secrets.DATABASE_USERNAME }}
           password: ${{ secrets.DATABASE_PASSWORD }}
-          changeLogFile: src/main/resources/db/changelog/db.changelog-master.yaml
           logLevel: info
           showSummary: 'summary'
+          changelogFile: 'src/main/resources/db/changelog/db.changelog-master.yaml'
         env:
           JAVA_HOME: ${{steps.setup-java.outputs.java-home}}
           INSTALL_MYSQL: true
@@ -92,28 +125,33 @@ jobs:
         run: |
           sam deploy \
             --template-file packaged.yml \
-            --stack-name hop-be-stack \
+            --stack-name hop-be-native-image-stack \
             --capabilities CAPABILITY_IAM \
-            --region eu-central-1
+            --region eu-central-1 \
+            --image-repository 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis \
+            --parameter-overrides ImageUri=${{ needs.build-push.outputs.full_image_name }} \
+            --force-upload
 
+  send-email:
+    runs-on: ubuntu-latest
+    needs: configure-deploy
+    steps:
       - name: Check commit message for keywords
         id: check_message
-        run: | 
+        run: |
           if git log -1 --pretty=%B | grep -q -E "feature|bugfix|fix|refactor|update"; then
            echo "send_email=true" >> $GITHUB_ENV
           else
            echo "send_email=false" >> $GITHUB_ENV
           fi
-      
-      
       - name: Send email notification
         if: env.send_email == 'true'
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: smtp.gmail.com  
+          server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}  
-          password: ${{ secrets.EMAIL_PASSWORD }} 
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
           subject: "Branch 'dev' has been updated"
           body: "The 'dev' branch has been updated. Please review the changes."
           to: "roananik1988@gmail.com,anna2511xxx@gmail.com,oksana.mixulya.88@gmail.com,denzava30@gmail.com"

@@ -1,19 +1,25 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: An AWS Serverless Application Model template describing your function.
+Description: An AWS Serverless Application Model template describing your Docker-based function.
+
+Parameters:
+  ImageUri:
+    Type: String
+    Default: 851725266218.dkr.ecr.eu-central-1.amazonaws.com/hop_oasis:latest
+    Description: The URI of the Docker image to use for the Lambda function.
+
 Resources:
   hopBeResource:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: hop-be-function
-      CodeUri: target/hop_oasis-0.0.1-SNAPSHOT.jar
-      Description: ''
+      Tracing: Active
+      FunctionName: hop-be-function-native-image
+      PackageType: Image
       MemorySize: 512
-      Timeout: 90
-      Handler: com.example.hop_oasis.StreamLambdaHandler::handleRequest
-      Runtime: java21
+      Timeout: 15
       Architectures:
         - x86_64
+      ImageUri: !Ref ImageUri
       EphemeralStorage:
         Size: 512
       EventInvokeConfig:
@@ -22,21 +28,6 @@ Resources:
       FunctionUrlConfig:
         AuthType: NONE
         InvokeMode: BUFFERED
-      PackageType: Zip
-      Policies:
-        - Statement:
-            - Effect: Allow
-              Action:
-                - logs:CreateLogGroup
-              Resource: arn:aws:logs:eu-central-1:851725266218:*
-            - Effect: Allow
-              Action:
-                - logs:CreateLogStream
-                - logs:PutLogEvents
-              Resource:
-                - >-
-                  arn:aws:logs:eu-central-1:851725266218:log-group:/aws/lambda/hop-be:*
+      Role: arn:aws:iam::851725266218:role/hop-be-stack-hopBeResourceRole-V5wqrSnx3fqb
       SnapStart:
         ApplyOn: None
-      RuntimeManagementConfig:
-        UpdateRuntimeOn: Auto
