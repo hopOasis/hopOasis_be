@@ -7,7 +7,6 @@ import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
-import com.example.hop_oasis.repository.CiderOptionsRepository;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.service.CiderService;
 import jakarta.transaction.Transactional;

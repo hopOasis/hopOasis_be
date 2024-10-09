@@ -83,3 +83,18 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/033-create-product-bundle-options.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/034-delete-columns-from-beer.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/035-delete-columns-from-cider.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/036-delete-columns-from-snack.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/037-delete-columns-from-product-bundle.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/038-refactor-columns-cart-item.sql
