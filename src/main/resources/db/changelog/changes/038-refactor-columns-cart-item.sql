@@ -1,2 +1,2 @@
 ALTER TABLE cart_item
-MODIFY measure_value DOUBLE;
+ADD COLUMN measure_value DOUBLE;
