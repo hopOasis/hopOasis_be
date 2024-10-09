@@ -6,7 +6,6 @@ import com.example.hop_oasis.convertor.ProductBundleOptionsMapper;
 import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
-import com.example.hop_oasis.dto.ProductBundleOptionsDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleOptions;

@@ -11,6 +11,6 @@ import java.util.List;
 @Setter
 public class CartUpdateRequestDto {
     private Long cartId;
-    private List<ItemRequestDtoWithMeasure> items;
+    private List<ItemRequestDto> items;
 }
 
