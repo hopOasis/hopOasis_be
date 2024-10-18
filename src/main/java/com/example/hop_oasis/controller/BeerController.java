@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -29,8 +31,16 @@ public class BeerController {
 
     @GetMapping
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                         @RequestParam(value = "size", defaultValue = "10") int size) {
-        Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
+                                                         @RequestParam(value = "size", defaultValue = "10") int size,
+                                                         @RequestParam(value = "sort",  defaultValue = "price,asc") String sort,
+                                                         @RequestParam(value = "beerName", required = false) String beerName) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<BeerInfoDto> beerPage;
+        if (beerName != null && !beerName.isEmpty()) {
+            beerPage = beerService.filterByBeerName(beerName, pageable);
+        } else {
+            beerPage = beerService.getAllBeers(pageable, sort);
+        }
         return ResponseEntity.ok().body(beerPage);
     }
 
