@@ -3,7 +3,7 @@ name: Deploy to AWS Lambda
 on:
   push:
     branches:
-      - add-graalvm-support
+      - dev
 jobs:
   validate:
     runs-on: ubuntu-latest
