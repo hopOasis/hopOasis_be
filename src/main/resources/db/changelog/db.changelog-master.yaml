@@ -98,3 +98,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/038-refactor-columns-cart-item.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/050-create-user.sql
