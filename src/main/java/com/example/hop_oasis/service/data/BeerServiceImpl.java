@@ -5,7 +5,6 @@ import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
-import com.example.hop_oasis.repository.BeerOptionsRepository;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.service.BeerService;
@@ -14,12 +13,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,11 +55,21 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
-    public Page<BeerInfoDto> filterByBeerName(String beerName, Pageable pageable) {
-        Page<Beer> beers = beerRepository.findByBeerName(beerName, pageable);
+    public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection) {
+        Page<Beer> beers;
+
+        if ("desc".equalsIgnoreCase(sortDirection)) {
+            beers = beerRepository.findByPriceDesc(beerName, pageable);
+        } else if ("asc".equalsIgnoreCase(sortDirection)) {
+            beers = beerRepository.findByPriceAsc(beerName, pageable);
+        } else {
+            beers = beerRepository.findByBeerName(beerName, pageable);
+        }
+
         if (beers.isEmpty()) {
             return Page.empty(pageable);
         }
+
         return beers.map(this::convertToDtoWithRating);
     }
 
@@ -83,35 +90,6 @@ public class BeerServiceImpl implements BeerService {
         beerInfoDto.setRatingCount(rating.getRatingCount());
         return beerInfoDto;
     }
-
-    @Override
-    public Page<BeerInfoDto> getAllBeers(Pageable pageable, String sort) {
-        Page<Beer> beers = beerRepository.findAll(pageable);
-        if (beers.isEmpty()) {
-            return Page.empty(pageable);
-        }
-
-        List<BeerInfoDto> beerInfoDtos = beers.stream()
-                .map(this::convertToDtoWithRating).sorted((beerOption1, beerOption2) -> {
-                    Double price1 = beerOption1.getOptions().stream()
-                            .map(BeerOptionsDto::getPrice)
-                            .min(Double::compare)
-                            .orElse(Double.MAX_VALUE);
-
-                    Double price2 = beerOption2.getOptions().stream()
-                            .map(BeerOptionsDto::getPrice)
-                            .min(Double::compare)
-                            .orElse(Double.MAX_VALUE);
-
-                    return sort.contains("desc") ? price2.compareTo(price1) : price1.compareTo(price2);
-                }).collect(Collectors.toList());
-
-        int start = Math.toIntExact(pageable.getOffset());
-        int end = Math.min(start + pageable.getPageSize(), beerInfoDtos.size());
-        return new PageImpl<>(beerInfoDtos.subList(start, end), pageable, beerInfoDtos.size());
-    }
-
-
 
     @Override
     @Transactional
