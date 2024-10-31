@@ -32,7 +32,7 @@ public class BeerController {
 
     @GetMapping
     public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@ParameterObject @PageableDefault (size = 10, page = 0) Pageable pageable,
-                                                          @RequestParam(value = "beerName", required = false) String beerName,
+                                                         @RequestParam(value = "beerName", required = false) String beerName,
                                                          @RequestParam(value = "sortDirection", required = false) String sortDirection) {
         Page<BeerInfoDto> beerPage = beerService.getAllBeersWithFilter(beerName, pageable, sortDirection);
         return ResponseEntity.ok().body(beerPage);

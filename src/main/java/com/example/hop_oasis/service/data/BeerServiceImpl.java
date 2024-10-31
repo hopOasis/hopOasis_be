@@ -8,11 +8,13 @@ import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.service.BeerService;
+import com.example.hop_oasis.utils.BeerSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -56,19 +58,10 @@ public class BeerServiceImpl implements BeerService {
 
     @Override
     public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection) {
-        Page<Beer> beers;
-
-        if ("desc".equalsIgnoreCase(sortDirection)) {
-            beers = beerRepository.findByPriceDesc(beerName, pageable);
-        } else if ("asc".equalsIgnoreCase(sortDirection)) {
-            beers = beerRepository.findByPriceAsc(beerName, pageable);
-        } else {
-            beers = beerRepository.findByBeerName(beerName, pageable);
-        }
-
-        if (beers.isEmpty()) {
-            return Page.empty(pageable);
-        }
+        Specification<Beer> specification = Specification.
+                where(BeerSpecification.findByName(beerName)).
+                and(BeerSpecification.sortByPrice(sortDirection));
+        Page<Beer> beers = beerRepository.findAll(specification, pageable);
 
         return beers.map(this::convertToDtoWithRating);
     }
