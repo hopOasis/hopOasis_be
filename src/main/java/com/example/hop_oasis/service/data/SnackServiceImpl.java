@@ -10,10 +10,12 @@ import com.example.hop_oasis.model.SnackOptions;
 import com.example.hop_oasis.repository.SnackOptionsRepository;
 import com.example.hop_oasis.repository.SnackRepository;
 import com.example.hop_oasis.service.SnackService;
+import com.example.hop_oasis.utils.SnackSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -56,6 +58,15 @@ public class SnackServiceImpl implements SnackService {
     }
 
     @Override
+    public Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection) {
+        Specification<Snack> specification = Specification.
+                where(SnackSpecification.findByName(snackName)).
+                and(SnackSpecification.sortByPrice(sortDirection));
+        Page<Snack> snacks = snackRepository.findAll(specification, pageable);
+        return snacks.map(this::convertToDtoWithRating);
+
+    }
+    @Override
     public SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long id, double ratingValue) {
 
         snackRatingService.addRating(id, ratingValue);
@@ -74,14 +85,6 @@ public class SnackServiceImpl implements SnackService {
         return snackInfoDto;
     }
 
-    @Override
-    public Page<SnackInfoDto> getAllSnacks(Pageable pageable) {
-        Page<Snack> snacks = snackRepository.findAll(pageable);
-        if (snacks.isEmpty()) {
-            return Page.empty(pageable);
-        }
-        return snacks.map(this::convertToDtoWithRating);
-    }
 
     @Override
     @Transactional

@@ -7,9 +7,11 @@ import com.example.hop_oasis.service.SnackService;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,11 +30,10 @@ public class SnackController {
     private final SnackInfoMapper snackInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<SnackInfoDto>> getAllSnacks(@RequestParam(
-                                                                   value = "page", defaultValue = "0") int page,
-                                                           @RequestParam(
-                                                                   value = "size", defaultValue = "10") int size) {
-        Page<SnackInfoDto> snackPage = snackService.getAllSnacks(PageRequest.of(page, size));
+    public ResponseEntity<Page<SnackInfoDto>> getAllSnacks(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,
+                                                           @RequestParam(value = "snackName", required = false) String snackName,
+                                                           @RequestParam(value = "sortDirection", required = false) String sortDirection) {
+        Page<SnackInfoDto> snackPage = snackService.getAllSnacksWithFilter(snackName, pageable, sortDirection);
         return ResponseEntity.ok().body(snackPage);
     }
     @PostMapping

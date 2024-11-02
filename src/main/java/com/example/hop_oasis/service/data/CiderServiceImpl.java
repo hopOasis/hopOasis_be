@@ -9,10 +9,12 @@ import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.service.CiderService;
+import com.example.hop_oasis.utils.CiderSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -53,6 +55,15 @@ public class CiderServiceImpl implements CiderService {
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(cider);
     }
+    @Override
+    public Page<CiderInfoDto> getAllCidersWithFilter(String ciderName, Pageable pageable, String sortDirection) {
+        Specification<Cider> specification = Specification.
+                where(CiderSpecification.findByName(ciderName)).
+                and(CiderSpecification.sortByPrice(sortDirection));
+        Page<Cider> ciders = ciderRepository.findAll(specification, pageable);
+
+        return ciders.map(this::convertToDtoWithRating);
+    }
 
     @Override
     public CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long id, double ratingValue) {
@@ -72,14 +83,7 @@ public class CiderServiceImpl implements CiderService {
         return ciderInfoDto;
     }
 
-    @Override
-    public Page<CiderInfoDto> getAllCiders(Pageable pageable) {
-        Page<Cider> cider = ciderRepository.findAll(pageable);
-        if (cider.isEmpty()) {
-            return Page.empty(pageable);
-        }
-        return cider.map(this::convertToDtoWithRating);
-    }
+
 
     @Override
     @Transactional

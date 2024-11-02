@@ -12,11 +12,13 @@ import com.example.hop_oasis.model.ProductBundleOptions;
 import com.example.hop_oasis.repository.ProductBundleOptionsRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.service.ProductBundleService;
+import com.example.hop_oasis.utils.ProductBundleSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -63,6 +65,15 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     }
 
     @Override
+    public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection) {
+        Specification<ProductBundle> specification = Specification
+                .where(ProductBundleSpecification.findByName(bundleName))
+                .and(ProductBundleSpecification.sortByPrice(sortDirection));
+        Page<ProductBundle> bundles = productBundleRepository.findAll(specification, pageable);
+        return bundles.map(this::convertToDtoWithRating);
+    }
+
+    @Override
     public ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long id, double ratingValue) {
 
         productBundleRatingService.addRating(id, ratingValue);
@@ -81,14 +92,6 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         return bundleInfoDto;
     }
 
-    @Override
-    public Page<ProductBundleInfoDto> getAllProductBundle(Pageable pageable) {
-        Page<ProductBundle> productBundles = productBundleRepository.findAll(pageable);
-        if (productBundles.isEmpty()) {
-            return Page.empty(pageable);
-        }
-        return productBundles.map(this::convertToDtoWithRating);
-    }
 
     @Override
     @Transactional
