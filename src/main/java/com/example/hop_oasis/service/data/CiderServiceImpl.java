@@ -30,7 +30,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.R
 
 @Service
 @RequiredArgsConstructor
-public class CiderServiceImpl extends GeneralFilterService<Cider, CiderInfoDto> implements CiderService {
+public class CiderServiceImpl implements CiderService {
     private final CiderRepository ciderRepository;
     private final CiderMapper ciderMapper;
     private final CiderInfoMapper ciderInfoMapper;
@@ -60,7 +60,9 @@ public class CiderServiceImpl extends GeneralFilterService<Cider, CiderInfoDto> 
         Specification<Cider> specification = Specification.
                 where(CiderSpecification.findByName(ciderName)).
                 and(CiderSpecification.sortByPrice(sortDirection));
-        return getAllWithFilter(specification, ciderRepository, pageable, this::convertToDtoWithRating);
+
+        Page<Cider> entities = ciderRepository.findAll(specification, pageable);
+        return entities.map(this::convertToDtoWithRating);
     }
 
     @Override

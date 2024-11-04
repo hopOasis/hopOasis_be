@@ -28,7 +28,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class BeerServiceImpl extends GeneralFilterService<Beer, BeerInfoDto> implements BeerService {
+public class BeerServiceImpl implements BeerService {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
@@ -57,11 +57,8 @@ public class BeerServiceImpl extends GeneralFilterService<Beer, BeerInfoDto> imp
 
     @Override
     public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection) {
-        Specification<Beer> specification = Specification.
-                where(BeerSpecification.findByName(beerName)).
-                and(BeerSpecification.sortByPrice(sortDirection));
-
-        return getAllWithFilter(specification, beerRepository, pageable, this::convertToDtoWithRating);
+        Page<Beer> entities = beerRepository.findAll(BeerSpecification.filterAndSort(beerName, sortDirection), pageable);
+        return entities.map(this::convertToDtoWithRating);
     }
 
     @Override
