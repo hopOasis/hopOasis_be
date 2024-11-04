@@ -30,7 +30,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class SnackServiceImpl implements SnackService {
+public class SnackServiceImpl extends GeneralFilterService<Snack, SnackInfoDto> implements SnackService {
     private final SnackRepository snackRepository;
     private final SnackMapper snackMapper;
     private final SnackInfoMapper snackInfoMapper;
@@ -62,8 +62,7 @@ public class SnackServiceImpl implements SnackService {
         Specification<Snack> specification = Specification.
                 where(SnackSpecification.findByName(snackName)).
                 and(SnackSpecification.sortByPrice(sortDirection));
-        Page<Snack> snacks = snackRepository.findAll(specification, pageable);
-        return snacks.map(this::convertToDtoWithRating);
+        return getAllWithFilter(specification, snackRepository, pageable, this::convertToDtoWithRating);
 
     }
     @Override
