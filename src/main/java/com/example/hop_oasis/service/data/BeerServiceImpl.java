@@ -38,7 +38,7 @@ public class BeerServiceImpl implements BeerService {
     @Override
     public Beer save(BeerDto beerDto) {
         Beer beer = beerMapper.toEntity(beerDto);
-        List<BeerOptions> beerOptionsList = beerOptionsMapper.toEntity(beerDto.getOptions());
+        List<BeerOptions> beerOptionsList = beerOptionsMapper.toEntities(beerDto.getOptions());
         for (BeerOptions options : beerOptionsList) {
             options.setBeer(beer);
         }
@@ -101,7 +101,7 @@ public class BeerServiceImpl implements BeerService {
         }
 
         List<BeerOptions> currentOptions = beer.getBeerOptions();
-        List<BeerOptions> newOptions = beerOptionsMapper.toEntity(beerDto.getOptions());
+        List<BeerOptions> newOptions = beerOptionsMapper.toEntities(beerDto.getOptions());
 
         Map<Double, BeerOptions> currentOptionsMap = currentOptions.stream()
                 .collect(Collectors.toMap(BeerOptions::getVolume, Function.identity()));
