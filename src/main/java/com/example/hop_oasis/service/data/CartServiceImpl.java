@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -228,7 +228,9 @@ public class CartServiceImpl implements CartService {
         return cartItem;
     }
 
-    private static ProductBundleOptions updateProductBundleStock(Optional<ProductBundleOptions> optionalProductBundleOptions, int currentQuantity) {
+    private static ProductBundleOptions updateProductBundleStock(
+            Optional<ProductBundleOptions> optionalProductBundleOptions, int currentQuantity) {
+
         ProductBundleOptions productBundleOptions = optionalProductBundleOptions
                 .orElseThrow(() -> new ResourceNotFoundException("Options not found for this bundle", ""));
         if (newQuantity > currentQuantity) {
@@ -380,70 +382,102 @@ public class CartServiceImpl implements CartService {
     }
 
     private CartItemDto createCartItemDto(CartItem cartItem) {
-        CartItemDto dto = new CartItemDto();
+        return switch (cartItem.getItemType()) {
+            case BEER -> beerCartItemDto(cartItem);
+            case SNACK -> snackCartItemDto(cartItem);
+            case PRODUCT_BUNDLE -> productBundleCartItemDto(cartItem);
+            case CIDER -> ciderCartItemDto(cartItem);
+            case null -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
+        };
+    }
+
+    private CartItemDto createBasicCartItemDto(CartItem cartItem) {
+        final var dto = new CartItemDto();
         dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
         dto.setQuantity(cartItem.getQuantity());
 
-        switch (cartItem.getItemType()) {
-            case BEER -> {
-                BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
-                if (beerInfo != null) {
-                    dto.setItemTitle(beerInfo.getBeerName());
-                    if (cartItem.getMeasureValue() != null) {
-                        BeerOptionsDto selectedVolume = chooseOptionByMeasureValue(
-                                beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
-                            dto.setPricePerItem(selectedVolume.getPrice());
-                    }
-                }
-            }
-            case CIDER -> {
-                CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
-                if (ciderInfo != null) {
-                    dto.setItemTitle(ciderInfo.getCiderName());
-                    if (cartItem.getMeasureValue() != null) {
-                        CiderOptionsDto selectedVolume = chooseOptionByMeasureValue(
-                                ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
-                            dto.setPricePerItem(selectedVolume.getPrice());
-                    }
-                }
-            }
-            case SNACK -> {
-                SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
-                if (snackInfo != null) {
-                    dto.setItemTitle(snackInfo.getSnackName());
-                    if (cartItem.getMeasureValue() != null) {
-                        SnackOptionsDto selectedWeight = chooseOptionByMeasureValue(
-                                snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
-                            dto.setPricePerItem(selectedWeight.getPrice());
-                    }
-                }
-            }
-            case PRODUCT_BUNDLE -> {
-                ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
-                if (bundleInfo != null) {
-                    dto.setItemTitle(bundleInfo.getName());
-                    Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
-                            .findByProductBundleId(cartItem.getItemId());
-                    ProductBundleOptions options = optionalProductBundleOptions
-                            .orElseThrow(()
-                                    -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
+        return dto;
+    }
 
-                    dto.setPricePerItem(options.getPrice());
+    private CartItemDto beerCartItemDto(CartItem cartItem) {
+        final var dto = createBasicCartItemDto(cartItem);
 
-                }
+        final var beerInfo = beerService.getBeerById(cartItem.getItemId());
+        if (beerInfo != null) {
+            dto.setItemTitle(beerInfo.getBeerName());
+            if (cartItem.getMeasureValue() != null) {
+                BeerOptionsDto selectedVolume = chooseOptionByMeasureValue(
+                        beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
+                dto.setPricePerItem(selectedVolume.getPrice());
             }
-
-            default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");
         }
+
         dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
+
+        return dto;
+    }
+
+    private CartItemDto snackCartItemDto(CartItem cartItem) {
+        final var dto = createBasicCartItemDto(cartItem);
+
+        final var snackInfo = snackService.getSnackById(cartItem.getItemId());
+        if (snackInfo != null) {
+            dto.setItemTitle(snackInfo.getSnackName());
+            if (cartItem.getMeasureValue() != null) {
+                SnackOptionsDto selectedWeight = chooseOptionByMeasureValue(
+                        snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
+                dto.setPricePerItem(selectedWeight.getPrice());
+            }
+        }
+
+        dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
+
+        return dto;
+    }
+
+    private CartItemDto productBundleCartItemDto(CartItem cartItem) {
+        final var dto = createBasicCartItemDto(cartItem);
+
+        final var bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
+        if (bundleInfo != null) {
+            dto.setItemTitle(bundleInfo.getName());
+            Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
+                    .findByProductBundleId(cartItem.getItemId());
+            ProductBundleOptions options = optionalProductBundleOptions
+                    .orElseThrow(()
+                            -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
+
+            dto.setPricePerItem(options.getPrice());
+
+        }
+
+        dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
+
+        return dto;
+    }
+
+    private CartItemDto ciderCartItemDto(CartItem cartItem) {
+        final var dto = createBasicCartItemDto(cartItem);
+
+        final var ciderInfo = ciderService.getCiderById(cartItem.getItemId());
+        if (ciderInfo != null) {
+            dto.setItemTitle(ciderInfo.getCiderName());
+            if (cartItem.getMeasureValue() != null) {
+                CiderOptionsDto selectedVolume = chooseOptionByMeasureValue(
+                        ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
+                dto.setPricePerItem(selectedVolume.getPrice());
+            }
+        }
+
+        dto.setTotalCost(Rounder.roundValue(dto.getQuantity() * dto.getPricePerItem()));
+
         return dto;
     }
 
 
-    public <T> T chooseOptionByMeasureValue(List<T> options,
-                                            double measureValue, Function<T,
-            Double> getValueFunction) {
+    public <T> T chooseOptionByMeasureValue(List<T> options, double measureValue,
+                                            Function<T, Double> getValueFunction) {
         return options.stream()
                 .filter(option -> getValueFunction.apply(option).equals(measureValue))
                 .findFirst()
