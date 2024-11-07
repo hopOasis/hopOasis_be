@@ -5,14 +5,15 @@ import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
-import com.example.hop_oasis.repository.BeerOptionsRepository;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.service.BeerService;
+import com.example.hop_oasis.utils.BeerSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,7 +33,6 @@ public class BeerServiceImpl implements BeerService {
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
-    private final BeerOptionsRepository beerOptionsRepository;
     private final BeerOptionsMapper beerOptionsMapper;
 
     @Override
@@ -56,6 +56,12 @@ public class BeerServiceImpl implements BeerService {
     }
 
     @Override
+    public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection) {
+        Page<Beer> beers = beerRepository.findAll(BeerSpecification.filterAndSort(beerName, sortDirection), pageable);
+        return beers.map(this::convertToDtoWithRating);
+    }
+
+    @Override
     public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long id, double ratingValue) {
         beerRatingService.addRating(id, ratingValue);
         Beer beer = beerRepository.findById(id)
@@ -71,15 +77,6 @@ public class BeerServiceImpl implements BeerService {
         beerInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         beerInfoDto.setRatingCount(rating.getRatingCount());
         return beerInfoDto;
-    }
-
-    @Override
-    public Page<BeerInfoDto> getAllBeers(Pageable pageable) {
-        Page<Beer> beers = beerRepository.findAll(pageable);
-        if (beers.isEmpty()) {
-            return Page.empty(pageable);
-        }
-        return beers.map(this::convertToDtoWithRating);
     }
 
     @Override

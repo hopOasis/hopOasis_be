@@ -228,7 +228,8 @@ public class CartServiceImpl implements CartService {
         return cartItem;
     }
 
-    private static ProductBundleOptions updateProductBundleStock(Optional<ProductBundleOptions> optionalProductBundleOptions, int currentQuantity) {
+    private static ProductBundleOptions updateProductBundleStock(Optional<ProductBundleOptions> optionalProductBundleOptions,
+                                                                 int currentQuantity) {
         ProductBundleOptions productBundleOptions = optionalProductBundleOptions
                 .orElseThrow(() -> new ResourceNotFoundException("Options not found for this bundle", ""));
         if (newQuantity > currentQuantity) {

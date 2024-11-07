@@ -7,9 +7,10 @@ import com.example.hop_oasis.service.ImageService;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,9 +29,10 @@ public class BeerController {
     private final BeerInfoMapper beerInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@RequestParam(value = "page", defaultValue = "0") int page,
-                                                         @RequestParam(value = "size", defaultValue = "10") int size) {
-        Page<BeerInfoDto> beerPage = beerService.getAllBeers(PageRequest.of(page, size));
+    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@ParameterObject @PageableDefault (size = 10, page = 0) Pageable pageable,
+                                                         @RequestParam(value = "beerName", required = false) String beerName,
+                                                         @RequestParam(value = "sortDirection", required = false) String sortDirection) {
+        Page<BeerInfoDto> beerPage = beerService.getAllBeersWithFilter(beerName, pageable, sortDirection);
         return ResponseEntity.ok().body(beerPage);
     }
 
