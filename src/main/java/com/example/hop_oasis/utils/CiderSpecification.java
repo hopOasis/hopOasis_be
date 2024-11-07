@@ -4,14 +4,23 @@ import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CiderSpecification {
-    public static Specification<Cider> findByName(String ciderName) {
+
+    public static Specification<Cider> filterAndSort(String name, String sortDirection) {
+        return CiderSpecification.findByName(name).and(CiderSpecification.sortByPrice(sortDirection));
+    }
+
+
+    private static Specification<Cider> findByName(String ciderName) {
         return (root, query, criteriaBuilder) ->
                 ciderName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("ciderName"), ciderName);
     }
-    public static Specification<Cider> sortByPrice(String sortDirection) {
+    private static Specification<Cider> sortByPrice(String sortDirection) {
         return (root, query, criteriaBuilder) -> {
             Subquery<Double> subquery = query.subquery(Double.class);
             Root<CiderOptions> ciderOptionsRoot = subquery.from(CiderOptions.class);

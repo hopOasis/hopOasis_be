@@ -30,7 +30,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class SnackServiceImpl extends GeneralFilterService<Snack, SnackInfoDto> implements SnackService {
+public class SnackServiceImpl implements SnackService {
     private final SnackRepository snackRepository;
     private final SnackMapper snackMapper;
     private final SnackInfoMapper snackInfoMapper;
@@ -59,12 +59,11 @@ public class SnackServiceImpl extends GeneralFilterService<Snack, SnackInfoDto> 
 
     @Override
     public Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection) {
-        Specification<Snack> specification = Specification.
-                where(SnackSpecification.findByName(snackName)).
-                and(SnackSpecification.sortByPrice(sortDirection));
-        return getAllWithFilter(specification, snackRepository, pageable, this::convertToDtoWithRating);
+        Page<Snack> snacks = snackRepository.findAll(SnackSpecification.filterAndSort(snackName, sortDirection), pageable);
+        return snacks.map(this::convertToDtoWithRating);
 
     }
+
     @Override
     public SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long id, double ratingValue) {
 
@@ -102,7 +101,7 @@ public class SnackServiceImpl extends GeneralFilterService<Snack, SnackInfoDto> 
         List<SnackOptions> newOptions = snackOptionsMapper.toEntity(snackDto.getOptions());
 
         Map<Double, SnackOptions> currentOptionsMap = currentOptions.stream()
-                        .collect(Collectors.toMap(SnackOptions :: getWeight, Function.identity()));
+                .collect(Collectors.toMap(SnackOptions::getWeight, Function.identity()));
         for (SnackOptions newOption : newOptions) {
             SnackOptions excitingOption = currentOptionsMap.get(newOption.getWeight());
             if (excitingOption != null) {

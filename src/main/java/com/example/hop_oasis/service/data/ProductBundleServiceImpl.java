@@ -35,7 +35,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 @Service
 @RequiredArgsConstructor
 @Log4j2
-public class ProductBundleServiceImpl extends GeneralFilterService<ProductBundle, ProductBundleInfoDto> implements ProductBundleService {
+public class ProductBundleServiceImpl implements ProductBundleService {
     private final ProductBundleRepository productBundleRepository;
     private final ProductBundleMapper productBundleMapper;
     private final ProductBundleInfoMapper productBundleInfoMapper;
@@ -66,10 +66,9 @@ public class ProductBundleServiceImpl extends GeneralFilterService<ProductBundle
 
     @Override
     public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection) {
-        Specification<ProductBundle> specification = Specification
-                .where(ProductBundleSpecification.findByName(bundleName))
-                .and(ProductBundleSpecification.sortByPrice(sortDirection));
-      return getAllWithFilter(specification, productBundleRepository, pageable, this::convertToDtoWithRating);
+       Page<ProductBundle> bundles = productBundleRepository
+               .findAll(ProductBundleSpecification.filterAndSort(bundleName, sortDirection), pageable);
+       return bundles.map(this::convertToDtoWithRating);
     }
 
     @Override
