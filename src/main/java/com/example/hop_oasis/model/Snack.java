@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,4 +34,17 @@ public class Snack {
             inverseJoinColumns = @JoinColumn(name = "special_offer_product_id")
     )
     private List<SpecialOfferProduct> specialOfferProduct;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Snack snack = (Snack) o;
+        return Objects.equals(id, snack.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }
