@@ -4,6 +4,9 @@ import com.example.hop_oasis.convertor.RecommendationsMapper;
 import com.example.hop_oasis.dto.RecommendationsDto;
 import com.example.hop_oasis.handler.ValidItemType;
 import com.example.hop_oasis.service.RecommendationsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/recommendations")
+@Tag(name = "Recommendations", description = "APIs for getting product's recommendation")
 public class RecommendationsController {
 
     private final RecommendationsService recommendationsService;
@@ -24,14 +28,25 @@ public class RecommendationsController {
     }
 
     @GetMapping("/for-cart")
-    public ResponseEntity<RecommendationsDto> forCart(@RequestParam("cartId") Long cartId) {
+    @Operation(summary = "Get recommendations based on what product items are already in the cart")
+    public ResponseEntity<RecommendationsDto> forCart(
+            @Parameter(description = "Cart id", required = true)
+            @RequestParam("cartId") Long cartId) {
+
         return ResponseEntity.ok(
                 mapper.toDto(recommendationsService.getForCart(cartId)));
     }
 
     @GetMapping("/for-product")
-    public ResponseEntity<RecommendationsDto> forCart(@RequestParam("productId") Long productId,
-                                                      @RequestParam("itemType") @ValidItemType String itemType) {
+    @Operation(summary = "Get recommendations based on product")
+    public ResponseEntity<RecommendationsDto> forCart(
+            @Parameter(description = "product id", required = true)
+            @RequestParam("productId") Long productId,
+
+            @Parameter(description = "Product type, for now it's one of BEER, CIDER, SNACK, PRODUCT_BUNDLE",
+                    required = true)
+            @RequestParam("itemType") @ValidItemType String itemType) {
+
         return ResponseEntity.ok(
                 mapper.toDto(recommendationsService.getForProduct(productId, itemType)));
     }
