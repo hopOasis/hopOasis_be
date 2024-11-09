@@ -7,6 +7,7 @@ import com.example.hop_oasis.service.RecommendationsService;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -59,10 +60,10 @@ public class RecommendationsServiceImpl implements RecommendationsService {
         }
 
         return new Recommendations(
-                beerSet.stream().toList(),
-                ciderSet.stream().toList(),
-                snacksSet.stream().toList(),
-                bundleSet.stream().toList());
+                getFirstN(beerSet.stream().toList(), 5),
+                getFirstN(ciderSet.stream().toList(), 5),
+                getFirstN(snacksSet.stream().toList(), 5),
+                getFirstN(bundleSet.stream().toList(), 5));
     }
 
     @Override
@@ -81,10 +82,11 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Beer not found, id: %s", beerId));
 
         // find bundles with the same beer
-        final var bundlesWithTheSameBeer = productBundleRepository.getBundlesWithSimilarName(beer.getBeerName());
+        final var bundlesWithTheSameBeer =
+                getFirstN(productBundleRepository.getBundlesWithSimilarName(beer.getBeerName()), 5);
 
         // other beer with the same color or cider
-        final var otherBeerWithSameColor = beerRepository.getOtherBeersWithTheSameColor(beer);
+        final var otherBeerWithSameColor = getFirstN(beerRepository.getOtherBeersWithTheSameColor(beer), 5);
 
         // random cider
         final var randomCider = ciderRepository.findRandomRecords(5);
@@ -104,7 +106,8 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cider not found, id: %s", ciderId));
 
         // find bundles with the same cider
-        final var bundlesWithTheSameCider = productBundleRepository.getBundlesWithSimilarName(cider.getCiderName());
+        final var bundlesWithTheSameCider =
+                getFirstN(productBundleRepository.getBundlesWithSimilarName(cider.getCiderName()), 5);
 
         // some snacks
         final var randomSnacks = snackRepository.findRandomRecords(5);
@@ -127,7 +130,8 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Cider not found, id: %s", snackId));
 
         // find bundles with the same snacks
-        final var bundlesWithTheSameSnacks = productBundleRepository.getBundlesWithSimilarName(snack.getSnackName());
+        final var bundlesWithTheSameSnacks =
+                getFirstN(productBundleRepository.getBundlesWithSimilarName(snack.getSnackName()), 5);
 
         // find some beer
         final var randomBeers = beerRepository.findRandomRecords(5);
@@ -151,7 +155,7 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Bundle not found, id: %s", bundleId));
 
         // find bundles with the same name
-        final var similarBundles = productBundleRepository.getBundlesWithSimilarName(bundle.getName());
+        final var similarBundles = getFirstN(productBundleRepository.getBundlesWithSimilarName(bundle.getName()), 5);
         similarBundles.removeIf(b -> Objects.equals(b.getId(), bundleId));
 
         // find some beer
@@ -168,5 +172,13 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 randomCider,
                 randomSnacks,
                 similarBundles);
+    }
+
+    private <T> List<T> getFirstN(List<T> list, int N) {
+        if (list == null || list.isEmpty() || N < 1) {
+            return list;
+        }
+
+        return list.subList(0, Math.min(N, list.size()));
     }
 }
