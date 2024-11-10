@@ -86,10 +86,10 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 getFirstN(productBundleRepository.getBundlesWithSimilarName(beer.getBeerName()), 5);
 
         // other beer with the same color or cider
-        final var otherBeerWithSameColor = getFirstN(beerRepository.getOtherBeersWithTheSameColor(beer), 5);
+        final var otherBeerWithSameColor = getFirstN(beerRepository.getOtherBeersWithTheSameColor(beer), 2);
 
         // random cider
-        final var randomCider = ciderRepository.findRandomRecords(5);
+        final var randomCider = ciderRepository.findRandomRecords(2);
 
         // some snacks
         final var randomSnacks = snackRepository.findRandomRecords(5);
@@ -113,10 +113,10 @@ public class RecommendationsServiceImpl implements RecommendationsService {
         final var randomSnacks = snackRepository.findRandomRecords(5);
 
         // other cider or beer
-        final var randomCider = ciderRepository.findRandomRecords(5);
+        final var randomCider = ciderRepository.findRandomRecords(2);
         randomCider.removeIf(c -> Objects.equals(c.getId(), ciderId));
 
-        final var randomBeers = beerRepository.findRandomRecords(5);
+        final var randomBeers = beerRepository.findRandomRecords(2);
 
         return new Recommendations(
                 randomBeers,
@@ -134,10 +134,10 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 getFirstN(productBundleRepository.getBundlesWithSimilarName(snack.getSnackName()), 5);
 
         // find some beer
-        final var randomBeers = beerRepository.findRandomRecords(5);
+        final var randomBeers = beerRepository.findRandomRecords(2);
 
         // find random cider
-        final var randomCider = ciderRepository.findRandomRecords(5);
+        final var randomCider = ciderRepository.findRandomRecords(2);
 
         // find some snacks
         final var randomSnacks = snackRepository.findRandomRecords(5);
