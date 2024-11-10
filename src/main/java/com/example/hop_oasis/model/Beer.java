@@ -41,8 +41,12 @@ public class Beer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Beer beer = (Beer) o;
         return Objects.equals(id, beer.id);
     }

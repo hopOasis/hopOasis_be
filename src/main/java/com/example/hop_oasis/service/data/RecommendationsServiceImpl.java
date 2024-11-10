@@ -56,6 +56,7 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 case CIDER -> ciderSet.removeIf(cider -> cider.getId().equals(cartItem.getItemId()));
                 case SNACK -> snacksSet.removeIf(snack -> snack.getId().equals(cartItem.getItemId()));
                 case PRODUCT_BUNDLE -> bundleSet.removeIf(pb -> pb.getId().equals(cartItem.getItemId()));
+                case null -> throw new IllegalStateException("Item type is null");
             }
         }
 
@@ -174,11 +175,11 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 similarBundles);
     }
 
-    private <T> List<T> getFirstN(List<T> list, int N) {
-        if (list == null || list.isEmpty() || N < 1) {
+    private <T> List<T> getFirstN(List<T> list, int n) {
+        if (list == null || list.isEmpty() || n < 1) {
             return list;
         }
 
-        return list.subList(0, Math.min(N, list.size()));
+        return list.subList(0, Math.min(n, list.size()));
     }
 }

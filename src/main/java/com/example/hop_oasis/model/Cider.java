@@ -38,8 +38,12 @@ public class Cider {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Cider cider = (Cider) o;
         return Objects.equals(id, cider.id);
     }

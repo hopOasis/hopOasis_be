@@ -39,8 +39,12 @@ public class ProductBundle {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ProductBundle that = (ProductBundle) o;
         return Objects.equals(id, that.id);
     }

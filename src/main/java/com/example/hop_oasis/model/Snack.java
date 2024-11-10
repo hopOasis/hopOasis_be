@@ -37,8 +37,12 @@ public class Snack {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Snack snack = (Snack) o;
         return Objects.equals(id, snack.id);
     }
