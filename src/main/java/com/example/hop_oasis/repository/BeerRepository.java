@@ -1,6 +1,7 @@
 package com.example.hop_oasis.repository;
 
 import com.example.hop_oasis.model.Beer;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -15,5 +16,5 @@ public interface BeerRepository extends JpaRepository<Beer, Long>, JpaSpecificat
     List<Beer> findRandomRecords(int N);
 
     @Query("select b from Beer b where b.beerColor = :#{#beer.beerColor} and b.id <> :#{#beer.id}")
-    List<Beer> getOtherBeersWithTheSameColor(@Param("beer") Beer beer);
+    List<Beer> getOtherBeersWithTheSameColor(@Param("beer") Beer beer, Pageable pageable);
 }
