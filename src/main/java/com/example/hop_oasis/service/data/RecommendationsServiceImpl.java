@@ -33,16 +33,15 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                 .collect(groupingBy(CartItem::getItemType, mapping(CartItem::getItemId, toSet())));
 
         for (var entry : idMap.entrySet()) {
-            final var recommendation = advisor.forProduct(entry.getKey(), idMap);
+            final var recommendation = advisor.forProduct(entry.getKey());
 
-            for (var id: entry.getValue()) {
-                final var recommendations = recommendation.getRecommendations(id);
+            final var recommendations = recommendation.getRecommendations(idMap);
 
-                beerSet.addAll(recommendations.getBeers());
-                ciderSet.addAll(recommendations.getCiders());
-                snacksSet.addAll(recommendations.getSnacks());
-                bundleSet.addAll(recommendations.getBundles());
-            }
+            beerSet.addAll(recommendations.getBeers());
+            ciderSet.addAll(recommendations.getCiders());
+            snacksSet.addAll(recommendations.getSnacks());
+            bundleSet.addAll(recommendations.getBundles());
+
         }
 
         return new Recommendations(
@@ -55,8 +54,8 @@ public class RecommendationsServiceImpl implements RecommendationsService {
     @Override
     public Recommendations getForProduct(Long productId, String itemTypeStr) {
         final var itemType = ItemType.valueOf(itemTypeStr);
-        return advisor.forProduct(itemType, Map.of(itemType, Set.of(productId)))
-                .getRecommendations(productId);
+        return advisor.forProduct(itemType)
+                .getRecommendations(Map.of(ItemType.valueOf(itemTypeStr), Set.of(productId)));
     }
 
 

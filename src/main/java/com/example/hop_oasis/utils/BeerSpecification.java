@@ -2,11 +2,14 @@ package com.example.hop_oasis.utils;
 
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.BeerOptions;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
+
+import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class BeerSpecification {
@@ -14,8 +17,18 @@ public class BeerSpecification {
         return BeerSpecification.findByName(name).and(BeerSpecification.sortByPrice(sortDirection));
     }
 
-    public static Specification<Beer> beerWithTheSameColor(String color) {
-        return (root, query, cb) -> cb.equal(root.get("beerColor"), color);
+    public static Specification<Beer> beerWithTheSameColors(Set<String> colors) {
+        return (root, query, cb) -> {
+            if (colors == null || colors.isEmpty()) {
+                return null;
+            }
+
+            final var pArray = colors.stream()
+                    .map(c -> cb.equal(root.get("beerColor"), c))
+                    .toList().toArray(new Predicate[0]);
+
+            return cb.or(pArray);
+        };
     }
 
     private static Specification<Beer> findByName(String beerName) {

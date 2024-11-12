@@ -5,14 +5,22 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.Set;
 
 public interface GenericSpecification {
-    static <T> Specification<T> IdsNotIn(Set<Long> exclusions) {
+
+    static <T> Specification<T> IdsIn(Set<Long> inclusions) {
         return (root, query, cb) -> {
-            if (exclusions == null || exclusions.isEmpty()) {
+            if (inclusions == null || inclusions.isEmpty()) {
                 return null;
             }
 
-            return root.get("id").in(exclusions).not();
+            return root.get("id").in(inclusions);
         };
+    }
+
+    static <T> Specification<T> IdsNotIn(Set<Long> exclusions) {
+        if (exclusions == null || exclusions.isEmpty()) {
+            return null;
+        }
+        return Specification.not(IdsIn(exclusions));
     }
 
     static  <T> Specification<T> getRandomRecords() {

@@ -8,9 +8,6 @@ import com.example.hop_oasis.repository.SnackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-import java.util.Set;
-
 @Component
 @RequiredArgsConstructor
 public class Advisor {
@@ -20,19 +17,15 @@ public class Advisor {
     private final SnackRepository snackRepository;
 
     public Recommendation forProduct(ItemType itemType) {
-        return forProduct(itemType, Map.of());
-    }
-
-    public Recommendation forProduct(ItemType itemType, Map<ItemType, Set<Long>> exclustionMap) {
         return switch (itemType) {
             case BEER -> new BeerRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository, exclustionMap);
+                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
             case CIDER -> new CiderRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository, exclustionMap);
+                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
             case SNACK -> new SnackRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository, exclustionMap);
+                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
             case PRODUCT_BUNDLE -> new ProductBundleRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository, exclustionMap);
+                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
         };
     }
 }

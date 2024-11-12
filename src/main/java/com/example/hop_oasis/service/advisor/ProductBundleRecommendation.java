@@ -1,7 +1,7 @@
 package com.example.hop_oasis.service.advisor;
 
-import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.Recommendations;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.repository.CiderRepository;
@@ -12,10 +12,10 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import static com.example.hop_oasis.utils.GenericSpecification.IdsNotIn;
-import static com.example.hop_oasis.utils.GenericSpecification.getRandomRecords;
-import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNameLike;
+import static com.example.hop_oasis.utils.GenericSpecification.*;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNamesLike;
 import static org.springframework.data.jpa.domain.Specification.allOf;
 
 @RequiredArgsConstructor
@@ -25,27 +25,27 @@ class ProductBundleRecommendation implements Recommendation {
     private final CiderRepository ciderRepository;
     private final SnackRepository snackRepository;
     private final ProductBundleRepository productBundleRepository;
-    private final Map<ItemType, Set<Long>> exclusionMap;
 
     @Override
-    public Recommendations getRecommendations(Long productId) {
-        final var bundle = productBundleRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Bundle not found, id: %s", productId));
+    public Recommendations getRecommendations(Map<ItemType, Set<Long>> productsMap) {
+
+        final var bundles = productBundleRepository.findAll(IdsIn(productsMap.get(ItemType.PRODUCT_BUNDLE)));
+        final var bundleNames = bundles.stream().map(ProductBundle::getName).collect(Collectors.toSet());
 
         final var randomBeers = beerRepository.findAll(
-                allOf(IdsNotIn(exclusionMap.get(ItemType.BEER)), getRandomRecords()),
+                allOf(IdsNotIn(productsMap.get(ItemType.BEER)), getRandomRecords()),
                 PageRequest.of(0, 5)).getContent();
 
         final var randomCider = ciderRepository.findAll(
-                allOf(IdsNotIn(exclusionMap.get(ItemType.CIDER)), getRandomRecords()),
+                allOf(IdsNotIn(productsMap.get(ItemType.CIDER)), getRandomRecords()),
                 PageRequest.of(0, 5)).getContent();
 
         final var randomSnacks = snackRepository.findAll(
-                allOf(IdsNotIn(exclusionMap.get(ItemType.SNACK)), getRandomRecords()),
+                allOf(IdsNotIn(productsMap.get(ItemType.SNACK)), getRandomRecords()),
                 PageRequest.of(0, 5)).getContent();
 
-        final var similarBundles = productBundleRepository.findAll(pbWithNameLike(bundle.getName())
-                .and(IdsNotIn(exclusionMap.get(ItemType.PRODUCT_BUNDLE))), PageRequest.of(0, 5)).getContent();
+        final var similarBundles = productBundleRepository.findAll(pbWithNamesLike(bundleNames)
+                .and(IdsNotIn(productsMap.get(ItemType.PRODUCT_BUNDLE))), PageRequest.of(0, 5)).getContent();
 
         return new Recommendations(
                 randomBeers,
