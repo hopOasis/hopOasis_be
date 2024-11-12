@@ -18,14 +18,10 @@ public class Advisor {
 
     public Recommendation forProduct(ItemType itemType) {
         return switch (itemType) {
-            case BEER -> new BeerRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
-            case CIDER -> new CiderRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
-            case SNACK -> new SnackRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
-            case PRODUCT_BUNDLE -> new ProductBundleRecommendation(
-                    beerRepository, ciderRepository, snackRepository, productBundleRepository);
+            case BEER -> new BeerRecommendation(beerRepository);
+            case CIDER -> new CiderRecommendation(ciderRepository);
+            case SNACK -> new SnackRecommendation(snackRepository);
+            case PRODUCT_BUNDLE -> new ProductBundleRecommendation(productBundleRepository);
         };
     }
 }

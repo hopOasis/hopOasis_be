@@ -1,6 +1,6 @@
 package com.example.hop_oasis.service;
 
-import com.example.hop_oasis.model.Recommendations;
+import com.example.hop_oasis.service.advisor.Recommendations;
 
 public interface RecommendationsService {
     Recommendations getForCart(Long cartId);

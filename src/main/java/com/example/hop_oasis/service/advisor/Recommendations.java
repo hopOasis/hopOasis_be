@@ -1,5 +1,9 @@
-package com.example.hop_oasis.model;
+package com.example.hop_oasis.service.advisor;
 
+import com.example.hop_oasis.model.Beer;
+import com.example.hop_oasis.model.Cider;
+import com.example.hop_oasis.model.ProductBundle;
+import com.example.hop_oasis.model.Snack;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

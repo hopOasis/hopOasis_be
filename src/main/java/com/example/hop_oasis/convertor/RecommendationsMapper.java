@@ -1,7 +1,7 @@
 package com.example.hop_oasis.convertor;
 
 import com.example.hop_oasis.dto.RecommendationsDto;
-import com.example.hop_oasis.model.Recommendations;
+import com.example.hop_oasis.service.advisor.Recommendations;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring",
