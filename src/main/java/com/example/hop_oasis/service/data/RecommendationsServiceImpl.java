@@ -53,8 +53,9 @@ public class RecommendationsServiceImpl implements RecommendationsService {
     }
 
     @Override
-    public Recommendations getForProduct(Long productId, String itemType) {
-        return advisor.forProduct(ItemType.valueOf(itemType))
+    public Recommendations getForProduct(Long productId, String itemTypeStr) {
+        final var itemType = ItemType.valueOf(itemTypeStr);
+        return advisor.forProduct(itemType, Map.of(itemType, Set.of(productId)))
                 .getRecommendations(productId);
     }
 

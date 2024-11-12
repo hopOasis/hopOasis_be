@@ -11,8 +11,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+
+import static com.example.hop_oasis.utils.GenericSpecification.IdsNotIn;
+import static com.example.hop_oasis.utils.GenericSpecification.getRandomRecords;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNameLike;
+import static org.springframework.data.jpa.domain.Specification.allOf;
 
 @RequiredArgsConstructor
 class SnackRecommendation implements Recommendation {
@@ -27,19 +31,20 @@ class SnackRecommendation implements Recommendation {
         final var snack = snackRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cider not found, id: %s", productId));
 
-        // find bundles with the same snacks
-        final var bundlesWithTheSameSnacks =
-                productBundleRepository.getBundlesWithSimilarName(snack.getSnackName(), PageRequest.of(0, 5));
+        final var randomBeers = beerRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.BEER)), getRandomRecords()),
+                PageRequest.of(0, 2)).getContent();
 
-        // find some beer
-        final var randomBeers = beerRepository.findRandomRecords(2);
+        final var randomCider = ciderRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.CIDER)), getRandomRecords()),
+                PageRequest.of(0, 2)).getContent();
 
-        // find random cider
-        final var randomCider = ciderRepository.findRandomRecords(2);
+        final var randomSnacks = snackRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.SNACK)), getRandomRecords()),
+                PageRequest.of(0, 5)).getContent();
 
-        // find some snacks
-        final var randomSnacks = snackRepository.findRandomRecords(5);
-        randomSnacks.removeIf(c -> Objects.equals(c.getId(), productId));
+        final var bundlesWithTheSameSnacks = productBundleRepository.findAll(pbWithNameLike(snack.getSnackName())
+                .and(IdsNotIn(exclusionMap.get(ItemType.PRODUCT_BUNDLE))), PageRequest.of(0, 5)).getContent();
 
         return new Recommendations(
                 randomBeers,

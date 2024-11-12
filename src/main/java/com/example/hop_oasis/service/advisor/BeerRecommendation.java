@@ -13,6 +13,12 @@ import org.springframework.data.domain.PageRequest;
 import java.util.Map;
 import java.util.Set;
 
+import static com.example.hop_oasis.utils.BeerSpecification.beerWithTheSameColor;
+import static com.example.hop_oasis.utils.GenericSpecification.IdsNotIn;
+import static com.example.hop_oasis.utils.GenericSpecification.getRandomRecords;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNameLike;
+import static org.springframework.data.jpa.domain.Specification.allOf;
+
 @RequiredArgsConstructor
 class BeerRecommendation implements Recommendation {
 
@@ -27,18 +33,22 @@ class BeerRecommendation implements Recommendation {
         final var beer = beerRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Beer not found, id: %s", productId));
 
-        // find bundles with the same beer
-        final var bundlesWithTheSameBeer =
-                productBundleRepository.getBundlesWithSimilarName(beer.getBeerName(), PageRequest.of(0, 5));
+        final var otherBeerWithSameColor = beerRepository.findAll(
+                beerWithTheSameColor(beer.getBeerColor())
+                        .and(IdsNotIn(exclusionMap.get(ItemType.BEER))), PageRequest.of(0, 2)).getContent();
 
-        // other beer with the same color or cider
-        final var otherBeerWithSameColor = beerRepository.getOtherBeersWithTheSameColor(beer, PageRequest.of(0, 2));
+        final var randomCider = ciderRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.CIDER)), getRandomRecords()),
+                PageRequest.of(0, 2)).getContent();
 
-        // random cider
-        final var randomCider = ciderRepository.findRandomRecords(2);
+        final var randomSnacks = snackRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.SNACK)), getRandomRecords()),
+                PageRequest.of(0, 5)).getContent();
 
-        // some snacks
-        final var randomSnacks = snackRepository.findRandomRecords(5);
+        final var bundlesWithTheSameBeer = productBundleRepository.findAll(
+                pbWithNameLike(beer.getBeerName())
+                        .and(IdsNotIn(exclusionMap.get(ItemType.PRODUCT_BUNDLE))),
+                PageRequest.of(0, 5)).getContent();
 
         return new Recommendations(
                 otherBeerWithSameColor,

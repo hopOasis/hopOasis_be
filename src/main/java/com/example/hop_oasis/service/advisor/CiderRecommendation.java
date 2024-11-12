@@ -9,11 +9,14 @@ import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.repository.SnackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Repository;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+
+import static com.example.hop_oasis.utils.GenericSpecification.IdsNotIn;
+import static com.example.hop_oasis.utils.GenericSpecification.getRandomRecords;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNameLike;
+import static org.springframework.data.jpa.domain.Specification.allOf;
 
 @RequiredArgsConstructor
 class CiderRecommendation implements Recommendation {
@@ -28,18 +31,19 @@ class CiderRecommendation implements Recommendation {
         final var cider = ciderRepository.findById(productId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cider not found, id: %s", productId));
 
-        // find bundles with the same cider
-        final var bundlesWithTheSameCider =
-                productBundleRepository.getBundlesWithSimilarName(cider.getCiderName(), PageRequest.of(0, 5));
+        final var randomBeers = beerRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.BEER)), getRandomRecords()),
+                PageRequest.of(0, 2)).getContent();
 
-        // some snacks
-        final var randomSnacks = snackRepository.findRandomRecords(5);
+        var randomCider = ciderRepository.findAll(allOf(IdsNotIn(exclusionMap.get(ItemType.CIDER)), getRandomRecords()),
+                PageRequest.of(0, 2)).getContent();
 
-        // other cider or beer
-        final var randomCider = ciderRepository.findRandomRecords(2);
-        randomCider.removeIf(c -> Objects.equals(c.getId(), productId));
+        final var randomSnacks = snackRepository.findAll(
+                allOf(IdsNotIn(exclusionMap.get(ItemType.SNACK)), getRandomRecords()),
+                PageRequest.of(0, 5)).getContent();
 
-        final var randomBeers = beerRepository.findRandomRecords(2);
+        final var bundlesWithTheSameCider = productBundleRepository.findAll(pbWithNameLike(cider.getCiderName())
+                .and(IdsNotIn(exclusionMap.get(ItemType.PRODUCT_BUNDLE))), PageRequest.of(0, 5)).getContent();
 
         return new Recommendations(
                 randomBeers,

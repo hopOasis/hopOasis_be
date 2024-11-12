@@ -16,6 +16,10 @@ public class ProductBundleSpecification {
 
     }
 
+    public static Specification<ProductBundle> pbWithNameLike(String name) {
+        return (root, query, cb) -> cb.like(root.get("name"), "%" + name + "%");
+    }
+
     private static Specification<ProductBundle> findByName(String bundleName) {
         return (root, query, criteriaBuilder) ->
                 bundleName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("name"), bundleName);

@@ -14,6 +14,10 @@ public class BeerSpecification {
         return BeerSpecification.findByName(name).and(BeerSpecification.sortByPrice(sortDirection));
     }
 
+    public static Specification<Beer> beerWithTheSameColor(String color) {
+        return (root, query, cb) -> cb.equal(root.get("beerColor"), color);
+    }
+
     private static Specification<Beer> findByName(String beerName) {
         return (root, query, criteriaBuilder) ->
                 beerName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("beerName"), beerName);
