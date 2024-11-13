@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.example.hop_oasis.utils.BeerSpecification.beerWithTheSameColors;
-import static com.example.hop_oasis.utils.GenericSpecification.IdsIn;
-import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNamesLike;
+import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.bundlesWithNamesLike;
 
 @RequiredArgsConstructor
 class BeerRecommendation implements Recommendation {
@@ -21,7 +21,7 @@ class BeerRecommendation implements Recommendation {
     @Override
     public RecommendationPredicates getRecommendations(Map<ItemType, Set<Long>> productsMap) {
 
-        final var beers = beerRepository.findAll(IdsIn(productsMap.get(ItemType.BEER)));
+        final var beers = beerRepository.findAll(idsIn(productsMap.get(ItemType.BEER)));
 
         final var beerColors = beers.stream()
                 .map(Beer::getBeerColor)
@@ -35,6 +35,6 @@ class BeerRecommendation implements Recommendation {
                 beerWithTheSameColors(beerColors),
                 null,
                 null,
-                pbWithNamesLike(beerNames));
+                bundlesWithNamesLike(beerNames));
     }
 }

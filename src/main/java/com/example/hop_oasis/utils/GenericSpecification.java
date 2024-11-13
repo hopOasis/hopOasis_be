@@ -6,7 +6,7 @@ import java.util.Set;
 
 public interface GenericSpecification {
 
-    static <T> Specification<T> IdsIn(Set<Long> inclusions) {
+    static <T> Specification<T> idsIn(Set<Long> inclusions) {
         return (root, query, cb) -> {
             if (inclusions == null || inclusions.isEmpty()) {
                 return null;
@@ -16,11 +16,11 @@ public interface GenericSpecification {
         };
     }
 
-    static <T> Specification<T> IdsNotIn(Set<Long> exclusions) {
+    static <T> Specification<T> idsNotIn(Set<Long> exclusions) {
         if (exclusions == null || exclusions.isEmpty()) {
             return null;
         }
-        return Specification.not(IdsIn(exclusions));
+        return Specification.not(idsIn(exclusions));
     }
 
     static  <T> Specification<T> getRandomRecords() {

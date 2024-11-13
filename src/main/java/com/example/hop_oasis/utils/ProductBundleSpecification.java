@@ -19,7 +19,7 @@ public class ProductBundleSpecification {
 
     }
 
-    public static Specification<ProductBundle> pbWithNamesLike(Set<String> names) {
+    public static Specification<ProductBundle> bundlesWithNamesLike(Set<String> names) {
         return (root, query, cb) -> {
             if (names == null || names.isEmpty()) {
                 return null;

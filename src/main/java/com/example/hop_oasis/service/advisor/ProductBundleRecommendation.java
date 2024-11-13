@@ -9,8 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.example.hop_oasis.utils.GenericSpecification.IdsIn;
-import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNamesLike;
+import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.bundlesWithNamesLike;
 
 @RequiredArgsConstructor
 class ProductBundleRecommendation implements Recommendation {
@@ -20,13 +20,13 @@ class ProductBundleRecommendation implements Recommendation {
     @Override
     public RecommendationPredicates getRecommendations(Map<ItemType, Set<Long>> productsMap) {
 
-        final var bundles = productBundleRepository.findAll(IdsIn(productsMap.get(ItemType.PRODUCT_BUNDLE)));
+        final var bundles = productBundleRepository.findAll(idsIn(productsMap.get(ItemType.PRODUCT_BUNDLE)));
         final var bundleNames = bundles.stream().map(ProductBundle::getName).collect(Collectors.toSet());
 
         return new RecommendationPredicates(
                 null,
                 null,
                 null,
-                pbWithNamesLike(bundleNames));
+                bundlesWithNamesLike(bundleNames));
     }
 }

@@ -1,7 +1,7 @@
 package com.example.hop_oasis.controller;
 
-import com.example.hop_oasis.convertor.RecommendationsMapper;
-import com.example.hop_oasis.dto.RecommendationsDto;
+import com.example.hop_oasis.convertor.ProposedProductsMapper;
+import com.example.hop_oasis.dto.ProposedProductsDto;
 import com.example.hop_oasis.handler.ValidItemType;
 import com.example.hop_oasis.service.RecommendationsService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class RecommendationsController {
 
     private final RecommendationsService recommendationsService;
-    private final RecommendationsMapper mapper;
+    private final ProposedProductsMapper mapper;
 
     @GetMapping("/carts")
     @Operation(summary = "Get recommendations based on what product items are already in the cart")
-    public ResponseEntity<RecommendationsDto> forCart(
+    public ResponseEntity<ProposedProductsDto> forCart(
             @Parameter(description = "Cart id", required = true)
             @RequestParam("cartId") Long cartId) {
 
@@ -35,7 +35,7 @@ public class RecommendationsController {
 
     @GetMapping("/products")
     @Operation(summary = "Get recommendations based on product")
-    public ResponseEntity<RecommendationsDto> forProduct(
+    public ResponseEntity<ProposedProductsDto> forProduct(
             @Parameter(description = "product id", required = true)
             @RequestParam("productId") Long productId,
 

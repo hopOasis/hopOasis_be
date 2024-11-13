@@ -9,9 +9,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.example.hop_oasis.utils.GenericSpecification.IdsIn;
-import static com.example.hop_oasis.utils.GenericSpecification.IdsNotIn;
-import static com.example.hop_oasis.utils.ProductBundleSpecification.pbWithNamesLike;
+import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
+import static com.example.hop_oasis.utils.GenericSpecification.idsNotIn;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.bundlesWithNamesLike;
 
 @RequiredArgsConstructor
 class CiderRecommendation implements Recommendation {
@@ -20,13 +20,13 @@ class CiderRecommendation implements Recommendation {
     @Override
     public RecommendationPredicates getRecommendations(Map<ItemType, Set<Long>> productsMap) {
 
-        final var ciders = ciderRepository.findAll(IdsIn(productsMap.get(ItemType.CIDER)));
+        final var ciders = ciderRepository.findAll(idsIn(productsMap.get(ItemType.CIDER)));
         final var ciderNames = ciders.stream().map(Cider::getCiderName).collect(Collectors.toSet());
 
         return new RecommendationPredicates(
                 null,
-                IdsNotIn(productsMap.get(ItemType.CIDER)),
+                idsNotIn(productsMap.get(ItemType.CIDER)),
                 null,
-                pbWithNamesLike(ciderNames));
+                bundlesWithNamesLike(ciderNames));
     }
 }

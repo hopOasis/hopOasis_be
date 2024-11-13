@@ -7,7 +7,7 @@ import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.service.RecommendationsService;
 import com.example.hop_oasis.service.advisor.Advisor;
 import com.example.hop_oasis.service.advisor.RecommendationPredicates;
-import com.example.hop_oasis.service.advisor.Recommendations;
+import com.example.hop_oasis.service.advisor.ProposedProducts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -17,7 +17,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static com.example.hop_oasis.model.ItemType.*;
-import static com.example.hop_oasis.utils.GenericSpecification.IdsNotIn;
+import static com.example.hop_oasis.utils.GenericSpecification.idsNotIn;
 import static com.example.hop_oasis.utils.GenericSpecification.getRandomRecords;
 import static java.util.stream.Collectors.*;
 
@@ -32,7 +32,7 @@ public class RecommendationsServiceImpl implements RecommendationsService {
     private final ProductBundleRepository productBundleRepository;
 
     @Override
-    public Recommendations getForCart(Long cartId) {
+    public ProposedProducts getForCart(Long cartId) {
         final var cart = cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found, id: %s", cartId));
 
@@ -57,7 +57,7 @@ public class RecommendationsServiceImpl implements RecommendationsService {
     }
 
     @Override
-    public Recommendations getForProduct(Long productId, String itemTypeStr) {
+    public ProposedProducts getForProduct(Long productId, String itemTypeStr) {
 
         final var itemType = valueOf(itemTypeStr);
         final var itemMap = Map.of(valueOf(itemTypeStr), Set.of(productId));
@@ -83,29 +83,29 @@ public class RecommendationsServiceImpl implements RecommendationsService {
                         () -> new ResourceNotFoundException("%s with id: %s not found".formatted(itemType, productId)));
     }
 
-    private Recommendations buildRecommendations(RecommendationPredicates predicates,
-                                                 Map<ItemType, Set<Long>> itemMap) {
-        final var beerPredicates = Specification.allOf(IdsNotIn(itemMap.get(BEER)),
+    private ProposedProducts buildRecommendations(RecommendationPredicates predicates,
+                                                  Map<ItemType, Set<Long>> itemMap) {
+        final var beerPredicates = Specification.allOf(idsNotIn(itemMap.get(BEER)),
                 predicates.beerSpecs() == null
                         ? getRandomRecords()
                         : predicates.beerSpecs());
 
-        final var ciderPredicates = Specification.allOf(IdsNotIn(itemMap.get(CIDER)),
+        final var ciderPredicates = Specification.allOf(idsNotIn(itemMap.get(CIDER)),
                 predicates.ciderSpecs() == null
                         ? getRandomRecords()
                         : predicates.ciderSpecs());
 
-        final var snackPredicates = Specification.allOf(IdsNotIn(itemMap.get(SNACK)),
+        final var snackPredicates = Specification.allOf(idsNotIn(itemMap.get(SNACK)),
                 predicates.snackSpecs() == null
                         ? getRandomRecords()
                         : predicates.snackSpecs());
 
-        final var pbPredicates = Specification.allOf(IdsNotIn(itemMap.get(PRODUCT_BUNDLE)),
+        final var pbPredicates = Specification.allOf(idsNotIn(itemMap.get(PRODUCT_BUNDLE)),
                 predicates.pbSpecs() == null
                         ? getRandomRecords()
                         : predicates.pbSpecs());
 
-        return new Recommendations(
+        return new ProposedProducts(
                 beerRepository.findAll(beerPredicates, PageRequest.of(0, 5)).getContent(),
                 ciderRepository.findAll(ciderPredicates, PageRequest.of(0, 5)).getContent(),
                 snackRepository.findAll(snackPredicates, PageRequest.of(0, 5)).getContent(),

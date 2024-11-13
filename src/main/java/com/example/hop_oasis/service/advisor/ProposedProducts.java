@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class Recommendations {
+public class ProposedProducts {
     private List<Beer> beers;
     private List<Cider> ciders;
     private List<Snack> snacks;
