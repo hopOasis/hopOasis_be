@@ -18,7 +18,7 @@ class ProductBundleRecommendation implements Recommendation {
     private final ProductBundleRepository productBundleRepository;
 
     @Override
-    public RecommendationPredicates getRecommendations(Map<ItemType, Set<Long>> productsMap) {
+    public ProposedProducts forProduct(Map<ItemType, Set<Long>> productsMap) {
 
         final var bundles = productBundleRepository.findAll(idsIn(productsMap.get(ItemType.PRODUCT_BUNDLE)));
         final var bundleNames = bundles.stream().map(ProductBundle::getName).collect(Collectors.toSet());

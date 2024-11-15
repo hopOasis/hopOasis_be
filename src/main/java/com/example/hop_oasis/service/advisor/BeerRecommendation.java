@@ -1,17 +1,15 @@
 package com.example.hop_oasis.service.advisor;
 
-import com.example.hop_oasis.model.Beer;
+import static com.example.hop_oasis.model.ItemType.BEER;
+
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.repository.BeerRepository;
-import lombok.RequiredArgsConstructor;
-
+import com.example.hop_oasis.utils.BeerSpecification;
+import com.example.hop_oasis.utils.GenericSpecification;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.example.hop_oasis.utils.BeerSpecification.beerWithTheSameColors;
-import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
-import static com.example.hop_oasis.utils.ProductBundleSpecification.bundlesWithNamesLike;
+import lombok.RequiredArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
 class BeerRecommendation implements Recommendation {
@@ -19,22 +17,18 @@ class BeerRecommendation implements Recommendation {
     private final BeerRepository beerRepository;
 
     @Override
-    public RecommendationPredicates getRecommendations(Map<ItemType, Set<Long>> productsMap) {
+    public ProposedProducts forProduct(Map<ItemType, Set<Long>> productsByType) {
+        var beerIds = productsByType.get(BEER);
+        var proposedProducts = new ProposedProducts();
+        if (CollectionUtils.isEmpty(beerIds)) {
+            var randomBeers = beerRepository.findAll(GenericSpecification.getRandomRecords());
+            proposedProducts.setBeers(randomBeers);
+            return proposedProducts;
+        }
 
-        final var beers = beerRepository.findAll(idsIn(productsMap.get(ItemType.BEER)));
-
-        final var beerColors = beers.stream()
-                .map(Beer::getBeerColor)
-                .collect(Collectors.toSet());
-
-        final var beerNames = beers.stream()
-                .map(Beer::getBeerName)
-                .collect(Collectors.toSet());
-
-        return new RecommendationPredicates(
-                beerWithTheSameColors(beerColors),
-                null,
-                null,
-                bundlesWithNamesLike(beerNames));
+        var recommendedBeers = beerRepository.findAll(BeerSpecification.beerWithTheSameColors(beerIds));
+        proposedProducts.setBeers(recommendedBeers);
+        return proposedProducts;
     }
+
 }

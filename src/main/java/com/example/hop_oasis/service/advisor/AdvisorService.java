@@ -10,10 +10,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class Advisor {
+public class AdvisorService {
+
     private final ProductBundleRepository productBundleRepository;
+
     private final BeerRepository beerRepository;
+
     private final CiderRepository ciderRepository;
+
     private final SnackRepository snackRepository;
 
     public Recommendation forProduct(ItemType itemType) {
@@ -24,4 +28,5 @@ public class Advisor {
             case PRODUCT_BUNDLE -> new ProductBundleRecommendation(productBundleRepository);
         };
     }
+
 }

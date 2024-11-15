@@ -1,31 +1,34 @@
 package com.example.hop_oasis.service.advisor;
 
-import com.example.hop_oasis.model.ItemType;
-import com.example.hop_oasis.model.Snack;
-import com.example.hop_oasis.repository.SnackRepository;
-import lombok.RequiredArgsConstructor;
+import static com.example.hop_oasis.model.ItemType.BEER;
+import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
 
+import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.repository.SnackRepository;
+import com.example.hop_oasis.utils.GenericSpecification;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
-import static com.example.hop_oasis.utils.ProductBundleSpecification.bundlesWithNamesLike;
+import lombok.RequiredArgsConstructor;
+import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
 class SnackRecommendation implements Recommendation {
+
     private final SnackRepository snackRepository;
 
     @Override
-    public RecommendationPredicates getRecommendations(Map<ItemType, Set<Long>> productsMap) {
+    public ProposedProducts forProduct(Map<ItemType, Set<Long>> productsByType) {
+        var snackIds = productsByType.get(BEER);
+        var proposedProducts = new ProposedProducts();
+        if (CollectionUtils.isEmpty(snackIds)) {
+            var randomSnacks = snackRepository.findAll(GenericSpecification.getRandomRecords());
+            proposedProducts.setSnacks(randomSnacks);
+            return proposedProducts;
+        }
 
-        final var snacks = snackRepository.findAll(idsIn(productsMap.get(ItemType.SNACK)));
-        final var snackNames = snacks.stream().map(Snack::getSnackName).collect(Collectors.toSet());
-
-        return new RecommendationPredicates(
-                null,
-                null,
-                null,
-                bundlesWithNamesLike(snackNames));
+        final var recommendedSnacks = snackRepository.findAll(idsIn(snackIds));
+        proposedProducts.setSnacks(recommendedSnacks);
+        return proposedProducts;
     }
+
 }

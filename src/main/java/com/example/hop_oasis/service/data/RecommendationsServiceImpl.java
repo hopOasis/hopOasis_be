@@ -5,8 +5,7 @@ import com.example.hop_oasis.model.CartItem;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.service.RecommendationsService;
-import com.example.hop_oasis.service.advisor.Advisor;
-import com.example.hop_oasis.service.advisor.RecommendationPredicates;
+import com.example.hop_oasis.service.advisor.AdvisorService;
 import com.example.hop_oasis.service.advisor.ProposedProducts;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,50 +23,48 @@ import static java.util.stream.Collectors.*;
 @Service
 @RequiredArgsConstructor
 public class RecommendationsServiceImpl implements RecommendationsService {
+
     private final CartRepository cartRepository;
-    private final Advisor advisor;
+
+    private final AdvisorService advisorService;
+
     private final BeerRepository beerRepository;
+
     private final CiderRepository ciderRepository;
+
     private final SnackRepository snackRepository;
+
     private final ProductBundleRepository productBundleRepository;
 
     @Override
     public ProposedProducts getForCart(Long cartId) {
         final var cart = cartRepository.findById(cartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found, id: %s", cartId));
-
+            .orElseThrow(() -> new ResourceNotFoundException("Cart not found, id: %s", cartId));
 
         final var idMap = cart.getCartItems().stream()
-                .filter(item -> item.getId() != null || item.getItemType() != null)
-                .collect(groupingBy(CartItem::getItemType, mapping(CartItem::getItemId, toSet())));
+            .filter(item -> item.getId() != null || item.getItemType() != null)
+            .collect(groupingBy(CartItem::getItemType, mapping(CartItem::getItemId, toSet())));
 
-        final var predicates = new ArrayList<RecommendationPredicates>();
+        final var predicates = idMap.keySet().stream()
+            .map(longs -> advisorService.forProduct(longs).forProduct(idMap))
+            .toList();
 
-        for (var entry : idMap.entrySet()) {
-            predicates.add(
-                    advisor.forProduct(entry.getKey()).getRecommendations(idMap));
-        }
-
-        return buildRecommendations(new RecommendationPredicates(
-                combineFor(predicates, RecommendationPredicates::beerSpecs),
-                combineFor(predicates, RecommendationPredicates::ciderSpecs),
-                combineFor(predicates, RecommendationPredicates::snackSpecs),
-                combineFor(predicates, RecommendationPredicates::pbSpecs)
+        return fetchRecommendations(new RecommendationPredicates(
+            combineFor(predicates, RecommendationPredicates::beerSpecs),
+            combineFor(predicates, RecommendationPredicates::ciderSpecs),
+            combineFor(predicates, RecommendationPredicates::snackSpecs),
+            combineFor(predicates, RecommendationPredicates::pbSpecs)
         ), idMap);
     }
 
     @Override
-    public ProposedProducts getForProduct(Long productId, String itemTypeStr) {
-
-        final var itemType = valueOf(itemTypeStr);
-        final var itemMap = Map.of(valueOf(itemTypeStr), Set.of(productId));
-
+    public ProposedProducts getForProduct(Long productId, ItemType itemType) {
+        final var itemMap = Map.of(itemType, Set.of(productId));
         checkExistence(itemType, productId);
+        final var predicates = advisorService.forProduct(itemType)
+            .forProduct(itemMap);
 
-        final var predicates = advisor.forProduct(itemType)
-                .getRecommendations(itemMap);
-
-        return buildRecommendations(predicates, itemMap);
+        return fetchRecommendations(predicates, itemMap);
     }
 
     private void checkExistence(ItemType itemType, Long productId) {
@@ -79,47 +76,47 @@ public class RecommendationsServiceImpl implements RecommendationsService {
         };
 
         repository.findById(productId)
-                .orElseThrow(
-                        () -> new ResourceNotFoundException("%s with id: %s not found".formatted(itemType, productId)));
+            .orElseThrow(
+                () -> new ResourceNotFoundException("%s with id: %s not found".formatted(itemType, productId)));
     }
 
-    private ProposedProducts buildRecommendations(RecommendationPredicates predicates,
-                                                  Map<ItemType, Set<Long>> itemMap) {
+    private ProposedProducts fetchRecommendations(RecommendationPredicates predicates, Map<ItemType, Set<Long>> itemMap) {
         final var beerPredicates = Specification.allOf(idsNotIn(itemMap.get(BEER)),
-                predicates.beerSpecs() == null
-                        ? getRandomRecords()
-                        : predicates.beerSpecs());
+            predicates.beerSpecs() == null
+                ? getRandomRecords()
+                : predicates.beerSpecs());
 
         final var ciderPredicates = Specification.allOf(idsNotIn(itemMap.get(CIDER)),
-                predicates.ciderSpecs() == null
-                        ? getRandomRecords()
-                        : predicates.ciderSpecs());
+            predicates.ciderSpecs() == null
+                ? getRandomRecords()
+                : predicates.ciderSpecs());
 
         final var snackPredicates = Specification.allOf(idsNotIn(itemMap.get(SNACK)),
-                predicates.snackSpecs() == null
-                        ? getRandomRecords()
-                        : predicates.snackSpecs());
+            predicates.snackSpecs() == null
+                ? getRandomRecords()
+                : predicates.snackSpecs());
 
         final var pbPredicates = Specification.allOf(idsNotIn(itemMap.get(PRODUCT_BUNDLE)),
-                predicates.pbSpecs() == null
-                        ? getRandomRecords()
-                        : predicates.pbSpecs());
+            predicates.pbSpecs() == null
+                ? getRandomRecords()
+                : predicates.pbSpecs());
 
+        var limit = PageRequest.of(0, 5);
         return new ProposedProducts(
-                beerRepository.findAll(beerPredicates, PageRequest.of(0, 5)).getContent(),
-                ciderRepository.findAll(ciderPredicates, PageRequest.of(0, 5)).getContent(),
-                snackRepository.findAll(snackPredicates, PageRequest.of(0, 5)).getContent(),
-                productBundleRepository.findAll(pbPredicates, PageRequest.of(0, 5)).getContent());
+            beerRepository.findAll(beerPredicates, limit).getContent(),
+            ciderRepository.findAll(ciderPredicates, limit).getContent(),
+            snackRepository.findAll(snackPredicates, limit).getContent(),
+            productBundleRepository.findAll(pbPredicates, limit).getContent());
     }
 
-    private <T> Specification<T> combineFor(List<RecommendationPredicates> predicates,
-                                            Function<RecommendationPredicates, Specification<T>> function) {
+    private <T> Specification<T> combineFor(List<RecommendationPredicates> predicates, Function<RecommendationPredicates, Specification<T>> function) {
 
         return predicates == null || predicates.isEmpty()
-                ? null
-                : Specification.anyOf(predicates.stream()
+            ? null
+            : Specification.anyOf(predicates.stream()
                 .filter(Objects::nonNull)
                 .map(function)
                 .toList());
     }
+
 }

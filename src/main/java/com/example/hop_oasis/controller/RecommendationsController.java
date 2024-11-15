@@ -3,6 +3,7 @@ package com.example.hop_oasis.controller;
 import com.example.hop_oasis.convertor.ProposedProductsMapper;
 import com.example.hop_oasis.dto.ProposedProductsDto;
 import com.example.hop_oasis.handler.ValidItemType;
+import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.service.RecommendationsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -41,7 +42,7 @@ public class RecommendationsController {
 
             @Parameter(description = "Product type, for now it's one of BEER, CIDER, SNACK, PRODUCT_BUNDLE",
                     required = true)
-            @RequestParam("itemType") @ValidItemType String itemType) {
+            @RequestParam("itemType") @ValidItemType ItemType itemType) {
 
         return ResponseEntity.ok(
                 mapper.toDto(recommendationsService.getForProduct(productId, itemType)));

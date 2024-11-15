@@ -12,8 +12,8 @@ import org.springframework.data.jpa.domain.Specification;
 import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-
 public class ProductBundleSpecification {
+
     public static Specification<ProductBundle> filterAndSort(String name, String sortDirection) {
         return ProductBundleSpecification.findByName(name).and(ProductBundleSpecification.sortByPrice(sortDirection));
 
@@ -22,7 +22,7 @@ public class ProductBundleSpecification {
     public static Specification<ProductBundle> bundlesWithNamesLike(Set<String> names) {
         return (root, query, cb) -> {
             if (names == null || names.isEmpty()) {
-                return null;
+                return cb.conjunction();
             }
 
             final var pArray = names.stream()

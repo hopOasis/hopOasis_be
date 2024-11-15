@@ -9,13 +9,20 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import lombok.Setter;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class ProposedProducts {
+
     private List<Beer> beers;
+
     private List<Cider> ciders;
+
     private List<Snack> snacks;
+
     private List<ProductBundle> bundles;
+
 }
