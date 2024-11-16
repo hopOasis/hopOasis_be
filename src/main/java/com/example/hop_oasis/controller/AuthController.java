@@ -1,8 +1,8 @@
 package com.example.hop_oasis.controller;
 
+import com.example.hop_oasis.dto.TokenResponse;
 import com.example.hop_oasis.dto.UserLoginRequest;
 import com.example.hop_oasis.dto.UserRegisterRequest;
-import com.example.hop_oasis.dto.TokenResponse;
 import com.example.hop_oasis.service.data.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
