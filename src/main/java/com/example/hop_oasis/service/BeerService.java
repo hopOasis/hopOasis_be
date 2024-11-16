@@ -9,9 +9,8 @@ import org.springframework.data.domain.Pageable;
 public interface BeerService {
      Beer save(BeerDto beerDto);
      BeerInfoDto getBeerById(Long id);
+     Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection);
      BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long itemId, double ratingValue);
-     Page<BeerInfoDto> getAllBeers(Pageable pageable);
-
      BeerInfoDto update(BeerDto beerDto, Long id);
 
      BeerInfoDto delete(Long id);

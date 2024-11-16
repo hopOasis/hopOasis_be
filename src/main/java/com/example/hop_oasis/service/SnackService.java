@@ -9,8 +9,9 @@ import org.springframework.data.domain.Pageable;
 public interface SnackService {
     Snack saveSnack(SnackDto snackDto);
     SnackInfoDto getSnackById(Long id);
+    Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection);
+
     SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long itemId, double ratingValue);
-    Page<SnackInfoDto> getAllSnacks(Pageable pageable);
 
     SnackInfoDto updateSnack(SnackDto snackDto, Long id);
 

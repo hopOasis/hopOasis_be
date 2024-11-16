@@ -7,9 +7,11 @@ import com.example.hop_oasis.service.ProductBundleService;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,10 +29,11 @@ public class ProductBundleController {
     private final ProductBundleInfoMapper productBundleInfoMapper;
     @GetMapping
     public ResponseEntity<Page<ProductBundleInfoDto>> getAllProductBundles(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+            @ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestParam(value = "name", required = false) String bundleName,
+            @RequestParam(value = "sortDirection", required = false) String sortDirection) {
         Page<ProductBundleInfoDto> productBundlePage =
-                productBundleService.getAllProductBundle(PageRequest.of(page, size));
+                productBundleService.getAllProductBundleWithFilter(bundleName, pageable, sortDirection);
         return ResponseEntity.ok().body(productBundlePage);
     }
     @PostMapping

@@ -7,9 +7,11 @@ import com.example.hop_oasis.service.CiderService;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -28,11 +30,10 @@ public class CiderController {
     private final CiderInfoMapper ciderInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@RequestParam(
-                                                                   value = "page", defaultValue = "0") int page,
-                                                           @RequestParam(
-                                                                   value = "size", defaultValue = "10") int size) {
-        Page<CiderInfoDto> ciderPage = ciderService.getAllCiders(PageRequest.of(page, size));
+    public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,
+                                                           @RequestParam(value = "ciderName", required = false) String ciderName,
+                                                           @RequestParam(value = "sortDirection", required = false) String sortDirection) {
+        Page<CiderInfoDto> ciderPage = ciderService.getAllCidersWithFilter(ciderName, pageable, sortDirection);
         return ResponseEntity.ok().body(ciderPage);
     }
     @PostMapping
