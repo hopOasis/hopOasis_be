@@ -30,9 +30,7 @@ public interface CiderInfoMapper extends Mappable<Cider, CiderInfoDto> {
     @Mapping(target = "options", source = "cider.ciderOptions")
     @Mapping(target = "name", source = "cider.ciderName")
     @Mapping(target = "itemType", constant = "CIDER")
-    @Mapping(target = "averageRating", source = "averageRating")
-    @Mapping(target = "ratingCount", source = "ratingCount")
-    ItemInfoDto mapToItemInfoDto(Cider cider, double averageRating, int ratingCount);
+    ItemInfoDto mapToItemInfoDto(Cider cider);
 
 
     default List<String> mapCiderImagesName(List<CiderImage> images) {

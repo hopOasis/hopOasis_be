@@ -32,9 +32,7 @@ public interface BeerInfoMapper extends Mappable<Beer, BeerInfoDto> {
     @Mapping(target = "options", source = "beer.beerOptions")
     @Mapping(target = "name", source = "beer.beerName")
     @Mapping(target = "itemType", constant = "BEER")
-    @Mapping(target = "averageRating", source = "averageRating")
-    @Mapping(target = "ratingCount", source = "ratingCount")
-    ItemInfoDto mapToItemInfoDto(Beer beer, double averageRating, int ratingCount);
+    ItemInfoDto mapToItemInfoDto(Beer beer);
 
 
     default List<String> mapImagesToNames(List<Image> images) {

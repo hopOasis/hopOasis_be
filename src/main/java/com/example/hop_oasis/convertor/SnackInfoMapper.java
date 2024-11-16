@@ -29,9 +29,7 @@ public interface SnackInfoMapper extends Mappable<Snack, SnackInfoDto> {
     @Mapping(target = "options", source = "snack.snackOptions")
     @Mapping(target = "name", source = "snack.snackName")
     @Mapping(target = "itemType", constant = "SNACK")
-    @Mapping(target = "averageRating", source = "averageRating")
-    @Mapping(target = "ratingCount", source = "ratingCount")
-    ItemInfoDto mapToItemInfoDto(Snack snack, double averageRating, int ratingCount);
+    ItemInfoDto mapToItemInfoDto(Snack snack);
 
 
     default List<String> mapSnackImagesName(List<SnackImage> images) {

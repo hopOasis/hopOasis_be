@@ -28,9 +28,7 @@ public interface ProductBundleInfoMapper extends Mappable<ProductBundle, Product
     @Mapping(target = "options", source = "productBundle.productBundleOptions")
     @Mapping(target = "name", source = "productBundle.name")
     @Mapping(target = "itemType", constant = "PRODUCT_BUNDLE")
-    @Mapping(target = "averageRating", source = "averageRating")
-    @Mapping(target = "ratingCount", source = "ratingCount")
-    ItemInfoDto mapToItemInfoDto(ProductBundle productBundle, double averageRating, int ratingCount);
+    ItemInfoDto mapToItemInfoDto(ProductBundle productBundle);
 
 
     default List<String> mapSnackImagesName(List<ProductBundleImage> images) {
