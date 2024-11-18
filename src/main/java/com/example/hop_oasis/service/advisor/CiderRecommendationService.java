@@ -39,9 +39,7 @@ class CiderRecommendationService implements RecommendationService {
         var recommendedSnacks = snackRepository.findAll(getRandomRecords(), PageRequest.of(0, 2)).getContent();
         proposedProducts.setSnacks(recommendedSnacks);
 
-        var ciderNames = ciderRepository.findAll(idsIn(ciderIds)).stream()
-                .map(Cider::getCiderName)
-                .collect(Collectors.toSet());
+        var ciderNames = ciderRepository.findNamesByIds(ciderIds);
 
         var recommendedBundles = bundleRepository.findAll(bundlesWithNamesLike(ciderNames), PageRequest.of(0, 2))
                 .getContent();

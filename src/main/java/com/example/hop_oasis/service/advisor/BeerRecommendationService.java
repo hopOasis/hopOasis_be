@@ -45,11 +45,9 @@ class BeerRecommendationService implements RecommendationService {
                 .getContent();
         proposedProducts.setBeers(recommendedBeers);
 
-        final var beerNameSet = beerRepository.findAll(idsIn(beerIds)).stream()
-                .map(Beer::getBeerName)
-                .collect(Collectors.toSet());
+        var beerNames = beerRepository.findNamesByIds(beerIds);
 
-        var recommendedBundles = bundleRepository.findAll(bundlesWithNamesLike(beerNameSet), PageRequest.of(0, 2))
+        var recommendedBundles = bundleRepository.findAll(bundlesWithNamesLike(beerNames), PageRequest.of(0, 2))
                 .getContent();
         proposedProducts.setBundles(recommendedBundles);
 
