@@ -1,33 +1,60 @@
 package com.example.hop_oasis.service.advisor;
 
 import static com.example.hop_oasis.model.ItemType.BEER;
+import static com.example.hop_oasis.utils.BeerSpecification.beerWithTheSameColors;
+import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
+import static com.example.hop_oasis.utils.GenericSpecification.idsNotIn;
+import static com.example.hop_oasis.utils.ProductBundleSpecification.bundlesWithNamesLike;
 
+import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.repository.BeerRepository;
-import com.example.hop_oasis.utils.BeerSpecification;
+import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.utils.GenericSpecification;
+
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
+@Component
 class BeerRecommendationService implements RecommendationService {
 
     private final BeerRepository beerRepository;
+    private final ProductBundleRepository bundleRepository;
 
     @Override
     public ProposedProducts forProduct(Map<ItemType, Set<Long>> productsByType) {
         var beerIds = productsByType.get(BEER);
         var proposedProducts = new ProposedProducts();
         if (CollectionUtils.isEmpty(beerIds)) {
-            var randomBeers = beerRepository.findAll(GenericSpecification.getRandomRecords());
+            var randomBeers = beerRepository.findAll(GenericSpecification.getRandomRecords(), PageRequest.of(0, 2))
+                    .getContent();
             proposedProducts.setBeers(randomBeers);
+
             return proposedProducts;
         }
 
-        var recommendedBeers = beerRepository.findAll(BeerSpecification.beerWithTheSameColors(beerIds));
+        var recommendedBeers = beerRepository.findAll(
+                        Specification.allOf(beerWithTheSameColors(beerIds), idsNotIn(beerIds)), PageRequest.of(0, 2))
+                .getContent();
         proposedProducts.setBeers(recommendedBeers);
+
+        final var beerNameSet = beerRepository.findAll(idsIn(beerIds)).stream()
+                .map(Beer::getBeerName)
+                .collect(Collectors.toSet());
+
+        var recommendedBundles = bundleRepository.findAll(bundlesWithNamesLike(beerNameSet), PageRequest.of(0, 2))
+                .getContent();
+        proposedProducts.setBundles(recommendedBundles);
+
+
         return proposedProducts;
     }
 

@@ -42,7 +42,7 @@ public class RecommendationsController {
 
             @Parameter(description = "Product type, for now it's one of BEER, CIDER, SNACK, PRODUCT_BUNDLE",
                     required = true)
-            @RequestParam("itemType") @ValidItemType ItemType itemType) {
+            @RequestParam("itemType") ItemType itemType) {
 
         return ResponseEntity.ok(
                 mapper.toDto(recommendationsService.getForProduct(productId, itemType)));

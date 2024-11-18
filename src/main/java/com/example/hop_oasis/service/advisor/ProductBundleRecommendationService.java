@@ -15,8 +15,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component
 class ProductBundleRecommendationService implements RecommendationService {
 
     private final ProductBundleRepository productBundleRepository;

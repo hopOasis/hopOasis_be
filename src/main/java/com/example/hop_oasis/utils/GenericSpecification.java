@@ -13,7 +13,7 @@ public interface GenericSpecification {
         return Specification.not(idsIn(exclusions));
     }
 
-    private static <T> Specification<T> idsIn(Set<Long> inclusions) {
+    static <T> Specification<T> idsIn(Set<Long> inclusions) {
         return (root, query, cb) -> {
             if (inclusions == null || inclusions.isEmpty()) {
                 return cb.conjunction();

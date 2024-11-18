@@ -9,9 +9,11 @@ import com.example.hop_oasis.utils.GenericSpecification;
 import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
+@Component
 class SnackRecommendationService implements RecommendationService {
 
     private final SnackRepository snackRepository;
