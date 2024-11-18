@@ -1,10 +1,9 @@
 package com.example.hop_oasis.service.advisor;
 
 import com.example.hop_oasis.model.ItemType;
-import com.example.hop_oasis.repository.BeerRepository;
-import com.example.hop_oasis.repository.CiderRepository;
-import com.example.hop_oasis.repository.ProductBundleRepository;
-import com.example.hop_oasis.repository.SnackRepository;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,21 +11,39 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class AdvisorService {
 
-    private final ProductBundleRepository productBundleRepository;
+    private final List<RecommendationService> recommendationServices;
 
-    private final BeerRepository beerRepository;
+    public ProposedProducts forProduct(ItemType type, Long productId) {
+        var recommendation = getRecommendationService(type);
+        return recommendation.forProduct(Map.of(type, Set.of(productId)));
+    }
 
-    private final CiderRepository ciderRepository;
+    public ProposedProducts forProducts(Map<ItemType, Set<Long>> productsMap) {
+        var result = new ProposedProducts();
+        for (var entry : productsMap.entrySet()) {
+            var type = entry.getKey();
+            var productIds = entry.getValue();
+            var recommendation = getRecommendationService(type);
+            var proposedProducts = recommendation.forProduct(Map.of(type, productIds));
+            mergeProposedProducts(result, proposedProducts);
+        }
 
-    private final SnackRepository snackRepository;
+         return result;
+    }
 
-    public Recommendation forProduct(ItemType itemType) {
-        return switch (itemType) {
-            case BEER -> new BeerRecommendation(beerRepository);
-            case CIDER -> new CiderRecommendation(ciderRepository);
-            case SNACK -> new SnackRecommendation(snackRepository);
-            case PRODUCT_BUNDLE -> new ProductBundleRecommendation(productBundleRepository);
-        };
+    private void mergeProposedProducts(ProposedProducts proposedProducts, ProposedProducts newProposedProducts) {
+        // TODO: use DTOs instead of entities.
+        proposedProducts.getBeers().addAll(newProposedProducts.getBeers());
+        proposedProducts.getCiders().addAll(newProposedProducts.getCiders());
+        proposedProducts.getSnacks().addAll(newProposedProducts.getSnacks());
+        proposedProducts.getBundles().addAll(newProposedProducts.getBundles());
+    }
+
+    private RecommendationService getRecommendationService(ItemType type) {
+        return recommendationServices.stream()
+            .filter(r -> type == r.supportedItemType())
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("No recommendation found for type: " + type));
     }
 
 }

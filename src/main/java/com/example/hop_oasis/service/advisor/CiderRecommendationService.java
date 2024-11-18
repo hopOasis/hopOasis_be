@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
-class CiderRecommendation implements Recommendation {
+class CiderRecommendationService implements RecommendationService {
 
     private final CiderRepository ciderRepository;
 
@@ -28,6 +28,11 @@ class CiderRecommendation implements Recommendation {
         var ciderRecommendations = ciderRepository.findAll(idsNotIn(ciderIds));
         proposedProducts.setCiders(ciderRecommendations);
         return proposedProducts;
+    }
+
+    @Override
+    public ItemType supportedItemType() {
+        return CIDER;
     }
 
 }

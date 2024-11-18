@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
-class BeerRecommendation implements Recommendation {
+class BeerRecommendationService implements RecommendationService {
 
     private final BeerRepository beerRepository;
 
@@ -29,6 +29,11 @@ class BeerRecommendation implements Recommendation {
         var recommendedBeers = beerRepository.findAll(BeerSpecification.beerWithTheSameColors(beerIds));
         proposedProducts.setBeers(recommendedBeers);
         return proposedProducts;
+    }
+
+    @Override
+    public ItemType supportedItemType() {
+        return BEER;
     }
 
 }

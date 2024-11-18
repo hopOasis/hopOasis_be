@@ -1,7 +1,7 @@
 package com.example.hop_oasis.service.advisor;
 
 import static com.example.hop_oasis.model.ItemType.BEER;
-import static com.example.hop_oasis.utils.GenericSpecification.idsIn;
+import static com.example.hop_oasis.model.ItemType.SNACK;
 
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.repository.SnackRepository;
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.util.CollectionUtils;
 
 @RequiredArgsConstructor
-class SnackRecommendation implements Recommendation {
+class SnackRecommendationService implements RecommendationService {
 
     private final SnackRepository snackRepository;
 
@@ -26,9 +26,14 @@ class SnackRecommendation implements Recommendation {
             return proposedProducts;
         }
 
-        final var recommendedSnacks = snackRepository.findAll(idsIn(snackIds));
+        final var recommendedSnacks = snackRepository.findAllById(snackIds);
         proposedProducts.setSnacks(recommendedSnacks);
         return proposedProducts;
+    }
+
+    @Override
+    public ItemType supportedItemType() {
+        return SNACK;
     }
 
 }

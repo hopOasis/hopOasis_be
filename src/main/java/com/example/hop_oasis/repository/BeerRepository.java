@@ -11,6 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 public interface BeerRepository extends JpaRepository<Beer, Long>, JpaSpecificationExecutor<Beer> {
 
     @Query("select distinct b.beerName from Beer b where b.id in (:ids)")
-    Set<String> findNames(Collection<Long> ids);
+    Set<String> findNamesByIds(Collection<Long> ids);
 
 }
