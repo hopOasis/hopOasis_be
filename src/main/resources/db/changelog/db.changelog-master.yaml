@@ -101,3 +101,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/050-create-user.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/051-update-password-field.sql
