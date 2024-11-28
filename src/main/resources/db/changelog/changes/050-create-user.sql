@@ -21,16 +21,10 @@ CREATE TABLE IF NOT EXISTS users
     password VARCHAR
 (
     50
-) NOT NULL
-    role VARCHAR
-(
-    50
-) NOT NULL CHECK
-(
-    role
-    IN
+) NOT NULL,
+    role ENUM
 (
     'ADMIN',
     'USER'
-))
+) NOT NULL
     );
