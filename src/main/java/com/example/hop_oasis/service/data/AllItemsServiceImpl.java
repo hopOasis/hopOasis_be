@@ -52,6 +52,7 @@ public class AllItemsServiceImpl implements AllItemsService {
             return new PageImpl<>(Collections.emptyList(), pageable, totalElements);
         }
         List<String> repositoriesOrder = Arrays.asList("beer", "cider", "snack", "bundle");
+
         Collections.shuffle(repositoriesOrder);
 
         int remaining = pageable.getPageSize();
@@ -66,38 +67,37 @@ public class AllItemsServiceImpl implements AllItemsService {
                 if (offset < beerCount) {
                     Page<Beer> beerPage = beerRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
                             Math.min(remaining, (int) beerCount - offset)));
-                List<ItemInfoDto> beerItems = mapItemsWithRating(beerPage.getContent(), beerInfoMapper);
-                currentPageItems.addAll(beerItems);
-                remaining -= beerItems.size();
-            }
+                    List<ItemInfoDto> beerItems = mapItemsWithRating(beerPage.getContent(), beerInfoMapper);
+                    currentPageItems.addAll(beerItems);
+                    remaining -= beerItems.size();
+                }
                 offset = Math.max(0, offset - (int) beerCount);
             } else if ("cider".equals(repo)) {
-
-               if (offset < ciderCount) {
-                   Page<Cider> ciderPage = ciderRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                           Math.min(remaining, (int) ciderCount - offset)));
-                   List<ItemInfoDto> ciderItems = mapItemsWithRating(ciderPage.getContent(), ciderInfoMapper);
-                   currentPageItems.addAll(ciderItems);
-                   remaining -= ciderItems.size();
-               }
+                if (offset < ciderCount) {
+                    Page<Cider> ciderPage = ciderRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
+                            Math.min(remaining, (int) ciderCount - offset)));
+                    List<ItemInfoDto> ciderItems = mapItemsWithRating(ciderPage.getContent(), ciderInfoMapper);
+                    currentPageItems.addAll(ciderItems);
+                    remaining -= ciderItems.size();
+                }
                 offset = Math.max(0, offset - (int) ciderCount);
             } else if ("snack".equals(repo)) {
                 if (offset < snackCount) {
                     Page<Snack> snackPage = snackRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                          Math.min(remaining, (int) snackCount - offset)));
+                            Math.min(remaining, (int) snackCount - offset)));
                     List<ItemInfoDto> snackItems = mapItemsWithRating(snackPage.getContent(), snackInfoMapper);
                     currentPageItems.addAll((snackItems));
                     remaining -= snackItems.size();
                 }
                 offset = Math.max(0, offset - (int) snackCount);
             } else if ("bundle".equals(repo)) {
-            if (offset < bundleCount) {
-                Page<ProductBundle> bundlePage = bundleRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                       Math.min(remaining, (int) bundleCount - offset)));
-                List<ItemInfoDto> bundleItems = mapItemsWithRating(bundlePage.getContent(), bundleInfoMapper);
-                currentPageItems.addAll(bundleItems);
-                remaining -= bundleItems.size();
-            }
+                if (offset < bundleCount) {
+                    Page<ProductBundle> bundlePage = bundleRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
+                            Math.min(remaining, (int) bundleCount - offset)));
+                    List<ItemInfoDto> bundleItems = mapItemsWithRating(bundlePage.getContent(), bundleInfoMapper);
+                    currentPageItems.addAll(bundleItems);
+                    remaining -= bundleItems.size();
+                }
                 offset = Math.max(0, offset - (int) bundleCount);
             }
             Collections.shuffle(currentPageItems);
