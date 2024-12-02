@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -41,24 +42,67 @@ public class AllItemsServiceImpl implements AllItemsService {
 
     @Override
     public Page<ItemInfoDto> getAllItems(Pageable pageable) {
-        int loadSize = pageable.getPageSize() + 5;
-        List<ItemInfoDto> allItems = new ArrayList<>();
+        long beerCount = beerRepository.count();
+        long ciderCount = ciderRepository.count();
+        long snackCount = snackRepository.count();
+        long bundleCount = bundleRepository.count();
+        long totalElements = beerCount + ciderCount + snackCount + bundleCount;
 
-        allItems.addAll(mapItemsWithRating(beerRepository.findAll(PageRequest.of(0, loadSize)).getContent(),
-                beerInfoMapper));
+        if (pageable.getOffset() >= totalElements) {
+            return new PageImpl<>(Collections.emptyList(), pageable, totalElements);
+        }
+        List<String> repositoriesOrder = Arrays.asList("beer", "cider", "snack", "bundle");
+        Collections.shuffle(repositoriesOrder);
 
-        allItems.addAll(mapItemsWithRating(ciderRepository.findAll(PageRequest.of(0, loadSize)).getContent(),
-                ciderInfoMapper));
+        int remaining = pageable.getPageSize();
+        int offset = (int) pageable.getOffset();
 
-        allItems.addAll(mapItemsWithRating(snackRepository.findAll(PageRequest.of(0, loadSize)).getContent(),
-                snackInfoMapper));
+        List<ItemInfoDto> currentPageItems = new ArrayList<>();
 
-        allItems.addAll(mapItemsWithRating(bundleRepository.findAll(PageRequest.of(0, loadSize)).getContent(),
-                bundleInfoMapper));
-        Collections.shuffle(allItems);
-        int start = Math.min((int) pageable.getOffset(), allItems.size());
-        int end = Math.min(start + pageable.getPageSize(), allItems.size());
-        return new PageImpl<>(allItems.subList(start, end), pageable, allItems.size());
+        for (String repo : repositoriesOrder) {
+            if (remaining <= 0)
+                break;
+            if ("beer".equals(repo)) {
+                if (offset < beerCount) {
+                    Page<Beer> beerPage = beerRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
+                            Math.min(remaining, (int) beerCount - offset)));
+                List<ItemInfoDto> beerItems = mapItemsWithRating(beerPage.getContent(), beerInfoMapper);
+                currentPageItems.addAll(beerItems);
+                remaining -= beerItems.size();
+            }
+                offset = Math.max(0, offset - (int) beerCount);
+            } else if ("cider".equals(repo)) {
+
+               if (offset < ciderCount) {
+                   Page<Cider> ciderPage = ciderRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
+                           Math.min(remaining, (int) ciderCount - offset)));
+                   List<ItemInfoDto> ciderItems = mapItemsWithRating(ciderPage.getContent(), ciderInfoMapper);
+                   currentPageItems.addAll(ciderItems);
+                   remaining -= ciderItems.size();
+               }
+                offset = Math.max(0, offset - (int) ciderCount);
+            } else if ("snack".equals(repo)) {
+                if (offset < snackCount) {
+                    Page<Snack> snackPage = snackRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
+                          Math.min(remaining, (int) snackCount - offset)));
+                    List<ItemInfoDto> snackItems = mapItemsWithRating(snackPage.getContent(), snackInfoMapper);
+                    currentPageItems.addAll((snackItems));
+                    remaining -= snackItems.size();
+                }
+                offset = Math.max(0, offset - (int) snackCount);
+            } else if ("bundle".equals(repo)) {
+            if (offset < bundleCount) {
+                Page<ProductBundle> bundlePage = bundleRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
+                       Math.min(remaining, (int) bundleCount - offset)));
+                List<ItemInfoDto> bundleItems = mapItemsWithRating(bundlePage.getContent(), bundleInfoMapper);
+                currentPageItems.addAll(bundleItems);
+                remaining -= bundleItems.size();
+            }
+                offset = Math.max(0, offset - (int) bundleCount);
+            }
+            Collections.shuffle(currentPageItems);
+        }
+        return new PageImpl<>(currentPageItems, pageable, totalElements);
     }
 
     private <T, M> ItemInfoDto mapToItemInfoDto(M mapper, T item) {
