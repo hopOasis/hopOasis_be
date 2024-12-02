@@ -30,7 +30,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(r -> r
                         .requestMatchers("/auth/register", "/auth/login",
                                 "/assets/icons/**",
