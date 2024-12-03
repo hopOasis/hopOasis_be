@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AllItemsController {
     private final AllItemsServiceImpl allItemsService;
+
     @GetMapping
-    public ResponseEntity<Page<ItemInfoDto>> getAllProducts(@ParameterObject
-                                                                @PageableDefault(size = 10, page = 0)Pageable pageable) {
+    public ResponseEntity<Page<ItemInfoDto>> getAllProducts(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable) {
         Page<ItemInfoDto> allItems = allItemsService.getAllItems(pageable);
         return ResponseEntity.ok().body(allItems);
 
