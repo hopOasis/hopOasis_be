@@ -1,12 +1,12 @@
 package com.example.hop_oasis.config;
 
-import com.example.hop_oasis.enums.Role;
 import com.example.hop_oasis.filter.JwtAuthenticationFilter;
 import com.example.hop_oasis.service.data.UserDetailsServiceImpl;
+import java.util.Arrays;
+import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -22,14 +22,13 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+
     private final UserDetailsServiceImpl userDetailsService;
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -48,65 +47,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(r -> r
-                        .requestMatchers("/auth/register", "/auth/login",
-                                "/assets/icons/**",
-                                "/css/**",
-                                "/js/**",
-                                "/images/**")
-
-                        .permitAll()
-                        .requestMatchers(HttpMethod.POST, "/beers", "/beers/{beerId}/images", "/ciders",
-                                "/ciders/{ciderId}/images", "/products-bundle", "/products-bundle/{id}/images",
-                                "/snacks", "/snacks/{snackId}/images", "/special-offers"
-                        ).hasAuthority(Role.ADMIN.name())
-
-                        .requestMatchers(HttpMethod.PUT, "/beers/{id}", "/ciders/{id}", "/products-bundle/{id}",
-                                "/snacks/{id}", "/special-offers/{offerId}", "/special-offers/name/{offerId}"
-                        ).hasAuthority(Role.ADMIN.name())
-
-                        .requestMatchers(HttpMethod.DELETE, "/beers/{id}", "/beers//images", "/ciders/{id}",
-                                "/ciders/images", "/products-bundle/{id}", "/products-bundle/images",
-                                "/snacks/{id}", "/snacks/images", "/special-offers/{offerId}",
-                                "/special-offers/{offerId}/beers/{beerId}",
-                                "/special-offers/{offerId}/ciders/{ciderId}",
-                                "/special-offers/{offerId}/snacks/{snackId}",
-                                "/special-offers/{offerId}/products-bundle/{productBundleId}"
-                        ).hasAuthority(Role.ADMIN.name())
-
-
-                        .requestMatchers(HttpMethod.GET, "/special-offers/{offerId}/beers/{beerId}",
-                                "/special-offers/{offerId}/ciders/{ciderId}",
-                                "/special-offers/{offerId}/snacks/{snackId}",
-                                "/special-offers/{offerId}/products-bundle/{productBundleId}",
-                                "/special-offers/{offerId}", "/special-offers", "/users"
-                        ).hasAuthority(Role.ADMIN.name())
-
-                        .requestMatchers(HttpMethod.GET, "/users/{userId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
-                        .requestMatchers(HttpMethod.PUT, "/users/{userId}").hasAuthority(Role.USER.name())
-                        .requestMatchers(HttpMethod.DELETE, "/users/{userId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
-
-                        .requestMatchers(HttpMethod.GET, "/beers", "/beers/{id}", "/ciders", "/ciders/{id}",
-                                "/products-bundle", "/products-bundle/{id}", "/snacks", "/snacks/{id}",
-                                "/special-offers/active", "/carts/{cartId}"
-                        ).permitAll()
-
-                        .requestMatchers(HttpMethod.POST, "/beers/{id}/ratings", "/ciders/{id}/ratings",
-                                "/products-bundle/{id}/ratings", "/snacks/{id}/ratings", "/carts"
-                        ).permitAll()
-
-                        .requestMatchers(HttpMethod.PUT, "/carts").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/carts/remove/{cartId}").permitAll()
-
-
-                        .anyRequest()
-                        .authenticated())
-                .userDetailsService(userDetailsService)
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+            .cors(Customizer.withDefaults())
+            .csrf(AbstractHttpConfigurer::disable)
+            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .userDetailsService(userDetailsService)
+            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .build();
 
     }
 
@@ -117,7 +64,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
-            throws Exception {
+        throws Exception {
         return configuration.getAuthenticationManager();
     }
 
