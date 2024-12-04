@@ -49,9 +49,8 @@ public class SecurityConfig {
         return http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher("/health/**")).permitAll()
-            )
+            .authorizeRequests().requestMatchers(AntPathRequestMatcher.antMatcher("/health")).permitAll()
+            .and()
             .userDetailsService(userDetailsService)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
