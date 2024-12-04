@@ -51,7 +51,7 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher("^/health$")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/health")).permitAll()
                 .anyRequest().authenticated()
             )
             .userDetailsService(userDetailsService)
