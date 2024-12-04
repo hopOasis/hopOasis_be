@@ -49,12 +49,14 @@ public class SecurityConfig {
         return http
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/health").permitAll()
+                .anyRequest().authenticated()
+            )
             .userDetailsService(userDetailsService)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .build();
-
     }
 
     @Bean
@@ -67,6 +69,5 @@ public class SecurityConfig {
         throws Exception {
         return configuration.getAuthenticationManager();
     }
-
 
 }
