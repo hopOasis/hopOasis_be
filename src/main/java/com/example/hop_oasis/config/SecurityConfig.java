@@ -1,7 +1,12 @@
 package com.example.hop_oasis.config;
 
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
+import com.example.hop_oasis.enums.Role;
 import com.example.hop_oasis.filter.JwtAuthenticationFilter;
 import com.example.hop_oasis.service.data.UserDetailsServiceImpl;
 import java.util.Arrays;
@@ -10,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,14 +54,56 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
+            .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
-            .cors(AbstractHttpConfigurer::disable)
             .authorizeRequests()
-            .requestMatchers(antMatcher("/health"),
-                             antMatcher("/auth/register"),
+            .requestMatchers(antMatcher("/auth/register"),
                              antMatcher("/auth/login"),
-                             antMatcher("/images/**"))
-            .permitAll()
+                             antMatcher("/images/**"),
+                             antMatcher(GET, "/beers"),
+                             antMatcher(GET, "/beers/{id}"),
+                             antMatcher(GET, "/ciders"),
+                             antMatcher(GET, "/ciders/{id}"),
+                             antMatcher(GET, "/products-bundle"),
+                             antMatcher(GET, "/products-bundle/{id}"),
+                             antMatcher(GET, "/snacks"),
+                             antMatcher(GET, "/snacks/{id}"),
+                             antMatcher(GET, "/special-offers/active"),
+                             antMatcher(GET, "/carts/{cartId}"),
+                             antMatcher(POST, "/beers/{id}/ratings"),
+                             antMatcher(POST, "/ciders/{id}/ratings"),
+                             antMatcher(POST, "/products-bundle/{id}/ratings"),
+                             antMatcher(POST, "/snacks/{id}/ratings"),
+                             antMatcher(POST, "/carts"),
+                             antMatcher(PUT, "/carts"),
+                             antMatcher(DELETE, "/carts/remove/{cartId}")).permitAll()
+
+            .requestMatchers(antMatcher("/special-offers/**"),
+                             antMatcher(GET, "/users"),
+                             antMatcher(POST, "/beers"),
+                             antMatcher(POST, "/ciders"),
+                             antMatcher(POST, "/products-bundle"),
+                             antMatcher(POST, "/snacks"),
+                             antMatcher(POST, "/special-offers"),
+                             antMatcher(POST, "/beers/{beerId}/images"),
+                             antMatcher(POST, "/ciders/{ciderId}/images"),
+                             antMatcher(POST, "/products-bundle/{id}/images"),
+                             antMatcher(POST, "/snacks/{snackId}/images"),
+                             antMatcher(PUT, "/beers/{id}"),
+                             antMatcher(PUT, "/ciders/{id}"),
+                             antMatcher(PUT, "/products-bundle/{id}"),
+                             antMatcher(PUT, "/snacks/{id}"),
+                             antMatcher(DELETE, "/beers/{id}"),
+                             antMatcher(DELETE, "/beers//images"),
+                             antMatcher(DELETE, "/ciders/{id}"),
+                             antMatcher(DELETE, "/ciders/images"),
+                             antMatcher(DELETE, "/products-bundle/{id}"),
+                             antMatcher(DELETE, "/products-bundle/images"),
+                             antMatcher(DELETE, "/snacks/{id}"),
+                             antMatcher(DELETE, "/snacks/images")).hasAuthority(Role.ADMIN.name())
+
+            .anyRequest()
+            .authenticated()
             .and()
             .userDetailsService(userDetailsService)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
