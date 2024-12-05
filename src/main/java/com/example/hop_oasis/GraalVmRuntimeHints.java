@@ -15,6 +15,9 @@ import com.amazonaws.serverless.proxy.model.HttpApiV2JwtAuthorizer;
 import com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequest;
 import com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequestContext;
 import io.jsonwebtoken.impl.DefaultJweHeader;
+import io.jsonwebtoken.impl.DefaultJweHeaderBuilder;
+import io.jsonwebtoken.impl.DefaultJweHeaderMutator;
+import io.jsonwebtoken.impl.DefaultJwtBuilder;
 import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import org.hibernate.sql.results.graph.FetchParent;
 import org.springframework.aot.hint.RuntimeHints;
@@ -34,6 +37,9 @@ public class GraalVmRuntimeHints implements RuntimeHintsRegistrar {
         registerClass(hints, FetchParent.class);
         registerClass(hints, StandardSecureDigestAlgorithms.class);
         registerClass(hints, DefaultJweHeader.class);
+        registerClass(hints, DefaultJweHeaderMutator.class);
+        registerClass(hints, DefaultJweHeaderBuilder.class);
+        registerClass(hints, DefaultJwtBuilder.class);
     }
 
     private void registerClass(RuntimeHints hints, Class<?> clazz) {
