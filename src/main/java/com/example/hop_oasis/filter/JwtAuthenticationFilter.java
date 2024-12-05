@@ -55,7 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
+        log.info("Final Authentication: {}", SecurityContextHolder.getContext().getAuthentication());
         filterChain.doFilter(request, response);
-
     }
 }
