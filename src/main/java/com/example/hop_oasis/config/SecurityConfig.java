@@ -101,9 +101,6 @@ public class SecurityConfig {
                              antMatcher(DELETE, "/products-bundle/images"),
                              antMatcher(DELETE, "/snacks/{id}"),
                              antMatcher(DELETE, "/snacks/images")).hasAuthority(Role.ADMIN.name())
-
-            .anyRequest()
-            .authenticated()
             .and()
             .userDetailsService(userDetailsService)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
