@@ -56,6 +56,7 @@ public class SecurityConfig {
         return http
             .cors(Customizer.withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
+            .anonymous(AbstractHttpConfigurer::disable)
             .authorizeRequests()
             .requestMatchers(antMatcher("/auth/register"),
                              antMatcher("/auth/login"),
