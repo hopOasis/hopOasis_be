@@ -9,6 +9,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 import com.example.hop_oasis.enums.Role;
 import com.example.hop_oasis.filter.JwtAuthenticationFilter;
 import com.example.hop_oasis.service.data.UserDetailsServiceImpl;
+import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -37,6 +39,11 @@ public class SecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @PostConstruct
+    public void init() {
+        SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
