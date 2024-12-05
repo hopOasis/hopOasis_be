@@ -14,6 +14,7 @@ import io.jsonwebtoken.impl.security.StandardEncryptionAlgorithms;
 import io.jsonwebtoken.impl.security.StandardKeyAlgorithms;
 import io.jsonwebtoken.impl.security.StandardKeyOperations;
 import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureAlgorithm;
 import org.hibernate.sql.results.graph.FetchParent;
 import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
@@ -35,7 +36,8 @@ import org.springframework.context.annotation.Configuration;
     SignatureAlgorithm.class,
     StandardEncryptionAlgorithms.class,
     StandardKeyAlgorithms.class,
-    StandardCompressionAlgorithms.class
+    StandardCompressionAlgorithms.class,
+    Keys.class
 })
 @Configuration
 public class NativeConfig {
