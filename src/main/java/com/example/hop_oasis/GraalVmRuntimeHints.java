@@ -14,6 +14,7 @@ import com.amazonaws.serverless.proxy.model.HttpApiV2HttpContext;
 import com.amazonaws.serverless.proxy.model.HttpApiV2JwtAuthorizer;
 import com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequest;
 import com.amazonaws.serverless.proxy.model.HttpApiV2ProxyRequestContext;
+import io.jsonwebtoken.impl.security.StandardSecureDigestAlgorithms;
 import org.hibernate.sql.results.graph.FetchParent;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
@@ -30,6 +31,7 @@ public class GraalVmRuntimeHints implements RuntimeHintsRegistrar {
         registerClass(hints, HttpApiV2AuthorizerDeserializer.class);
         registerClass(hints, HttpApiV2AuthorizerSerializer.class);
         registerClass(hints, FetchParent.class);
+        registerClass(hints, StandardSecureDigestAlgorithms.class);
     }
 
     private void registerClass(RuntimeHints hints, Class<?> clazz) {
