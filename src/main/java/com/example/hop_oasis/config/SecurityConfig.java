@@ -51,7 +51,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(r -> r
-                        .requestMatchers("/auth/register", "/auth/login",
+                        .requestMatchers("/auth/**",
                                 "/assets/icons/**",
                                 "/css/**",
                                 "/js/**",
@@ -67,7 +67,7 @@ public class SecurityConfig {
                                 "/snacks/{id}", "/special-offers/{offerId}", "/special-offers/name/{offerId}"
                         ).hasAuthority(Role.ADMIN.name())
 
-                        .requestMatchers(HttpMethod.DELETE, "/beers/{id}", "/beers//images", "/ciders/{id}",
+                        .requestMatchers(HttpMethod.DELETE, "/beers/{id}", "/beers/images", "/ciders/{id}",
                                 "/ciders/images", "/products-bundle/{id}", "/products-bundle/images",
                                 "/snacks/{id}", "/snacks/images", "/special-offers/{offerId}",
                                 "/special-offers/{offerId}/beers/{beerId}",
