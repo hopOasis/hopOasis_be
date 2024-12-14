@@ -6,7 +6,6 @@ import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackRating;
 import com.example.hop_oasis.repository.SnackRatingRepository;
 import com.example.hop_oasis.repository.SnackRepository;
-import com.example.hop_oasis.service.SnackRatingService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,10 +14,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SnackRatingServiceImpl implements SnackRatingService {
+public class SnackRatingServiceImpl {
     private final SnackRatingRepository snackRatingRepository;
     private final SnackRepository snackRepository;
     private final ItemRatingMapper itemRatingMapper;
+
     @Transactional
     public void addRating(Long snackId, double ratingValue) {
         Snack snack = snackRepository.findById(snackId)
@@ -28,7 +28,7 @@ public class SnackRatingServiceImpl implements SnackRatingService {
         snackRating.setRatingValue(ratingValue);
         snackRatingRepository.save(snackRating);
     }
-    @Override
+
     public double getAverageRating(Long snackId) {
         List<SnackRating> snackRatings = snackRatingRepository.findBySnackId(snackId);
         return snackRatings.stream()
@@ -36,12 +36,12 @@ public class SnackRatingServiceImpl implements SnackRatingService {
                 .average()
                 .orElse(0.0);
     }
-    @Override
+
     public int getRatingCount(Long snackId) {
         return snackRatingRepository.countBySnackId(snackId);
     }
 
-    @Override
+
     public ItemRatingDto getItemRating(Long snackId) {
         double averageRating = getAverageRating(snackId);
         int ratingCount = getRatingCount(snackId);

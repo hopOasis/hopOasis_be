@@ -7,7 +7,6 @@ import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderImage;
 import com.example.hop_oasis.repository.CiderImageRepository;
 import com.example.hop_oasis.repository.CiderRepository;
-import com.example.hop_oasis.service.CiderImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,14 +19,13 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.R
 
 @Service
 @RequiredArgsConstructor
-public class CiderImageServiceImpl implements CiderImageService {
+public class CiderImageServiceImpl {
     private final CiderImageRepository ciderImageRepository;
     private final CiderRepository ciderRepository;
     private final S3Service s3Service;
     private final CiderInfoMapper ciderInfoMapper;
 
 
-    @Override
     public CiderInfoDto addCiderImageToCider(Long ciderId, MultipartFile file) {
         Cider cider = ciderRepository.findById(ciderId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ciderId));
@@ -47,7 +45,6 @@ public class CiderImageServiceImpl implements CiderImageService {
        return ciderInfoMapper.toDto(ciderRepository.findById(ciderId).get());
 
     }
-    @Override
     public void deleteCiderImage(String name) {
         Optional<CiderImage> imageOp = ciderImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {

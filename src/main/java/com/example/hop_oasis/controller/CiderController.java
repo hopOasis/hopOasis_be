@@ -2,8 +2,8 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.CiderInfoMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.service.CiderImageService;
-import com.example.hop_oasis.service.CiderService;
+import com.example.hop_oasis.service.data.CiderImageServiceImpl;
+import com.example.hop_oasis.service.data.CiderServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 @MultipartConfig
 @Validated
 public class CiderController {
-    private final CiderService ciderService;
-    private final CiderImageService ciderImageService;
+    private final CiderServiceImpl ciderService;
+    private final CiderImageServiceImpl ciderImageService;
     private final CiderInfoMapper ciderInfoMapper;
 
     @GetMapping
@@ -36,6 +36,7 @@ public class CiderController {
         Page<CiderInfoDto> ciderPage = ciderService.getAllCidersWithFilter(ciderName, pageable, sortDirection);
         return ResponseEntity.ok().body(ciderPage);
     }
+
     @PostMapping
     public ResponseEntity<CiderInfoDto> save(@RequestBody CiderDto ciderDto) {
         CiderInfoDto ciderInfoDto = ciderInfoMapper.toDto(ciderService.saveCider(ciderDto));

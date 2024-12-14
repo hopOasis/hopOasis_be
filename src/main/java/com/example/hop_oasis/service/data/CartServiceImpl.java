@@ -4,7 +4,6 @@ import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
-import com.example.hop_oasis.service.*;
 import com.example.hop_oasis.utils.Rounder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,21 +26,21 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 @RequiredArgsConstructor
 @Slf4j
 @Transactional
-public class CartServiceImpl implements CartService {
+public class CartServiceImpl {
     private static int newQuantity;
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
-    private final BeerService beerService;
-    private final SnackService snackService;
-    private final ProductBundleService bundleService;
-    private final CiderService ciderService;
+    private final BeerServiceImpl beerService;
+    private final SnackServiceImpl snackService;
+    private final ProductBundleServiceImpl bundleService;
+    private final CiderServiceImpl ciderService;
     private final BeerOptionsRepository beerOptionsRepository;
     private final CiderOptionsRepository ciderOptionsRepository;
     private final SnackOptionsRepository snackOptionsRepository;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
 
-    @Override
+
     public CartDto getAllItemsByCartId(Long cartId) {
         List<CartItemDto> items = new ArrayList<>();
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
@@ -64,7 +63,7 @@ public class CartServiceImpl implements CartService {
         }
     }
 
-    @Override
+
     public CartItemDto create(ItemRequestDto itemRequestDto) {
         updateStockAfterCreating(itemRequestDto);
 
@@ -169,7 +168,6 @@ public class CartServiceImpl implements CartService {
 
 
     @Transactional
-    @Override
     public CartDto updateCart(Long cartId, List<ItemRequestDto> items) {
         Optional<Cart> optionalCart = cartRepository.findById(cartId);
         Cart cart = optionalCart
@@ -295,7 +293,6 @@ public class CartServiceImpl implements CartService {
     }
 
 
-    @Override
     public void removeItem(Long cartId, Long itemId, ItemType itemType, double measureValue) {
         List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemTypeAndMeasureValue(
                 cartId,
@@ -368,7 +365,6 @@ public class CartServiceImpl implements CartService {
     }
 
 
-    @Override
     public void delete(Long cartId) {
         log.debug("Clear cart");
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);

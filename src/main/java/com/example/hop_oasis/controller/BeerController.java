@@ -2,8 +2,8 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.service.BeerService;
-import com.example.hop_oasis.service.ImageService;
+import com.example.hop_oasis.service.data.BeerServiceImpl;
+import com.example.hop_oasis.service.data.ImageServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +24,12 @@ import org.springframework.web.multipart.MultipartFile;
 @MultipartConfig
 @Validated
 public class BeerController {
-    private final BeerService beerService;
-    private final ImageService imageService;
+    private final BeerServiceImpl beerService;
+    private final ImageServiceImpl imageService;
     private final BeerInfoMapper beerInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@ParameterObject @PageableDefault (size = 10, page = 0) Pageable pageable,
+    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,
                                                          @RequestParam(value = "beerName", required = false) String beerName,
                                                          @RequestParam(value = "sortDirection", required = false) String sortDirection) {
         Page<BeerInfoDto> beerPage = beerService.getAllBeersWithFilter(beerName, pageable, sortDirection);

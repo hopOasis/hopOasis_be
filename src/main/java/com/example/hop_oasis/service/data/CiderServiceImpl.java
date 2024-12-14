@@ -8,13 +8,11 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
 import com.example.hop_oasis.repository.CiderRepository;
-import com.example.hop_oasis.service.CiderService;
 import com.example.hop_oasis.utils.CiderSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,14 +28,13 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.R
 
 @Service
 @RequiredArgsConstructor
-public class CiderServiceImpl implements CiderService {
+public class CiderServiceImpl {
     private final CiderRepository ciderRepository;
     private final CiderMapper ciderMapper;
     private final CiderInfoMapper ciderInfoMapper;
     private final CiderRatingServiceImpl ciderRatingService;
     private final CiderOptionsMapper ciderOptionsMapper;
 
-    @Override
     public Cider saveCider(CiderDto ciderDto) {
         Cider cider = ciderMapper.toEntity(ciderDto);
         List<CiderOptions> ciderOptionsList = ciderOptionsMapper.toEntity(ciderDto.getOptions());
@@ -49,19 +46,18 @@ public class CiderServiceImpl implements CiderService {
         return cider;
     }
 
-    @Override
     public CiderInfoDto getCiderById(Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(cider);
     }
-    @Override
+
     public Page<CiderInfoDto> getAllCidersWithFilter(String ciderName, Pageable pageable, String sortDirection) {
        Page<Cider> ciders = ciderRepository.findAll(CiderSpecification.filterAndSort(ciderName, sortDirection), pageable);
        return ciders.map(this::convertToDtoWithRating);
     }
 
-    @Override
+
     public CiderInfoDto addRatingAndReturnUpdatedCiderInfo(Long id, double ratingValue) {
         ciderRatingService.addRating(id, ratingValue);
         Cider cider = ciderRepository.findById(id)
@@ -81,7 +77,6 @@ public class CiderServiceImpl implements CiderService {
 
 
 
-    @Override
     @Transactional
     public CiderInfoDto update(CiderDto ciderDto, Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
@@ -114,7 +109,7 @@ public class CiderServiceImpl implements CiderService {
         return ciderInfoMapper.toDto(ciderRepository.save(cider));
     }
 
-    @Override
+
     @Transactional
     public CiderInfoDto deleteCider(Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->

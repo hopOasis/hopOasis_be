@@ -6,7 +6,6 @@ import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.BeerRating;
 import com.example.hop_oasis.repository.BeerRatingRepository;
 import com.example.hop_oasis.repository.BeerRepository;
-import com.example.hop_oasis.service.BeerRatingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BeerRatingServiceImpl implements BeerRatingService {
+public class BeerRatingServiceImpl {
     private final BeerRatingRepository beerRatingRepository;
     private final BeerRepository beerRepository;
     private final ItemRatingMapper itemRatingMapper;
@@ -30,7 +29,7 @@ public class BeerRatingServiceImpl implements BeerRatingService {
         beerRatingRepository.save(beerRating);
     }
 
-    @Override
+
     public double getAverageRating(Long beerId) {
         List<BeerRating> beerRatings = beerRatingRepository.findByBeerId(beerId);
         return beerRatings.stream()
@@ -39,12 +38,12 @@ public class BeerRatingServiceImpl implements BeerRatingService {
                 .orElse(0.0);
     }
 
-    @Override
+
     public int getRatingCount(Long beerId) {
         return beerRatingRepository.countByBeerId(beerId);
     }
 
-    @Override
+
     public ItemRatingDto getItemRating(Long beerId) {
         double averageRating = getAverageRating(beerId);
         int ratingCount = getRatingCount(beerId);

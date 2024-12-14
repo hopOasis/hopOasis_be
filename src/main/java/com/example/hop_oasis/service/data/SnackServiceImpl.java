@@ -9,13 +9,11 @@ import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackOptions;
 import com.example.hop_oasis.repository.SnackOptionsRepository;
 import com.example.hop_oasis.repository.SnackRepository;
-import com.example.hop_oasis.service.SnackService;
 import com.example.hop_oasis.utils.SnackSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -30,7 +28,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class SnackServiceImpl implements SnackService {
+public class SnackServiceImpl {
     private final SnackRepository snackRepository;
     private final SnackMapper snackMapper;
     private final SnackInfoMapper snackInfoMapper;
@@ -38,7 +36,6 @@ public class SnackServiceImpl implements SnackService {
     private final SnackOptionsRepository snackOptionsRepository;
     private final SnackOptionsMapper snackOptionsMapper;
 
-    @Override
     public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
         List<SnackOptions> snackOptionsList = snackOptionsMapper.toEntity(snackDto.getOptions());
@@ -50,21 +47,18 @@ public class SnackServiceImpl implements SnackService {
         return snack;
     }
 
-    @Override
     public SnackInfoDto getSnackById(Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(snack);
     }
 
-    @Override
     public Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection) {
         Page<Snack> snacks = snackRepository.findAll(SnackSpecification.filterAndSort(snackName, sortDirection), pageable);
         return snacks.map(this::convertToDtoWithRating);
 
     }
 
-    @Override
     public SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long id, double ratingValue) {
 
         snackRatingService.addRating(id, ratingValue);
@@ -84,7 +78,6 @@ public class SnackServiceImpl implements SnackService {
     }
 
 
-    @Override
     @Transactional
     public SnackInfoDto updateSnack(SnackDto snackDto, Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->
@@ -119,7 +112,6 @@ public class SnackServiceImpl implements SnackService {
         return snackInfoMapper.toDto(snackRepository.save(snack));
     }
 
-    @Override
     @Transactional
     public SnackInfoDto deleteSnack(Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->

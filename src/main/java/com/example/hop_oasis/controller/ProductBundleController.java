@@ -2,8 +2,8 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.service.ProductBundleImageService;
-import com.example.hop_oasis.service.ProductBundleService;
+import com.example.hop_oasis.service.data.ProductBundleImageServiceImpl;
+import com.example.hop_oasis.service.data.ProductBundleServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,10 @@ import org.springframework.web.multipart.MultipartFile;
 @MultipartConfig
 @Validated
 public class ProductBundleController {
-    private final ProductBundleService productBundleService;
-    private final ProductBundleImageService imageService;
+    private final ProductBundleServiceImpl productBundleService;
+    private final ProductBundleImageServiceImpl imageService;
     private final ProductBundleInfoMapper productBundleInfoMapper;
+
     @GetMapping
     public ResponseEntity<Page<ProductBundleInfoDto>> getAllProductBundles(
             @ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,

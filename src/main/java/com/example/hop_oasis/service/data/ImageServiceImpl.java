@@ -7,7 +7,6 @@ import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.Image;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.repository.ImageRepository;
-import com.example.hop_oasis.service.ImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,14 +18,13 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class ImageServiceImpl implements ImageService {
+public class ImageServiceImpl {
     private final ImageRepository imageRepository;
     private final BeerRepository beerRepository;
     private final S3Service s3Service;
     private final BeerInfoMapper beerInfoMapper;
 
 
-    @Override
     public BeerInfoDto addImageToBeer(Long beerId, MultipartFile file) {
         Beer beer = beerRepository.findById(beerId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, beerId));
@@ -45,7 +43,7 @@ public class ImageServiceImpl implements ImageService {
         imageRepository.save(image1);
         return beerInfoMapper.toDto(beerRepository.findById(beerId).get());
     }
-    @Override
+
     public void deleteImage(String name) {
         Optional<Image> imageOp = imageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {

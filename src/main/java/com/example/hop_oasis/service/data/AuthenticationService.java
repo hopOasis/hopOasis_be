@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Log4j2
 public class AuthenticationService {
 
     private final UserRepository userRepository;
@@ -52,7 +51,7 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() ->
                 new RuntimeException("User not found"));
         String token = jwtService.generateToken(user);
-        log.info("token: " + token);
+    
         return TokenResponse.builder()
                 .accessToken(token)
                 .build();
