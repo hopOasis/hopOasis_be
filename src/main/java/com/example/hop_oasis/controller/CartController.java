@@ -1,7 +1,7 @@
 package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.service.CartService;
+import com.example.hop_oasis.service.data.CartServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CartController {
 
-    private final CartService cartService;
+    private final CartServiceImpl cartService;
 
     @GetMapping("/{cartId}")
     public ResponseEntity<CartDto> find(@PathVariable Long cartId) {

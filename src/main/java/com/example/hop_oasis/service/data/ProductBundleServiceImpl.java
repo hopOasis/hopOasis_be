@@ -11,14 +11,12 @@ import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleOptions;
 import com.example.hop_oasis.repository.ProductBundleOptionsRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
-import com.example.hop_oasis.service.ProductBundleService;
 import com.example.hop_oasis.utils.ProductBundleSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,7 +33,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProductBundleServiceImpl implements ProductBundleService {
+public class ProductBundleServiceImpl {
     private final ProductBundleRepository productBundleRepository;
     private final ProductBundleMapper productBundleMapper;
     private final ProductBundleInfoMapper productBundleInfoMapper;
@@ -43,7 +41,7 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
     private final ProductBundleOptionsMapper productBundleOptionsMapper;
 
-    @Override
+
     public ProductBundle saveProductBundle(ProductBundleDto productBundleDto) {
         ProductBundle productBundle = productBundleMapper.toEntity(productBundleDto);
         List<ProductBundleOptions> productBundleOptionsList = productBundleOptionsMapper
@@ -57,21 +55,18 @@ public class ProductBundleServiceImpl implements ProductBundleService {
         return productBundle;
     }
 
-    @Override
     public ProductBundleInfoDto getProductBundleById(Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(productBundle);
     }
 
-    @Override
     public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection) {
        Page<ProductBundle> bundles = productBundleRepository
                .findAll(ProductBundleSpecification.filterAndSort(bundleName, sortDirection), pageable);
        return bundles.map(this::convertToDtoWithRating);
     }
 
-    @Override
     public ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long id, double ratingValue) {
 
         productBundleRatingService.addRating(id, ratingValue);
@@ -91,7 +86,6 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     }
 
 
-    @Override
     @Transactional
     public ProductBundleInfoDto update(ProductBundleDto productDto, Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id)
@@ -135,7 +129,6 @@ public class ProductBundleServiceImpl implements ProductBundleService {
     }
 
 
-    @Override
     @Transactional
     public ProductBundleInfoDto deleteProductBundle(Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->

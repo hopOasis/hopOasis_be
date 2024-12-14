@@ -7,13 +7,11 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
-import com.example.hop_oasis.service.BeerService;
 import com.example.hop_oasis.utils.BeerSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,14 +26,14 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class BeerServiceImpl implements BeerService {
+public class BeerServiceImpl {
     private final BeerRepository beerRepository;
     private final BeerMapper beerMapper;
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
     private final BeerOptionsMapper beerOptionsMapper;
 
-    @Override
+
     public Beer save(BeerDto beerDto) {
         Beer beer = beerMapper.toEntity(beerDto);
         List<BeerOptions> beerOptionsList = beerOptionsMapper.toEntity(beerDto.getOptions());
@@ -48,20 +46,20 @@ public class BeerServiceImpl implements BeerService {
         return beer;
     }
 
-    @Override
+
     public BeerInfoDto getBeerById(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(beer);
     }
 
-    @Override
+
     public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection) {
         Page<Beer> beers = beerRepository.findAll(BeerSpecification.filterAndSort(beerName, sortDirection), pageable);
         return beers.map(this::convertToDtoWithRating);
     }
 
-    @Override
+
     public BeerInfoDto addRatingAndReturnUpdatedBeerInfo(Long id, double ratingValue) {
         beerRatingService.addRating(id, ratingValue);
         Beer beer = beerRepository.findById(id)
@@ -79,7 +77,7 @@ public class BeerServiceImpl implements BeerService {
         return beerInfoDto;
     }
 
-    @Override
+
     @Transactional
     public BeerInfoDto update(BeerDto beerDto, Long id) {
         Beer beer = beerRepository.findById(id)
@@ -121,7 +119,7 @@ public class BeerServiceImpl implements BeerService {
         return beerInfoMapper.toDto(beerRepository.save(beer));
     }
 
-    @Override
+
     @Transactional
     public BeerInfoDto delete(Long id) {
         Beer beer = beerRepository.findById(id).orElseThrow(() ->
