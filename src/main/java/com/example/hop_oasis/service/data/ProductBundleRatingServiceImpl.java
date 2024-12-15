@@ -6,7 +6,6 @@ import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleRating;
 import com.example.hop_oasis.repository.ProductBundleRatingRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
-import com.example.hop_oasis.service.ProductBundleRatingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ProductBundleRatingServiceImpl implements ProductBundleRatingService {
+public class ProductBundleRatingServiceImpl {
     private final ProductBundleRatingRepository bundleRatingRepository;
     private final ProductBundleRepository bundleRepository;
     private final ItemRatingMapper itemRatingMapper;
@@ -30,7 +29,7 @@ public class ProductBundleRatingServiceImpl implements ProductBundleRatingServic
         bundleRatingRepository.save(bundleRating);
     }
 
-    @Override
+
     public double getAverageRating(Long productBundleId) {
         List<ProductBundleRating> productBundleRatings = bundleRatingRepository.findByProductBundleId(productBundleId);
         return productBundleRatings.stream()
@@ -39,12 +38,12 @@ public class ProductBundleRatingServiceImpl implements ProductBundleRatingServic
                 .orElse(0.0);
     }
 
-    @Override
+
     public int getRatingCount(Long productBundleId) {
         return bundleRatingRepository.countByProductBundleId(productBundleId);
     }
 
-    @Override
+
     public ItemRatingDto getItemRating(Long productBundleId) {
         double averageRating = getAverageRating(productBundleId);
         int ratingCount = getRatingCount(productBundleId);

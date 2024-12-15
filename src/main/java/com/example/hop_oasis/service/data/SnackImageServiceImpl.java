@@ -7,7 +7,6 @@ import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackImage;
 import com.example.hop_oasis.repository.SnackImageRepository;
 import com.example.hop_oasis.repository.SnackRepository;
-import com.example.hop_oasis.service.SnackImageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,14 +19,13 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-public class SnackImageServiceImpl implements SnackImageService {
+public class SnackImageServiceImpl {
     private final SnackRepository snackRepository;
     private final SnackImageRepository snackImageRepository;
     private final S3Service s3Service;
     private final SnackInfoMapper snackInfoMapper;
 
 
-    @Override
     public SnackInfoDto addSnackImageToSnack(Long snackId, MultipartFile file) {
         Snack snack = snackRepository.findById(snackId).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, snackId));
@@ -48,7 +46,7 @@ public class SnackImageServiceImpl implements SnackImageService {
         return snackInfoMapper.toDto(snackRepository.findById(snackId).get());
     }
 
-    @Override
+
     public void deleteSnackImage(String name) {
         Optional<SnackImage> imageOp = snackImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {

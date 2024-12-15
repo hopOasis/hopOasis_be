@@ -2,8 +2,8 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.service.SnackImageService;
-import com.example.hop_oasis.service.SnackService;
+import com.example.hop_oasis.service.data.SnackImageServiceImpl;
+import com.example.hop_oasis.service.data.SnackServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +25,8 @@ import org.springframework.web.multipart.MultipartFile;
 @MultipartConfig
 @Validated
 public class SnackController {
-    private final SnackService snackService;
-    private final SnackImageService imageService;
+    private final SnackServiceImpl snackService;
+    private final SnackImageServiceImpl imageService;
     private final SnackInfoMapper snackInfoMapper;
 
     @GetMapping
@@ -36,6 +36,7 @@ public class SnackController {
         Page<SnackInfoDto> snackPage = snackService.getAllSnacksWithFilter(snackName, pageable, sortDirection);
         return ResponseEntity.ok().body(snackPage);
     }
+
     @PostMapping
     public ResponseEntity<SnackInfoDto> save(@RequestBody SnackDto snackDto) {
         SnackInfoDto snackInfoDto = snackInfoMapper.toDto(snackService.saveSnack(snackDto));

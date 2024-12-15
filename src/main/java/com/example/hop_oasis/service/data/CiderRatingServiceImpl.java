@@ -6,7 +6,6 @@ import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderRating;
 import com.example.hop_oasis.repository.CiderRatingRepository;
 import com.example.hop_oasis.repository.CiderRepository;
-import com.example.hop_oasis.service.CiderRatingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +14,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CiderRatingServiceImpl implements CiderRatingService {
+public class CiderRatingServiceImpl {
     private final CiderRatingRepository ciderRatingRepository;
     private final CiderRepository ciderRepository;
     private final ItemRatingMapper itemRatingMapper;
@@ -30,7 +29,7 @@ public class CiderRatingServiceImpl implements CiderRatingService {
         ciderRatingRepository.save(ciderRating);
     }
 
-    @Override
+
     public double getAverageRating(Long ciderId) {
         List<CiderRating> ciderRatings = ciderRatingRepository.findByCiderId(ciderId);
         return ciderRatings.stream()
@@ -39,12 +38,12 @@ public class CiderRatingServiceImpl implements CiderRatingService {
                 .orElse(0.0);
     }
 
-    @Override
+
     public int getRatingCount(Long ciderId) {
         return ciderRatingRepository.countByCiderId(ciderId);
     }
 
-    @Override
+
     public ItemRatingDto getItemRating(Long ciderId) {
         double averageRating = getAverageRating(ciderId);
         int ratingCount = getRatingCount(ciderId);
