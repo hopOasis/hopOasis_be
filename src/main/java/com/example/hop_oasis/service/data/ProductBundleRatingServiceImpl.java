@@ -29,7 +29,6 @@ public class ProductBundleRatingServiceImpl {
         bundleRatingRepository.save(bundleRating);
     }
 
-
     public double getAverageRating(Long productBundleId) {
         List<ProductBundleRating> productBundleRatings = bundleRatingRepository.findByProductBundleId(productBundleId);
         return productBundleRatings.stream()
@@ -42,7 +41,6 @@ public class ProductBundleRatingServiceImpl {
     public int getRatingCount(Long productBundleId) {
         return bundleRatingRepository.countByProductBundleId(productBundleId);
     }
-
 
     public ItemRatingDto getItemRating(Long productBundleId) {
         double averageRating = getAverageRating(productBundleId);

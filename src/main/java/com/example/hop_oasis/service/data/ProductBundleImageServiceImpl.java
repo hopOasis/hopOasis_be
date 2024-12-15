@@ -27,7 +27,6 @@ public class ProductBundleImageServiceImpl {
     private final S3Service s3Service;
     private final ProductBundleInfoMapper productBundleInfoMapper;
 
-
     public ProductBundleInfoDto addProductBundleImage(Long id, MultipartFile file) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));

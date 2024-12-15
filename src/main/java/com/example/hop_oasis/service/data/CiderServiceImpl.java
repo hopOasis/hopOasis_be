@@ -35,7 +35,6 @@ public class CiderServiceImpl {
     private final CiderRatingServiceImpl ciderRatingService;
     private final CiderOptionsMapper ciderOptionsMapper;
 
-
     public Cider saveCider(CiderDto ciderDto) {
         Cider cider = ciderMapper.toEntity(ciderDto);
         List<CiderOptions> ciderOptionsList = ciderOptionsMapper.toEntity(ciderDto.getOptions());
@@ -46,7 +45,6 @@ public class CiderServiceImpl {
         ciderRepository.save(cider);
         return cider;
     }
-
 
     public CiderInfoDto getCiderById(Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
@@ -76,6 +74,7 @@ public class CiderServiceImpl {
         ciderInfoDto.setRatingCount(rating.getRatingCount());
         return ciderInfoDto;
     }
+
 
 
     @Transactional

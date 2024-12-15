@@ -55,20 +55,17 @@ public class ProductBundleServiceImpl {
         return productBundle;
     }
 
-
     public ProductBundleInfoDto getProductBundleById(Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(productBundle);
     }
 
-
     public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection) {
        Page<ProductBundle> bundles = productBundleRepository
                .findAll(ProductBundleSpecification.filterAndSort(bundleName, sortDirection), pageable);
        return bundles.map(this::convertToDtoWithRating);
     }
-
 
     public ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long id, double ratingValue) {
 

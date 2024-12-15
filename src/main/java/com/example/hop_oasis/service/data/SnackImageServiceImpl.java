@@ -46,7 +46,6 @@ public class SnackImageServiceImpl {
         return snackInfoMapper.toDto(snackRepository.findById(snackId).get());
     }
 
-
     public void deleteSnackImage(String name) {
         Optional<SnackImage> imageOp = snackImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {

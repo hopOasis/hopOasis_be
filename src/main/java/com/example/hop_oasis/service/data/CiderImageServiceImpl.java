@@ -45,7 +45,6 @@ public class CiderImageServiceImpl {
        return ciderInfoMapper.toDto(ciderRepository.findById(ciderId).get());
 
     }
-
     public void deleteCiderImage(String name) {
         Optional<CiderImage> imageOp = ciderImageRepository.findFirstByName(name);
         if (imageOp.isEmpty()) {

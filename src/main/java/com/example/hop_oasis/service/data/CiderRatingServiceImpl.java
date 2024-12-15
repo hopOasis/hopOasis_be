@@ -29,7 +29,6 @@ public class CiderRatingServiceImpl {
         ciderRatingRepository.save(ciderRating);
     }
 
-
     public double getAverageRating(Long ciderId) {
         List<CiderRating> ciderRatings = ciderRatingRepository.findByCiderId(ciderId);
         return ciderRatings.stream()

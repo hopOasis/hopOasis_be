@@ -36,7 +36,6 @@ public class SnackServiceImpl {
     private final SnackOptionsRepository snackOptionsRepository;
     private final SnackOptionsMapper snackOptionsMapper;
 
-
     public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
         List<SnackOptions> snackOptionsList = snackOptionsMapper.toEntity(snackDto.getOptions());
@@ -48,20 +47,17 @@ public class SnackServiceImpl {
         return snack;
     }
 
-
     public SnackInfoDto getSnackById(Long id) {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
         return convertToDtoWithRating(snack);
     }
 
-
     public Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection) {
         Page<Snack> snacks = snackRepository.findAll(SnackSpecification.filterAndSort(snackName, sortDirection), pageable);
         return snacks.map(this::convertToDtoWithRating);
 
     }
-
 
     public SnackInfoDto addRatingAndReturnUpdatedSnackInfo(Long id, double ratingValue) {
 
@@ -115,7 +111,6 @@ public class SnackServiceImpl {
         snack.setSnackOptions(currentOptions);
         return snackInfoMapper.toDto(snackRepository.save(snack));
     }
-
 
     @Transactional
     public SnackInfoDto deleteSnack(Long id) {
