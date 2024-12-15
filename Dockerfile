@@ -1,4 +1,5 @@
 FROM amazoncorretto:21-alpine-jdk AS build
+RUN apk add --no-cache maven
 COPY . .
 RUN mvn clean package -DskipTests -Dcheckstyle.skip=true
 
