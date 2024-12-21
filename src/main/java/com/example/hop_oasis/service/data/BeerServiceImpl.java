@@ -1,12 +1,15 @@
 package com.example.hop_oasis.service.data;
 
-import com.example.hop_oasis.convertor.BeerOptionsMapper;
-import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
-import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
-import com.example.hop_oasis.model.*;
-import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.convertor.BeerMapper;
+import com.example.hop_oasis.convertor.BeerOptionsMapper;
+import com.example.hop_oasis.dto.BeerDto;
+import com.example.hop_oasis.dto.BeerInfoDto;
+import com.example.hop_oasis.dto.ItemRatingDto;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.model.Beer;
+import com.example.hop_oasis.model.BeerOptions;
+import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.utils.BeerSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +20,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -83,7 +84,7 @@ public class BeerServiceImpl {
         Beer beer = beerRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
-        if (!beerDto.getBeerName().isEmpty()) {
+        if (Objects.nonNull(beerDto.getBeerName())) {
             beer.setBeerName(beerDto.getBeerName());
         }
 
@@ -96,26 +97,28 @@ public class BeerServiceImpl {
         }
 
         List<BeerOptions> currentOptions = beer.getBeerOptions();
-        List<BeerOptions> newOptions = beerOptionsMapper.toEntity(beerDto.getOptions());
 
-        Map<Double, BeerOptions> currentOptionsMap = currentOptions.stream()
-                .collect(Collectors.toMap(BeerOptions::getVolume, Function.identity()));
+        if (Objects.nonNull(beerDto.getOptions())) {
+            List<BeerOptions> newOptions = beerOptionsMapper.toEntity(beerDto.getOptions());
+            for (BeerOptions curren : currentOptions) {
+                for (BeerOptions newOption : newOptions) {
+                    if (curren.getId() == newOption.getId()) {
+                        if (Objects.nonNull(newOption.getVolume())) {
+                            curren.setVolume(newOption.getVolume());
+                        }
+                        if (newOption.getQuantity() != 0) {
+                            curren.setQuantity(newOption.getQuantity());
+                        }
+                        if (newOption.getPrice() != 0) {
+                            curren.setPrice(newOption.getPrice());
+                        }
+                    }
+                }
 
-        for (BeerOptions newOption : newOptions) {
-            BeerOptions existingOption = currentOptionsMap.get(newOption.getVolume());
-            if (existingOption != null) {
-                existingOption.setQuantity(newOption.getQuantity());
-                existingOption.setPrice(newOption.getPrice());
-            } else {
-                newOption.setBeer(beer);
-                currentOptions.add(newOption);
             }
+            beer.setBeerOptions(currentOptions);
+
         }
-
-        currentOptions.removeIf(option ->
-                newOptions.stream().noneMatch(newOpt -> newOpt.getVolume().equals(option.getVolume())));
-
-        beer.setBeerOptions(currentOptions);
         return beerInfoMapper.toDto(beerRepository.save(beer));
     }
 

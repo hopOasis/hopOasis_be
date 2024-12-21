@@ -7,6 +7,7 @@ import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleOptions;
 import com.example.hop_oasis.repository.ProductBundleOptionsRepository;
@@ -90,7 +91,7 @@ public class ProductBundleServiceImpl {
     public ProductBundleInfoDto update(ProductBundleDto productDto, Long id) {
         ProductBundle productBundle = productBundleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_DELETED, id));
-        if (!productDto.getName().isEmpty()) {
+        if (Objects.nonNull(productDto.getName())) {
             productBundle.setName(productDto.getName());
         }
         if (Objects.nonNull(productDto.getDescription())) {
@@ -98,33 +99,24 @@ public class ProductBundleServiceImpl {
         }
 
         List<ProductBundleOptions> currentOptions = productBundle.getProductBundleOptions();
-        List<ProductBundleOptions> newOptions = productBundleOptionsMapper.toEntity(productDto.getOptions());
 
-        Map<Long, ProductBundleOptions> currentOptionsMap = currentOptions.stream()
-                .collect(Collectors.toMap(ProductBundleOptions::getId, Function.identity()));
-
-        for (ProductBundleOptions newOption : newOptions) {
-            if (newOption.getId() != null) {
-                ProductBundleOptions existingOption = currentOptionsMap.get(newOption.getId());
-                if (existingOption != null) {
-                    existingOption.setQuantity(newOption.getQuantity());
-                    existingOption.setPrice(newOption.getPrice());
-                } else {
-                    newOption.setProductBundle(productBundle);
-                    currentOptions.add(newOption);
+        if (Objects.nonNull(productDto.getOptions())) {
+            List<ProductBundleOptions> newOptions = productBundleOptionsMapper.toEntity(productDto.getOptions());
+            for (ProductBundleOptions curren : currentOptions) {
+                for (ProductBundleOptions newOption : newOptions) {
+                    if (curren.getId() == newOption.getId()) {
+                        if (newOption.getQuantity() != 0) {
+                            curren.setQuantity(newOption.getQuantity());
+                        }
+                        if (newOption.getPrice() != 0) {
+                            curren.setPrice(newOption.getPrice());
+                        }
+                    }
                 }
-            } else {
-                newOption.setProductBundle(productBundle);
-                currentOptions.add(newOption);
+
             }
+            productBundle.setProductBundleOptions(currentOptions);
         }
-
-        currentOptions.removeIf(option ->
-                newOptions.stream().noneMatch(newOpt ->
-                        Objects.equals(newOpt.getId(), option.getId()))
-        );
-
-        productBundle.setProductBundleOptions(currentOptions);
         return productBundleInfoMapper.toDto(productBundleRepository.save(productBundle));
     }
 
