@@ -5,6 +5,7 @@ import com.example.hop_oasis.convertor.SnackMapper;
 import com.example.hop_oasis.convertor.SnackOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackOptions;
 import com.example.hop_oasis.repository.SnackOptionsRepository;
@@ -83,7 +84,7 @@ public class SnackServiceImpl {
         Snack snack = snackRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
 
-        if (!snackDto.getSnackName().isEmpty()) {
+        if (Objects.nonNull(snackDto.getSnackName())) {
             snack.setSnackName(snackDto.getSnackName());
         }
 
@@ -91,24 +92,27 @@ public class SnackServiceImpl {
             snack.setDescription(snackDto.getDescription());
         }
         List<SnackOptions> currentOptions = snack.getSnackOptions();
-        List<SnackOptions> newOptions = snackOptionsMapper.toEntity(snackDto.getOptions());
 
-        Map<Double, SnackOptions> currentOptionsMap = currentOptions.stream()
-                .collect(Collectors.toMap(SnackOptions::getWeight, Function.identity()));
-        for (SnackOptions newOption : newOptions) {
-            SnackOptions excitingOption = currentOptionsMap.get(newOption.getWeight());
-            if (excitingOption != null) {
-                excitingOption.setQuantity(newOption.getQuantity());
-                excitingOption.setPrice(newOption.getPrice());
-            } else {
-                newOption.setSnack(snack);
-                currentOptions.add(newOption);
+        if (Objects.nonNull(snackDto.getOptions())) {
+            List<SnackOptions> newOptions = snackOptionsMapper.toEntity(snackDto.getOptions());
+            for (SnackOptions curren : currentOptions) {
+                for (SnackOptions newOption : newOptions) {
+                    if (curren.getId() == newOption.getId()) {
+                        if (newOption.getWeight() != 0) {
+                            curren.setWeight(newOption.getWeight());
+                        }
+                        if (newOption.getQuantity() != 0) {
+                            curren.setQuantity(newOption.getQuantity());
+                        }
+                        if (newOption.getPrice() != 0) {
+                            curren.setPrice(newOption.getPrice());
+                        }
+                    }
+                }
+
             }
+            snack.setSnackOptions(currentOptions);
         }
-        currentOptions.removeIf(option ->
-                newOptions.stream().noneMatch(newOpt -> newOpt.getWeight().equals(option.getWeight())));
-
-        snack.setSnackOptions(currentOptions);
         return snackInfoMapper.toDto(snackRepository.save(snack));
     }
 

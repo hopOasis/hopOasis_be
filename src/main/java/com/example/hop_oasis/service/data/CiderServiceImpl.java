@@ -5,6 +5,7 @@ import com.example.hop_oasis.convertor.CiderMapper;
 import com.example.hop_oasis.convertor.CiderOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
 import com.example.hop_oasis.repository.CiderRepository;
@@ -81,31 +82,35 @@ public class CiderServiceImpl {
     public CiderInfoDto update(CiderDto ciderDto, Long id) {
         Cider cider = ciderRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException(RESOURCE_NOT_FOUND, id));
-        if (!ciderDto.getCiderName().isEmpty()) {
+        if (Objects.nonNull(ciderDto.getCiderName())) {
             cider.setCiderName(ciderDto.getCiderName());
         }
         if (Objects.nonNull(ciderDto.getDescription())) {
             cider.setDescription(ciderDto.getDescription());
         }
         List<CiderOptions> currentOptions = cider.getCiderOptions();
-        List<CiderOptions> newOptions = ciderOptionsMapper.toEntity(ciderDto.getOptions());
 
-        Map<Double, CiderOptions> currentOptionsMap = currentOptions.stream()
-                        .collect(Collectors.toMap(CiderOptions::getVolume, Function.identity()));
-        for (CiderOptions newOption : newOptions) {
-            CiderOptions exitingOption = currentOptionsMap.get(newOption.getVolume());
-            if (exitingOption != null) {
-                exitingOption.setQuantity(newOption.getQuantity());
-                exitingOption.setPrice(newOption.getPrice());
-            } else {
-                newOption.setCider(cider);
-                currentOptions.add(newOption);
+        if (Objects.nonNull(ciderDto.getOptions())) {
+            List<CiderOptions> newOptions = ciderOptionsMapper.toEntity(ciderDto.getOptions());
+            for (CiderOptions curren : currentOptions) {
+                for (CiderOptions newOption : newOptions) {
+                    if (curren.getId() == newOption.getId()) {
+                        if (Objects.nonNull(newOption.getVolume())) {
+                            curren.setVolume(newOption.getVolume());
+                        }
+                        if (newOption.getQuantity() != 0) {
+                            curren.setQuantity(newOption.getQuantity());
+                        }
+                        if (newOption.getPrice() != 0) {
+                            curren.setPrice(newOption.getPrice());
+                        }
+                    }
+                }
+
             }
-        }
-        currentOptions.removeIf(option ->
-                newOptions.stream().noneMatch(newOpt -> newOpt.getVolume().equals(option.getVolume())));
+            cider.setCiderOptions(currentOptions);
 
-        cider.setCiderOptions(currentOptions);
+        }
         return ciderInfoMapper.toDto(ciderRepository.save(cider));
     }
 
