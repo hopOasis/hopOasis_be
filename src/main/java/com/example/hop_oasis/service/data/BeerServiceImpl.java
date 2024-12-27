@@ -1,5 +1,8 @@
 package com.example.hop_oasis.service.data;
 
+import com.example.hop_oasis.convertor.BeerOptionsMapper;
+import com.example.hop_oasis.convertor.ReviewMapper;
+import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.convertor.BeerOptionsMapper;
@@ -9,7 +12,11 @@ import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.Beer;
 import com.example.hop_oasis.model.BeerOptions;
+import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.repository.BeerRepository;
+import com.example.hop_oasis.convertor.BeerMapper;
+import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.utils.BeerSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +40,8 @@ public class BeerServiceImpl {
     private final BeerInfoMapper beerInfoMapper;
     private final BeerRatingServiceImpl beerRatingService;
     private final BeerOptionsMapper beerOptionsMapper;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
 
     public Beer save(BeerDto beerDto) {
@@ -75,6 +84,10 @@ public class BeerServiceImpl {
                 .setScale(1, RoundingMode.HALF_UP);
         beerInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         beerInfoDto.setRatingCount(rating.getRatingCount());
+
+        List<Review> reviews = reviewRepository.findByItemIdAndItemType(beer.getId(), ItemType.BEER);
+        List<ReviewInfoDto> dtos = reviewMapper.toDtos(reviews);
+        beerInfoDto.setReviews(dtos);
         return beerInfoDto;
     }
 

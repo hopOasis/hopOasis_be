@@ -22,4 +22,5 @@ public final class SnackInfoDto {
     @Builder.Default
     private ItemType itemType = ItemType.SNACK;
     private List<SnackOptionsDto> options = new ArrayList<>();
+    private List<ReviewInfoDto> reviews;
 }

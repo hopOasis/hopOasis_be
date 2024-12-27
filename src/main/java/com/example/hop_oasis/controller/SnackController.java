@@ -42,10 +42,12 @@ public class SnackController {
         SnackInfoDto snackInfoDto = snackInfoMapper.toDto(snackService.saveSnack(snackDto));
         return ResponseEntity.ok().body(snackInfoDto);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<SnackInfoDto> getSnackById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(snackService.getSnackById(id));
     }
+
     @PostMapping("/{id}/ratings")
     public ResponseEntity<?> addRating(@PathVariable("id") Long id,
                                        @Valid @RequestBody RatingDto ratingDto) {
@@ -57,15 +59,16 @@ public class SnackController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
     @PostMapping(path = "/{snackId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<SnackInfoDto> addImageToSnack(@PathVariable("snackId") Long snackId,
-                                  @RequestParam("image") MultipartFile image) {
+                                                        @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(imageService.addSnackImageToSnack(snackId, image));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<SnackInfoDto> updateSnack(@PathVariable("id") Long id,
-                                                    @RequestBody SnackDto snackDto) {
+                                                    @Valid @RequestBody SnackDto snackDto) {
         return ResponseEntity.ok().body(snackService.updateSnack(snackDto, id));
     }
 
@@ -73,6 +76,7 @@ public class SnackController {
     public ResponseEntity<SnackInfoDto> deleteSnack(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(snackService.deleteSnack(id));
     }
+
     @DeleteMapping("/images")
     public ResponseEntity<String> deleteSnackImage(@RequestBody ImageUrlDto name) {
         imageService.deleteSnackImage(name.getName());

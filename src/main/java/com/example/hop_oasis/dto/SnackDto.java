@@ -1,5 +1,6 @@
 package com.example.hop_oasis.dto;
 
+import jakarta.validation.Valid;
 import lombok.*;
 
 import java.util.List;
@@ -14,6 +15,7 @@ public final class SnackDto {
     private String snackName;
     private String description;
     private List<SnackImageDto> snackImageDto;
+    @Valid
     private List<SnackOptionsDto> options;
 
 }

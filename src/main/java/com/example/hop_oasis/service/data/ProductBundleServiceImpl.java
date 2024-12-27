@@ -3,15 +3,20 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
 import com.example.hop_oasis.convertor.ProductBundleMapper;
 import com.example.hop_oasis.convertor.ProductBundleOptionsMapper;
+import com.example.hop_oasis.convertor.ReviewMapper;
 import com.example.hop_oasis.dto.ItemRatingDto;
 import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
+import com.example.hop_oasis.dto.ReviewInfoDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.BeerOptions;
+import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleOptions;
+import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.repository.ProductBundleOptionsRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
+import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.utils.ProductBundleSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +46,8 @@ public class ProductBundleServiceImpl {
     private final ProductBundleRatingServiceImpl productBundleRatingService;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
     private final ProductBundleOptionsMapper productBundleOptionsMapper;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
 
     public ProductBundle saveProductBundle(ProductBundleDto productBundleDto) {
@@ -63,9 +70,9 @@ public class ProductBundleServiceImpl {
     }
 
     public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection) {
-       Page<ProductBundle> bundles = productBundleRepository
-               .findAll(ProductBundleSpecification.filterAndSort(bundleName, sortDirection), pageable);
-       return bundles.map(this::convertToDtoWithRating);
+        Page<ProductBundle> bundles = productBundleRepository
+                .findAll(ProductBundleSpecification.filterAndSort(bundleName, sortDirection), pageable);
+        return bundles.map(this::convertToDtoWithRating);
     }
 
     public ProductBundleInfoDto addRatingAndReturnUpdatedProductBundleInfo(Long id, double ratingValue) {
@@ -83,6 +90,9 @@ public class ProductBundleServiceImpl {
                 .setScale(1, RoundingMode.HALF_UP);
         bundleInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         bundleInfoDto.setRatingCount(rating.getRatingCount());
+        List<Review> reviews = reviewRepository.findByItemIdAndItemType(productBundle.getId(), ItemType.PRODUCT_BUNDLE);
+        List<ReviewInfoDto> dtos = reviewMapper.toDtos(reviews);
+        bundleInfoDto.setReviews(dtos);
         return bundleInfoDto;
     }
 

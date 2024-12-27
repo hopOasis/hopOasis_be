@@ -1,5 +1,6 @@
 package com.example.hop_oasis.convertor;
 
+
 import java.util.List;
 
 public interface Mappable<E, D> {
@@ -8,5 +9,6 @@ public interface Mappable<E, D> {
     E toEntity(D dto);
 
     List<E> toEntities(List<D> dtos);
+
 
 }
