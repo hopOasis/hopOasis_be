@@ -2,6 +2,7 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.service.data.CartServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,13 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<CartItemDto> addItem(@RequestBody ItemRequestDto itemRequestDto) {
+    public ResponseEntity<CartItemDto> addItem(@Valid @RequestBody ItemRequestDto itemRequestDto) {
         CartItemDto dto = cartService.create(itemRequestDto);
         return ResponseEntity.ok(dto);
     }
 
     @PutMapping
-    public ResponseEntity<CartDto> updateCart(@RequestBody CartUpdateRequestDto cartUpdateRequestDto) {
+    public ResponseEntity<CartDto> updateCart(@Valid @RequestBody CartUpdateRequestDto cartUpdateRequestDto) {
         CartDto dto = cartService.updateCart(cartUpdateRequestDto.getCartId(), cartUpdateRequestDto.getItems());
         return ResponseEntity.ok(dto);
     }

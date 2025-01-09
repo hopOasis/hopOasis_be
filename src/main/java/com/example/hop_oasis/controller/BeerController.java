@@ -41,18 +41,21 @@ public class BeerController {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(beerDto));
         return ResponseEntity.ok().body(beerInfoDto);
     }
+
     @PostMapping(path = "/{beerId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BeerInfoDto> addImageToBeer(@PathVariable("beerId") Long beerId,
-                                                       @RequestParam("image") MultipartFile image) {
+                                                      @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(imageService.addImageToBeer(beerId, image));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.getBeerById(id));
     }
+
     @PostMapping("/{id}/ratings")
     public ResponseEntity<?> addRating(@PathVariable("id") Long id,
-                                                @Valid @RequestBody RatingDto ratingDto) {
+                                       @Valid @RequestBody RatingDto ratingDto) {
         try {
             double ratingValue = ratingDto.getRatingValue();
             BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, ratingValue);
@@ -64,7 +67,7 @@ public class BeerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<BeerInfoDto> updateBeer(@PathVariable("id") Long id,
-                                                  @RequestBody BeerDto beerInfo) {
+                                                  @Valid @RequestBody BeerDto beerInfo) {
         BeerInfoDto dto = beerService.update(beerInfo, id);
         return ResponseEntity.ok().body(dto);
     }
@@ -73,6 +76,7 @@ public class BeerController {
     public ResponseEntity<BeerInfoDto> delete(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(beerService.delete(id));
     }
+
     @DeleteMapping("/images")
     public ResponseEntity<String> deleteImage(@RequestBody ImageUrlDto name) {
         imageService.deleteImage(name.getName());

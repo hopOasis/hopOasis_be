@@ -42,15 +42,18 @@ public class CiderController {
         CiderInfoDto ciderInfoDto = ciderInfoMapper.toDto(ciderService.saveCider(ciderDto));
         return ResponseEntity.ok().body(ciderInfoDto);
     }
+
     @PostMapping(path = "/{ciderId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CiderInfoDto> addImageToCider(@PathVariable("ciderId") Long ciderId,
-                                                @RequestParam("image") MultipartFile image) {
+                                                        @RequestParam("image") MultipartFile image) {
         return ResponseEntity.ok().body(ciderImageService.addCiderImageToCider(ciderId, image));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<CiderInfoDto> getCiderById(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(ciderService.getCiderById(id));
     }
+
     @PostMapping("/{id}/ratings")
     public ResponseEntity<?> addRating(@PathVariable("id") Long id,
                                        @Valid @RequestBody RatingDto ratingDto) {
@@ -65,7 +68,7 @@ public class CiderController {
 
     @PutMapping("/{id}")
     public ResponseEntity<CiderInfoDto> updateCider(@PathVariable("id") Long id,
-                                                    @RequestBody CiderDto ciderDto) {
+                                                    @Valid @RequestBody CiderDto ciderDto) {
         return ResponseEntity.ok().body(ciderService.update(ciderDto, id));
     }
 
@@ -73,6 +76,7 @@ public class CiderController {
     public ResponseEntity<CiderInfoDto> deleteCider(@PathVariable("id") Long id) {
         return ResponseEntity.ok().body(ciderService.deleteCider(id));
     }
+
     @DeleteMapping("/images")
     public ResponseEntity<String> deleteCiderImage(@RequestBody ImageUrlDto name) {
         ciderImageService.deleteCiderImage(name.getName());

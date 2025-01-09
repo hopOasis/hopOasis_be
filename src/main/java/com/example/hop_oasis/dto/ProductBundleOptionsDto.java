@@ -1,5 +1,6 @@
 package com.example.hop_oasis.dto;
 
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @AllArgsConstructor
@@ -9,6 +10,7 @@ import lombok.*;
 @Builder
 public class ProductBundleOptionsDto {
     private Long id;
+    @Min(0)
     private int quantity;
     private double price;
 }
