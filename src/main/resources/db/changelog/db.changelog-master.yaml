@@ -104,3 +104,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/051-update-password-field.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/052-create-review.sql

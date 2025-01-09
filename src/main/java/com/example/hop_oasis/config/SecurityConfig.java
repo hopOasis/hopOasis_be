@@ -99,6 +99,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.PUT, "/carts").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/remove/{cartId}").permitAll()
+                        .requestMatchers(HttpMethod.DELETE, "/carts/clear/{cartId}").permitAll()
 
 
                         .anyRequest()

@@ -23,5 +23,6 @@ public final class BeerInfoDto {
     @Builder.Default
     private ItemType itemType = ItemType.BEER;
     private List<BeerOptionsDto> options = new ArrayList<>();
+    private List<ReviewInfoDto> reviews;
 
 }

@@ -23,6 +23,7 @@ public final class CiderInfoDto {
     @Builder.Default
     private ItemType itemType = ItemType.CIDER;
     private List<CiderOptionsDto> options = new ArrayList<>();
+    private List<ReviewInfoDto> reviews;
 
 }
 

@@ -1,13 +1,17 @@
 package com.example.hop_oasis.service.data;
 
+import com.example.hop_oasis.convertor.ReviewMapper;
 import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.convertor.SnackMapper;
 import com.example.hop_oasis.convertor.SnackOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.BeerOptions;
+import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.model.Snack;
 import com.example.hop_oasis.model.SnackOptions;
+import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.repository.SnackOptionsRepository;
 import com.example.hop_oasis.repository.SnackRepository;
 import com.example.hop_oasis.utils.SnackSpecification;
@@ -36,6 +40,8 @@ public class SnackServiceImpl {
     private final SnackRatingServiceImpl snackRatingService;
     private final SnackOptionsRepository snackOptionsRepository;
     private final SnackOptionsMapper snackOptionsMapper;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
     public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
@@ -75,6 +81,9 @@ public class SnackServiceImpl {
                 .setScale(1, RoundingMode.HALF_UP);
         snackInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         snackInfoDto.setRatingCount(rating.getRatingCount());
+        List<Review> reviews = reviewRepository.findByItemIdAndItemType(snack.getId(), ItemType.SNACK);
+        List<ReviewInfoDto> dtos = reviewMapper.toDtos(reviews);
+        snackInfoDto.setReviews(dtos);
         return snackInfoDto;
     }
 

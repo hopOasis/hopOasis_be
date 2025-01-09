@@ -1,6 +1,5 @@
 package com.example.hop_oasis.dto;
 
-import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @AllArgsConstructor
@@ -8,10 +7,9 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class CiderOptionsDto {
+public class ItemOptionsDto {
     private Long id;
-    private Double volume;
-    @Min(0)
+    private Double measureValue;
     private int quantity;
     private double price;
 }

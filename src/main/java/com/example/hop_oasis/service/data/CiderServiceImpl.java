@@ -3,12 +3,16 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.CiderInfoMapper;
 import com.example.hop_oasis.convertor.CiderMapper;
 import com.example.hop_oasis.convertor.CiderOptionsMapper;
+import com.example.hop_oasis.convertor.ReviewMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
+import com.example.hop_oasis.model.ItemType;
+import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.repository.CiderRepository;
+import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.utils.CiderSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +39,8 @@ public class CiderServiceImpl {
     private final CiderInfoMapper ciderInfoMapper;
     private final CiderRatingServiceImpl ciderRatingService;
     private final CiderOptionsMapper ciderOptionsMapper;
+    private final ReviewRepository reviewRepository;
+    private final ReviewMapper reviewMapper;
 
     public Cider saveCider(CiderDto ciderDto) {
         Cider cider = ciderMapper.toEntity(ciderDto);
@@ -53,9 +59,10 @@ public class CiderServiceImpl {
         return convertToDtoWithRating(cider);
     }
 
+
     public Page<CiderInfoDto> getAllCidersWithFilter(String ciderName, Pageable pageable, String sortDirection) {
-       Page<Cider> ciders = ciderRepository.findAll(CiderSpecification.filterAndSort(ciderName, sortDirection), pageable);
-       return ciders.map(this::convertToDtoWithRating);
+        Page<Cider> ciders = ciderRepository.findAll(CiderSpecification.filterAndSort(ciderName, sortDirection), pageable);
+        return ciders.map(this::convertToDtoWithRating);
     }
 
 
@@ -73,6 +80,9 @@ public class CiderServiceImpl {
                 .setScale(1, RoundingMode.HALF_UP);
         ciderInfoDto.setAverageRating(roundedAverageRating.doubleValue());
         ciderInfoDto.setRatingCount(rating.getRatingCount());
+        List<Review> reviews = reviewRepository.findByItemIdAndItemType(cider.getId(), ItemType.CIDER);
+        List<ReviewInfoDto> dtos = reviewMapper.toDtos(reviews);
+        ciderInfoDto.setReviews(dtos);
         return ciderInfoDto;
     }
 
