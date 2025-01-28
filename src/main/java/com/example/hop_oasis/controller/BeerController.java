@@ -28,59 +28,73 @@ public class BeerController {
     private final ImageServiceImpl imageService;
     private final BeerInfoMapper beerInfoMapper;
 
+    // Fetch a paginated list of beers with optional filters
     @GetMapping
-    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,
-                                                         @RequestParam(value = "beerName", required = false) String beerName,
-                                                         @RequestParam(value = "sortDirection", required = false) String sortDirection) {
-        Page<BeerInfoDto> beerPage = beerService.getAllBeersWithFilter(beerName, pageable, sortDirection);
+    public ResponseEntity<Page<BeerInfoDto>> getAllBeers(
+            @ParameterObject 
+            @PageableDefault(size = 10, page = 0) Pageable pageable,
+            @RequestParam(value = "beerName", required = false) String beerName,
+            @RequestParam(value = "sortDirection", required = false) String sortDirection) {
+            Page<BeerInfoDto> beerPage = beerService.getAllBeersWithFilter(beerName, pageable, sortDirection);
         return ResponseEntity.ok().body(beerPage);
     }
 
+    // Create a new beer
     @PostMapping
     public ResponseEntity<BeerInfoDto> save(@RequestBody BeerDto beerDto) {
         BeerInfoDto beerInfoDto = beerInfoMapper.toDto(beerService.save(beerDto));
         return ResponseEntity.ok().body(beerInfoDto);
     }
 
+    // Add an image to a specific beer
     @PostMapping(path = "/{beerId}/images", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<BeerInfoDto> addImageToBeer(@PathVariable("beerId") Long beerId,
                                                       @RequestParam("image") MultipartFile image) {
-        return ResponseEntity.ok().body(imageService.addImageToBeer(beerId, image));
+        BeerInfoDto updatedBeer = imageService.addImageToBeer(beerId, image);
+        return ResponseEntity.ok().body(updatedBeer); // changed response for consistency
     }
 
+    // Fetch a specific beer by its ID
     @GetMapping("/{id}")
     public ResponseEntity<BeerInfoDto> getBeerById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body(beerService.getBeerById(id));
+        BeerInfoDto beerInfo = beerService.getBeerById(id);
+        return ResponseEntity.ok().body(beerInfo); // changed response for consistency
     }
 
+    // To add a rating to a beer
     @PostMapping("/{id}/ratings")
     public ResponseEntity<?> addRating(@PathVariable("id") Long id,
                                        @Valid @RequestBody RatingDto ratingDto) {
         try {
-            double ratingValue = ratingDto.getRatingValue();
-            BeerInfoDto dto = beerService.addRatingAndReturnUpdatedBeerInfo(id, ratingValue);
-            return ResponseEntity.ok(dto);
+            // removed variable and changed name for clarity
+            BeerInfoDto updatedBeer = beerService.addRatingAndReturnUpdatedBeerInfo(id, ratingDto.getRatingValue());
+            return ResponseEntity.ok(updatedBeer); 
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 
+    // To update an existing beer
     @PutMapping("/{id}")
     public ResponseEntity<BeerInfoDto> updateBeer(@PathVariable("id") Long id,
                                                   @Valid @RequestBody BeerDto beerInfo) {
-        BeerInfoDto dto = beerService.update(beerInfo, id);
-        return ResponseEntity.ok().body(dto);
+        BeerInfoDto updatedBeer = beerService.update(beerInfo, id);
+        return ResponseEntity.ok().body(updatedBeer);
     }
 
+    // To delete a beer by its ID
     @DeleteMapping("/{id}")
     public ResponseEntity<BeerInfoDto> delete(@PathVariable("id") Long id) {
-        return ResponseEntity.ok().body(beerService.delete(id));
+        BeerInfoDto deletedBeer = beerService.delete(id);
+        return ResponseEntity.ok().body(deletedBeer);
     }
 
-    @DeleteMapping("/images")
-    public ResponseEntity<String> deleteImage(@RequestBody ImageUrlDto name) {
-        imageService.deleteImage(name.getName());
-        return ResponseEntity.ok().body(name.getName());
+    // To delete an image by its name for a specific beer
+    @DeleteMapping("/{beerId}/images") // Updated the endpoint path for clarity
+    public ResponseEntity<String> deleteImage(@PathVariable("beerId") Long beerId, 
+                                              @RequestBody ImageUrlDto imageUrl) {
+        imageService.deleteImage(imageUrl.getName());
+        return ResponseEntity.ok().body("Image deleted successfully: " + imageUrl.getName()); // Return String for clarity
     }
 }
 
