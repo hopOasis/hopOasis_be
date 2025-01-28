@@ -2,18 +2,35 @@ package com.example.hop_oasis.utils;
 
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleOptions;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+import java.util.Set;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductBundleSpecification {
+
     public static Specification<ProductBundle> filterAndSort(String name, String sortDirection) {
         return ProductBundleSpecification.findByName(name).and(ProductBundleSpecification.sortByPrice(sortDirection));
 
+    }
+
+    public static Specification<ProductBundle> bundlesWithNamesLike(Set<String> names) {
+        return (root, query, cb) -> {
+            if (names == null || names.isEmpty()) {
+                return cb.conjunction();
+            }
+
+            final var pArray = names.stream()
+                    .map(name -> cb.like(root.get("name"), "%" + name + "%"))
+                    .toList().toArray(new Predicate[0]);
+
+            return cb.or(pArray);
+        };
     }
 
     private static Specification<ProductBundle> findByName(String bundleName) {

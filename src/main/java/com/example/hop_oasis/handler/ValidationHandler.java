@@ -36,6 +36,15 @@ public class ValidationHandler {
                                                                  Exception ex) {
         return getResponseEntityErrorMap(request.getRequestURI(), makeMapFromException(ex));
     }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorDetails> handleIllegalStateExceptions(HttpServletRequest request,
+                                                                     IllegalStateException ex) {
+        return ErrorDetails.getResponseEntityErrorMap(request.getRequestURI(),
+                Map.of("message", ex.getMessage()));
+    }
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(SpecialOfferException.class)
     public ResponseEntity<?> handleSpecialOfferExceptions() {
