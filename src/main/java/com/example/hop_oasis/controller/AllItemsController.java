@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/all-products")
+@RequestMapping("/items") // Changed endpoint to "/items" for clarity
 @RequiredArgsConstructor
 public class AllItemsController {
     private final AllItemsServiceImpl allItemsService;
 
     @GetMapping
-    public ResponseEntity<Page<ItemInfoDto>> getAllProducts(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    public ResponseEntity<Page<ItemInfoDto>> getAllItems( //Renamed getAllProducts to getAllItems to align with the service method (allItemsService.getAllItems)
+        @ParameterObject 
+        @PageableDefault(size = 10, page = 0) Pageable pageable) {
+        // Fetch items with pagination
         Page<ItemInfoDto> allItems = allItemsService.getAllItems(pageable);
         return ResponseEntity.ok().body(allItems);
 
