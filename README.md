@@ -75,6 +75,11 @@ Integration with external APIs (e.g., payment systems)
    ```
 copy and past the command and press enter or click on the single green button.
 
+If you have a problem with Windows, you can try running Maven via IntelliJ IDEA.
+Make sure to select the terminal and choose the correct Java version
+![photo_2025-02-05_20-14-36.jpg](src/main/resources/images/photo_2025-02-05_20-14-36.jpg)
+
+
 ![Screenshot from 2025-02-04 20-34-47.png](src/main/resources/images/Screenshot%20from%202025-02-04%2020-34-47.png)
  
 
@@ -91,4 +96,27 @@ copy and past the command and press enter or click on the single green button.
 14. Open the browser and navigate to http://localhost:8080/beers
     if everything is working correctly you will see some list of beers like this:
     ![Screenshot from 2025-02-04 20-29-05.png](src/main/resources/images/Screenshot%20from%202025-02-04%2020-29-05.png)
+
+
+                                                 Basic Git Workflow Rules
+
+                   1. Creating a New Branch
+
+                        A new branch is created from the render_deploy branch.
+
+                        The branch name should be informative and reflect the task's essence.
+
+                   2. Commits
+
+                       It is recommended to make no more than 5 commits per task.
+
+                       Each commit should be as informative as possible and clearly describe what was done.
+
+                   3. Pull Request (PR)
+
+                      After completing a task, a Pull Request must be created.
+
+                      A Pull Request is considered successful if it receives 2 approvals from developer and the PM.
+
+                      An approved branch is merged into render_deploy.
     
