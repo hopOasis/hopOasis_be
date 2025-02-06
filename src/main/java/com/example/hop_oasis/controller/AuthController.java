@@ -6,9 +6,9 @@ import com.example.hop_oasis.service.data.AuthenticationService;
 import com.example.hop_oasis.service.data.DefaultOauthServiceImpl;
 import com.example.hop_oasis.service.data.JwtService;
 import com.example.hop_oasis.service.data.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<TokenResponse> register(@RequestBody UserRegisterRequest registerRequest) {
+    public ResponseEntity<TokenResponse> register(@Valid @RequestBody UserRegisterRequest registerRequest) {
         return ResponseEntity.ok(authenticationService.register(registerRequest));
     }
 

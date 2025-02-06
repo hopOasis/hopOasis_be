@@ -4,12 +4,15 @@ import com.example.hop_oasis.dto.TokenResponse;
 import com.example.hop_oasis.dto.UserLoginRequest;
 import com.example.hop_oasis.dto.UserRegisterRequest;
 import com.example.hop_oasis.enums.Role;
+import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.User;
 import com.example.hop_oasis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +54,7 @@ public class AuthenticationService {
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() ->
                 new RuntimeException("User not found"));
         String token = jwtService.generateToken(user);
-    
+
         return TokenResponse.builder()
                 .accessToken(token)
                 .build();
@@ -67,4 +70,15 @@ public class AuthenticationService {
                 .build();
 
     }
+
+    public boolean isAdmin() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
+            User user = userRepository.findByEmail(userDetails.getUsername())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
+            return user.getRole() == Role.ADMIN;
+        }
+        return false;
+    }
+
 }

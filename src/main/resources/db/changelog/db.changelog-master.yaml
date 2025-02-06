@@ -107,3 +107,13 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/052-create-review.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/053-create-order.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/054-create-order-item.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/055-add-columns-for-cart.sql
+
