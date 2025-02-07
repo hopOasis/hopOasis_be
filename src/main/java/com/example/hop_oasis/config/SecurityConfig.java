@@ -96,6 +96,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/beers/{id}/ratings", "/ciders/{id}/ratings",
                                 "/products-bundle/{id}/ratings", "/snacks/{id}/ratings", "/carts"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/all-products").permitAll()
 
                         .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").permitAll()
 
