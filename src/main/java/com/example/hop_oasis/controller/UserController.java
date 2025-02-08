@@ -3,6 +3,7 @@ package com.example.hop_oasis.controller;
 import com.example.hop_oasis.dto.UserForAdminResponse;
 import com.example.hop_oasis.dto.UserResponse;
 import com.example.hop_oasis.service.data.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @RequestBody UserResponse user) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long userId, @Valid @RequestBody UserResponse user) {
         return ResponseEntity.ok(userService.updateUser(userId, user));
     }
 
