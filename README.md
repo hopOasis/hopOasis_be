@@ -1,122 +1,143 @@
-📌 Features:
-Product management (create, edit, delete)
-Order processing and payments
-User authentication and role management
-Integration with external APIs (e.g., payment systems)
-🚀 Tech stack: Java, Spring Boot, Spring Security, Hibernate, PostgreSQL, Docker.
+## 📌 Features
+- Product management (create, edit, delete)
+- Order processing and payments
+- User authentication and role management
+- Integration with external APIs (e.g., payment systems)
 
-👷‍♀️ Local Setup Instructions:
-1. Install Java 21 via Terminal
-   ```sh
-   Linux
-   sudo apt update
-   sudo apt install openjdk-21-jdk
-   java -version  # Check installation
-   
-   Windows
-   winget install --id Oracle.JDK.21
-   java -version
-   
-   macOS
-   brew install java@21
-   java -version
-   
-2. Install Maven via Terminal
-   
-   ```sh
-   Linux
-   sudo apt update
-   sudo apt install maven
-   mvn -version
-   
-   Windows
-   winget install Apache.Maven
-   mvn -version
-   
-   macOS
-   brew install maven
-   mvn -version
-   
-3. Download and install IntelliJ IDEA (Community or Ultimate) from the official website:
-   🔗 https://www.jetbrains.com/idea/download/
+## 🚀 Tech Stack
+- **Java**
+- **Spring Boot**
+- **Spring Security**
+- **Hibernate**
+- **PostgreSQL**
+- **Docker**
 
-4. Open IntelliJ IDEA.
-5. Clone the repository:
-   https://github.com/hopOasis/hopOasis_be.git
+---
 
+## 👷‍♀️ Local Setup Instructions
 
-   ![Screenshot from 2025-02-04 18-50-47.png](src/main/resources/images/Screenshot%20from%202025-02-04%2018-50-47.png)
-   ![Screenshot from 2025-02-04 18-40-39.png](src/main/resources/images/Screenshot%20from%202025-02-04%2018-40-39.png)
+### 1. Install Java 21 via Terminal
 
-6. Open the project in IntelliJ IDEA.
-7. Click on Fetch to download all remote branches.
-   ![Screenshot from 2025-02-04 18-56-02.png](src/main/resources/images/Screenshot%20from%202025-02-04%2018-56-02.png)
+#### Linux
+```sh
+sudo apt update
+sudo apt install openjdk-21-jdk
+java -version  # Check installation
+```
 
+#### Windows
+```sh
+winget install --id Oracle.JDK.21
+java -version
+```
 
-8. Make checkout to branch render_deploy
-   ![Screenshot from 2025-02-04 18-52-53.png](src/main/resources/images/Screenshot%20from%202025-02-04%2018-52-53.png)
+#### macOS
+```sh
+brew install java@21
+java -version
+```
 
+---
 
-9. Choose and open the file application.properties
+### 2. Install Maven via Terminal
 
-   ![Screenshot from 2025-02-04 19-06-22.png](src/main/resources/images/Screenshot%20from%202025-02-04%2019-06-22.png)
+#### Linux
+```sh
+sudo apt update
+sudo apt install maven
+mvn -version
+```
 
-10. Ask the PM for the application.properties file with environment variables.
-   Once you receive the file from the PM, open it.
-   Copy all the content from the PM's file.
-   Open your application.properties file.
-   Remove all content in application.properties.
-   Paste the content you copied from the PM's file into application.properties.
+#### Windows
+```sh
+winget install Apache.Maven
+mvn -version
+```
 
+#### macOS
+```sh
+brew install maven
+mvn -version
+```
 
-11. Build the project via Terminal and wait for the build to finish.:
-   ```sh
-      mvn install -DskipTests -Dcheckstyle.skip
-   ```
-copy and past the command and press enter or click on the single green button.
+---
 
-If you have a problem with Windows, you can try running Maven via IntelliJ IDEA.
-Make sure to select the terminal and choose the correct Java version
-![photo_2025-02-05_20-14-36.jpg](src/main/resources/images/photo_2025-02-05_20-14-36.jpg)
+### 3. Download and install IntelliJ IDEA (Community or Ultimate)
+[Download IntelliJ IDEA](https://www.jetbrains.com/idea/download/)
 
+### 4. Open IntelliJ IDEA.
 
-![Screenshot from 2025-02-04 20-34-47.png](src/main/resources/images/Screenshot%20from%202025-02-04%2020-34-47.png)
- 
+### 5. Clone the repository:
+```sh
+git clone https://github.com/hopOasis/hopOasis_be.git
+```
 
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2018-50-47.png)
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2018-40-39.png)
 
-12. You will see BUILD SUCCESSFUL in the terminal if all did correct.
-  ![Screenshot from 2025-02-04 20-10-33.png](src/main/resources/images/Screenshot%20from%202025-02-04%2020-10-33.png)
+### 6. Open the project in IntelliJ IDEA.
 
-13. Run the app via Terminal:
-    copy and past the command and press enter or click on the single green button.
-   ```sh
-      mvn spring-boot:run -DskipTests=true -Dcheckstyle.skip=true
-   ```
-   
-14. Open the browser and navigate to http://localhost:8080/beers
-    if everything is working correctly you will see some list of beers like this:
-    ![Screenshot from 2025-02-04 20-29-05.png](src/main/resources/images/Screenshot%20from%202025-02-04%2020-29-05.png)
+### 7. Fetch all remote branches.
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2018-56-02.png)
 
+### 8. Checkout to branch `render_deploy`:
+```sh
+git checkout render_deploy
+```
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2018-52-53.png)
 
-                                                 Basic Git Workflow Rules
+### 9. Open the file `application.properties`.
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2019-06-22.png)
 
-                   1. Creating a New Branch
+### 10. Ask the PM for the `application.properties` file with environment variables.
+Once you receive the file:
+- Open it
+- Copy all the content from the PM's file
+- Open your `application.properties` file
+- Remove all content
+- Paste the copied content
 
-                        A new branch is created from the render_deploy branch.
+### 11. Build the project via Terminal:
+```sh
+mvn install -DskipTests -Dcheckstyle.skip
+```
+If you encounter issues on Windows, try running Maven via IntelliJ IDEA.
+![Screenshot](src/main/resources/images/photo_2025-02-05_20-14-36.jpg)
 
-                        The branch name should be informative and reflect the task's essence.
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2020-34-47.png)
 
-                   2. Commits
+### 12. Verify build success
+You should see `BUILD SUCCESSFUL` in the terminal.
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2020-10-33.png)
 
-                       It is recommended to make no more than 5 commits per task.
+### 13. Run the app via Terminal:
+```sh
+mvn spring-boot:run -DskipTests=true -Dcheckstyle.skip=true
+```
 
-                       Each commit should be as informative as possible and clearly describe what was done.
+### 14. Open the browser and navigate to:
+[http://localhost:8080/beers](http://localhost:8080/beers)
 
-                   3. Pull Request (PR)
+If everything works correctly, you will see a list of beers.
+![Screenshot](src/main/resources/images/Screenshot%20from%202025-02-04%2020-29-05.png)
 
-                      After completing a task, a Pull Request must be created.
+---
 
-                      A Pull Request is considered successful if it receives 2 approvals from developer and the PM.
+## 🔄 Basic Git Workflow Rules
 
-                      An approved branch is merged into render_deploy.
-    
+### 1. Creating a New Branch
+- Create a new branch from `render_deploy`.
+- The branch name should be descriptive and reflect the task's purpose.
+
+### 2. Commits
+- Limit commits to **5 per task**.
+- Each commit should be informative and clearly describe changes.
+
+### 3. Pull Request (PR)
+- After completing a task, create a **Pull Request**.
+- A PR is successful if it receives **2 approvals** (one from a developer and one from the PM).
+- Approved branches are merged into `render_deploy`.
+
+---
+
+✅ **Happy Coding!** 🚀
