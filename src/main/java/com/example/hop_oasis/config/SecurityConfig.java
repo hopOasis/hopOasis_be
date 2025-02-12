@@ -55,7 +55,8 @@ public class SecurityConfig {
                                 "/assets/icons/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**")
+                                "/images/**",
+                                "/swagger-ui/**")
 
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/beers", "/beers/{beerId}/images", "/ciders",
