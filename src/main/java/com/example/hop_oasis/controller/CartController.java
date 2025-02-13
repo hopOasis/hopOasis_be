@@ -20,6 +20,11 @@ public class CartController {
         return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
     }
 
+    @GetMapping("user/{userId}")
+    public ResponseEntity<CartDto> getCartByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok().body(cartService.getCartByUserId(userId));
+    }
+
     @PostMapping
     public ResponseEntity<CartItemDto> addItem(@Valid @RequestBody ItemRequestDto itemRequestDto,
                                                Authentication authentication) {

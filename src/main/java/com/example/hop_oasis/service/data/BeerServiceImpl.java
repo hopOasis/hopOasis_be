@@ -5,7 +5,6 @@ import com.example.hop_oasis.convertor.ReviewMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.convertor.BeerMapper;
-import com.example.hop_oasis.convertor.BeerOptionsMapper;
 import com.example.hop_oasis.dto.BeerDto;
 import com.example.hop_oasis.dto.BeerInfoDto;
 import com.example.hop_oasis.dto.ItemRatingDto;
@@ -15,9 +14,9 @@ import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.repository.BeerRepository;
-import com.example.hop_oasis.convertor.BeerMapper;
 import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.utils.BeerSpecification;
+import com.example.hop_oasis.utils.RequestValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
@@ -42,6 +42,7 @@ public class BeerServiceImpl {
     private final BeerOptionsMapper beerOptionsMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final RequestValidator requestValidator;
 
 
     public Beer save(BeerDto beerDto) {
@@ -64,8 +65,17 @@ public class BeerServiceImpl {
     }
 
 
-    public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection) {
+    public Page<BeerInfoDto> getAllBeersWithFilter(String beerName, Pageable pageable, String sortDirection,
+                                                   Map<String, String> allParams) {
+        List<String> params = List.of("beerName", "sortDirection", "page", "size");
+        String allowedParams = String.join(", ", params);
+        requestValidator.validateParams(allParams, allowedParams);
+        requestValidator.validateSortDirection(sortDirection);
+
         Page<Beer> beers = beerRepository.findAll(BeerSpecification.filterAndSort(beerName, sortDirection), pageable);
+        if (beers.isEmpty() && beerName != null) {
+            throw new ResourceNotFoundException("Beer name not found", "");
+        }
         return beers.map(this::convertToDtoWithRating);
     }
 
