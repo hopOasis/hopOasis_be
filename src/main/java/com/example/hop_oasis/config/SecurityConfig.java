@@ -100,6 +100,13 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/enums/item-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/delivery-methods").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/delivery-statuses").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/delivery-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/payment-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/roles").permitAll()
+
 
                         .requestMatchers(HttpMethod.PUT, "/carts").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/remove/{cartId}").permitAll()

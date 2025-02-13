@@ -3,6 +3,8 @@ package com.example.hop_oasis.handler;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.handler.exception.SpecialOfferException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -10,7 +12,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -36,12 +42,44 @@ public class ValidationHandler {
                                                                  Exception ex) {
         return getResponseEntityErrorMap(request.getRequestURI(), makeMapFromException(ex));
     }
+
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(SpecialOfferException.class)
     public ResponseEntity<?> handleSpecialOfferExceptions() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
+
     private Map<String, String> makeMapFromException(Exception ex) {
         return Map.of(ex.getClass().getSimpleName(), ex.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorDetails> handleConstraintViolationException(
+            ConstraintViolationException ex, WebRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            errors.put(violation.getPropertyPath().toString(), violation.getMessage());
+        }
+
+        String path = ((ServletWebRequest) request).getRequest().getRequestURI();
+
+        return ErrorDetails.getResponseEntityErrorMap(path, errors);
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorDetails> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException ex, WebRequest request) {
+
+        Map<String, String> errors = new HashMap<>();
+        String paramName = ex.getName();
+        String expectedType = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "unknown";
+
+        errors.put(paramName, "Must be of type " + expectedType);
+
+        String path = ((ServletWebRequest) request).getRequest().getRequestURI();
+
+        return ErrorDetails.getResponseEntityErrorMap(path, errors);
     }
 }

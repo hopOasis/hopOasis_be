@@ -7,7 +7,6 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.utils.Rounder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,6 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class CartServiceImpl {
     private static int newQuantity;
@@ -39,7 +37,6 @@ public class CartServiceImpl {
     private final SnackOptionsRepository snackOptionsRepository;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
     private final UserRepository userRepository;
-
 
     public CartDto getAllItemsByCartId(Long cartId) {
         List<CartItemDto> items = new ArrayList<>();
@@ -57,10 +54,25 @@ public class CartServiceImpl {
         result.setPriceForAll(items.stream()
                 .map(CartItemDto::getTotalCost)
                 .reduce(BigDecimal.ZERO, BigDecimal::add));
-        log.debug("Return cart with all items: {}", result);
         return result;
     }
 
+    public CartDto getCartByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found", "");
+        }
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("No carts for user with id + " + userId, ""));
+        List<CartItemDto> items = cart.getCartItems().stream()
+                .map(this::createCartItemDto)
+                .toList();
+        return new CartDto(cart.getUser().getId(),
+                items,
+                items.stream()
+                        .map(CartItemDto::getTotalCost)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
+
+    }
 
     public CartItemDto create(ItemRequestDto itemRequestDto, Authentication authentication) {
         updateStockAfterCreating(itemRequestDto);
@@ -74,21 +86,26 @@ public class CartServiceImpl {
                     newCart.setUser(user);
                     return cartRepository.save(newCart);
                 });
+        Double measureValue = itemRequestDto.getMeasureValue() != null ? itemRequestDto.getMeasureValue() : null;
 
-        CartItem cartItem = new CartItem();
-        cartItem.setCart(cart);
-        cartItem.setItemId(itemRequestDto.getItemId());
-        cartItem.setItemType(itemRequestDto.getItemType());
-        cartItem.setQuantity(itemRequestDto.getQuantity());
+        List<CartItem> existingCartItem = cartItemRepository.findByCartIdAndItemIdAndItemTypeAndMeasureValue(
+                cart.getId(), itemRequestDto.getItemId(), itemRequestDto.getItemType(), measureValue
+        );
 
-        if (itemRequestDto.getMeasureValue() != null) {
-            cartItem.setMeasureValue(itemRequestDto.getMeasureValue());
+        CartItem cartItem;
+        if (!existingCartItem.isEmpty()) {
+            cartItem = existingCartItem.getFirst();
+            cartItem.setQuantity(cartItem.getQuantity() + itemRequestDto.getQuantity());
         } else {
-            cartItem.setMeasureValue(null);
+            cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setItemId(itemRequestDto.getItemId());
+            cartItem.setItemType(itemRequestDto.getItemType());
+            cartItem.setQuantity(itemRequestDto.getQuantity());
+            cartItem.setMeasureValue(measureValue);
         }
 
         cartItemRepository.save(cartItem);
-
         return createCartItemDto(cartItem);
     }
 
@@ -298,7 +315,7 @@ public class CartServiceImpl {
     }
 
 
-    public void removeItem(Long cartId, Long itemId, ItemType itemType, double measureValue) {
+    public void removeItem(Long cartId, Long itemId, ItemType itemType, Double measureValue) {
         List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemTypeAndMeasureValue(
                 cartId,
                 itemId,
@@ -371,7 +388,6 @@ public class CartServiceImpl {
 
 
     public void delete(Long cartId) {
-        log.debug("Clear cart");
         if (!cartRepository.existsById(cartId)) {
             throw new ResourceNotFoundException("No cart with id " + cartId, "");
         }

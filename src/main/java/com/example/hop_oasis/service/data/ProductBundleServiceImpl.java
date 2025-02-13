@@ -9,7 +9,6 @@ import com.example.hop_oasis.dto.ProductBundleDto;
 import com.example.hop_oasis.dto.ProductBundleInfoDto;
 import com.example.hop_oasis.dto.ReviewInfoDto;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
-import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.model.ProductBundle;
 import com.example.hop_oasis.model.ProductBundleOptions;
@@ -18,6 +17,7 @@ import com.example.hop_oasis.repository.ProductBundleOptionsRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.utils.ProductBundleSpecification;
+import com.example.hop_oasis.utils.RequestValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
@@ -48,6 +46,7 @@ public class ProductBundleServiceImpl {
     private final ProductBundleOptionsMapper productBundleOptionsMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final RequestValidator requestValidator;
 
 
     public ProductBundle saveProductBundle(ProductBundleDto productBundleDto) {
@@ -69,9 +68,18 @@ public class ProductBundleServiceImpl {
         return convertToDtoWithRating(productBundle);
     }
 
-    public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection) {
+    public Page<ProductBundleInfoDto> getAllProductBundleWithFilter(String bundleName, Pageable pageable, String sortDirection,
+                                                                    Map<String, String> allParams) {
+        List<String> params = List.of("name", "sortDirection", "page", "size");
+        String allowedParams = String.join(", ", params);
+        requestValidator.validateParams(allParams, allowedParams);
+        requestValidator.validateSortDirection(sortDirection);
+
         Page<ProductBundle> bundles = productBundleRepository
                 .findAll(ProductBundleSpecification.filterAndSort(bundleName, sortDirection), pageable);
+        if (bundles.isEmpty() && bundleName != null) {
+            throw new ResourceNotFoundException("Bundle name not found", "");
+        }
         return bundles.map(this::convertToDtoWithRating);
     }
 

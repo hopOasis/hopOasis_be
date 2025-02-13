@@ -8,13 +8,17 @@ import java.util.List;
 
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     List<CartItem> findByCartId(Long cartId);
+
     void deleteByCartId(Long cartId);
+
     List<CartItem> findByCartIdAndItemIdAndItemTypeAndMeasureValue(Long cartId,
                                                                    Long itemId,
                                                                    ItemType itemType,
-                                                                   double measureValue);
-   CartItem findByCartIdAndItemIdAndMeasureValueAndItemType(Long cartId,
-                                                                     Long itemId,
-                                                                     double measureValue,
-                                                                     ItemType itemType);
+                                                                   Double measureValue);
+
+    CartItem findByCartIdAndItemIdAndMeasureValueAndItemType(Long cartId,
+                                                             Long itemId,
+                                                             double measureValue,
+                                                             ItemType itemType);
+
 }
