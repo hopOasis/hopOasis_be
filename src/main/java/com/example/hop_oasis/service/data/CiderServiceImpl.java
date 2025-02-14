@@ -6,7 +6,6 @@ import com.example.hop_oasis.convertor.CiderOptionsMapper;
 import com.example.hop_oasis.convertor.ReviewMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
-import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.Cider;
 import com.example.hop_oasis.model.CiderOptions;
 import com.example.hop_oasis.model.ItemType;
@@ -14,6 +13,7 @@ import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.utils.CiderSpecification;
+import com.example.hop_oasis.utils.RequestValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,8 +25,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
@@ -41,6 +39,7 @@ public class CiderServiceImpl {
     private final CiderOptionsMapper ciderOptionsMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final RequestValidator requestValidator;
 
     public Cider saveCider(CiderDto ciderDto) {
         Cider cider = ciderMapper.toEntity(ciderDto);
@@ -60,8 +59,17 @@ public class CiderServiceImpl {
     }
 
 
-    public Page<CiderInfoDto> getAllCidersWithFilter(String ciderName, Pageable pageable, String sortDirection) {
+    public Page<CiderInfoDto> getAllCidersWithFilter(String ciderName, Pageable pageable, String sortDirection,
+                                                     Map<String, String> allParams) {
+        List<String> params = List.of("ciderName", "sortDirection", "page", "size");
+        String allowedParams = String.join(", ", params);
+        requestValidator.validateParams(allParams, allowedParams);
+        requestValidator.validateSortDirection(sortDirection);
+
         Page<Cider> ciders = ciderRepository.findAll(CiderSpecification.filterAndSort(ciderName, sortDirection), pageable);
+        if (ciders.isEmpty() && ciderName != null) {
+            throw new ResourceNotFoundException("Cider name not found", "");
+        }
         return ciders.map(this::convertToDtoWithRating);
     }
 
@@ -85,7 +93,6 @@ public class CiderServiceImpl {
         ciderInfoDto.setReviews(dtos);
         return ciderInfoDto;
     }
-
 
 
     @Transactional

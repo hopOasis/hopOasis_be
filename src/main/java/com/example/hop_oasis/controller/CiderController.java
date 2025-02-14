@@ -6,17 +6,20 @@ import com.example.hop_oasis.service.data.CiderImageServiceImpl;
 import com.example.hop_oasis.service.data.CiderServiceImpl;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Map;
 
 
 @RestController
@@ -30,10 +33,13 @@ public class CiderController {
     private final CiderInfoMapper ciderInfoMapper;
 
     @GetMapping
-    public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@ParameterObject @PageableDefault(size = 10, page = 0) Pageable pageable,
+    public ResponseEntity<Page<CiderInfoDto>> getAllCiders(@RequestParam(value = "page", defaultValue = "0") @Min(0) int page,
+                                                           @RequestParam(value = "size", defaultValue = "10") @Positive int size,
                                                            @RequestParam(value = "ciderName", required = false) String ciderName,
-                                                           @RequestParam(value = "sortDirection", required = false) String sortDirection) {
-        Page<CiderInfoDto> ciderPage = ciderService.getAllCidersWithFilter(ciderName, pageable, sortDirection);
+                                                           @RequestParam(value = "sortDirection", required = false) String sortDirection,
+                                                           @RequestParam Map<String, String> allParams) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<CiderInfoDto> ciderPage = ciderService.getAllCidersWithFilter(ciderName, pageable, sortDirection, allParams);
         return ResponseEntity.ok().body(ciderPage);
     }
 
