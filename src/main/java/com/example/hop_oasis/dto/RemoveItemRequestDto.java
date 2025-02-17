@@ -11,5 +11,5 @@ import lombok.*;
 public class RemoveItemRequestDto {
     private Long itemId;
     private ItemType itemType;
-    private double measureValue;
+    private Double measureValue;
 }

@@ -11,6 +11,8 @@ import com.example.hop_oasis.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl {
@@ -25,6 +27,11 @@ public class ReviewServiceImpl {
     public Review createReview(ReviewDto reviewDto) {
         if (reviewDto.getItemId() == null || reviewDto.getItemType() == null) {
             throw new IllegalArgumentException("ItemId and ItemType cannot be null");
+        } else if (reviewDto.getContent() == null || reviewDto.getContent().isEmpty()) {
+            throw new ResourceNotFoundException("Field with content can not be empty or null", "");
+        } else if (reviewDto.getContent().length() > 500) {
+            throw new IllegalArgumentException("Allowed up to 500 symbols");
+
         }
         User user = userRepository.findById(reviewDto.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + reviewDto.getUserId(), ""));
@@ -32,6 +39,11 @@ public class ReviewServiceImpl {
         Review review = reviewMapper.toEntity(reviewDto);
         review.setUser(user);
         return reviewRepository.save(review);
+    }
+
+    public List<ReviewInfoDto> getAllReviews() {
+        List<Review> reviews = reviewRepository.findAll();
+        return reviewMapper.toDtos(reviews);
     }
 
     public ReviewInfoDto getReviewById(Long id) {

@@ -16,6 +16,7 @@ import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -81,5 +82,10 @@ public class ValidationHandler {
         String path = ((ServletWebRequest) request).getRequest().getRequestURI();
 
         return ErrorDetails.getResponseEntityErrorMap(path, errors);
+    }
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorDetails> handleIllegalArgumentException(HttpServletRequest request ,IllegalArgumentException ex) {
+        Map<String, String> errors = Collections.singletonMap("error", ex.getMessage());
+        return ErrorDetails.getResponseEntityErrorMap(request.getRequestURI(), errors);
     }
 }
