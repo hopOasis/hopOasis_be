@@ -115,7 +115,7 @@ public class BeerServiceImpl {
             List<BeerOptions> newOptions = beerOptionsMapper.toEntity(beerDto.getOptions());
             for (BeerOptions curren : currentOptions) {
                 for (BeerOptions newOption : newOptions) {
-                    if (curren.getId() == newOption.getId()) {
+                    if (curren.getId().equals(newOption.getId())) {
                         if (Objects.nonNull(newOption.getVolume())) {
                             curren.setVolume(newOption.getVolume());
                         }

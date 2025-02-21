@@ -114,7 +114,7 @@ public class ProductBundleServiceImpl {
             List<ProductBundleOptions> newOptions = productBundleOptionsMapper.toEntity(productDto.getOptions());
             for (ProductBundleOptions curren : currentOptions) {
                 for (ProductBundleOptions newOption : newOptions) {
-                    if (curren.getId() == newOption.getId()) {
+                    if (curren.getId().equals(newOption.getId())) {
                         if (newOption.getQuantity() != 0) {
                             curren.setQuantity(newOption.getQuantity());
                         }

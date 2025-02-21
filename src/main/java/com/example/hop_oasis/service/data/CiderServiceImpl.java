@@ -104,7 +104,7 @@ public class CiderServiceImpl {
             List<CiderOptions> newOptions = ciderOptionsMapper.toEntity(ciderDto.getOptions());
             for (CiderOptions curren : currentOptions) {
                 for (CiderOptions newOption : newOptions) {
-                    if (curren.getId() == newOption.getId()) {
+                    if (curren.getId().equals(newOption.getId())) {
                         if (Objects.nonNull(newOption.getVolume())) {
                             curren.setVolume(newOption.getVolume());
                         }

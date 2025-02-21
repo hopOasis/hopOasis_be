@@ -106,7 +106,7 @@ public class SnackServiceImpl {
             List<SnackOptions> newOptions = snackOptionsMapper.toEntity(snackDto.getOptions());
             for (SnackOptions curren : currentOptions) {
                 for (SnackOptions newOption : newOptions) {
-                    if (curren.getId() == newOption.getId()) {
+                    if (curren.getId().equals(newOption.getId())) {
                         if (newOption.getWeight() != 0) {
                             curren.setWeight(newOption.getWeight());
                         }
