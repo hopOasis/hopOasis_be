@@ -101,6 +101,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/all-products").permitAll()
 
                         .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/orders").hasAuthority(Role.ADMIN.name())
 
                         .requestMatchers(HttpMethod.GET, "/enums/item-types").permitAll()
                         .requestMatchers(HttpMethod.GET, "/enums/delivery-methods").permitAll()

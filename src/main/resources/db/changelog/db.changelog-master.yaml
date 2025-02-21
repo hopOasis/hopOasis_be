@@ -116,4 +116,7 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/055-add-columns-for-cart.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/056-modify-column-in-reviews.sql
 

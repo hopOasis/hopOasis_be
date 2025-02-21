@@ -1,7 +1,5 @@
 package com.example.hop_oasis.controller;
 
-//import com.example.hop_oasis.convertor.ReviewInfoMapper;
-
 import com.example.hop_oasis.convertor.ReviewMapper;
 import com.example.hop_oasis.dto.ReviewDto;
 import com.example.hop_oasis.dto.ReviewInfoDto;
@@ -10,6 +8,8 @@ import com.example.hop_oasis.service.data.ReviewServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,6 +23,10 @@ public class  ReviewController {
         Review review = reviewService.createReview(reviewDto);
         ReviewInfoDto reviewInfoDto = reviewMapper.toReviewInfoDto(review);
         return ResponseEntity.ok().body(reviewInfoDto);
+    }
+    @GetMapping
+    public ResponseEntity<List<ReviewInfoDto>> getAllReviews() {
+        return ResponseEntity.ok().body(reviewService.getAllReviews());
     }
 
     @GetMapping("/{id}")

@@ -37,6 +37,10 @@ public class CartServiceImpl {
     private final SnackOptionsRepository snackOptionsRepository;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
     private final UserRepository userRepository;
+    private final BeerRepository beerRepository;
+    private final CiderRepository ciderRepository;
+    private final SnackRepository snackRepository;
+    private final ProductBundleRepository productBundleRepository;
 
     public CartDto getAllItemsByCartId(Long cartId) {
         List<CartItemDto> items = new ArrayList<>();
@@ -123,6 +127,8 @@ public class CartServiceImpl {
         if (itemRequestDto.getMeasureValue() == null) {
             throw new ResourceNotFoundException("Measure value is required for beer", "");
         }
+        beerRepository.findById(itemRequestDto.getItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Beer with such id not found", ""));
         Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
                 itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
         BeerOptions beerOptions = optionalBeerOptions
@@ -141,6 +147,8 @@ public class CartServiceImpl {
         if (itemRequestDto.getMeasureValue() == null) {
             throw new ResourceNotFoundException("Measure value is required for cider", "");
         }
+        ciderRepository.findById(itemRequestDto.getItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Cider with such id not found", ""));
         Optional<CiderOptions> optionalCiderOptions = ciderOptionsRepository.findByCiderIdAndVolume(
                 itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
         CiderOptions ciderOptions = optionalCiderOptions
@@ -159,6 +167,8 @@ public class CartServiceImpl {
         if (itemRequestDto.getMeasureValue() == null) {
             throw new ResourceNotFoundException("Measure value is required for snacks", "");
         }
+        snackRepository.findById(itemRequestDto.getItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Snack with such id not found", ""));
         Optional<SnackOptions> optionalSnackOptions = snackOptionsRepository.findBySnackIdAndWeight(
                 itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
         SnackOptions snackOptions = optionalSnackOptions
@@ -174,6 +184,8 @@ public class CartServiceImpl {
     }
 
     private void updateBundleStockAfterCreating(ItemRequestDto itemRequestDto) {
+        productBundleRepository.findById(itemRequestDto.getItemId())
+                .orElseThrow(() -> new ResourceNotFoundException("Bundle with such id not found", ""));
         Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
                 .findByProductBundleId(itemRequestDto.getItemId());
         ProductBundleOptions productBundleOptions = optionalProductBundleOptions
@@ -329,7 +341,6 @@ public class CartServiceImpl {
             cartItemRepository.delete(cartItem);
 
         }
-
     }
 
     private void updateStockAfterRemove(CartItem cartItem, ItemType itemType) {
@@ -376,7 +387,7 @@ public class CartServiceImpl {
 
     private void updateBundleStockAfterRemove(CartItem cartItem) {
         Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository.
-                findByProductBundleId(cartItem.getId());
+                findByProductBundleId(cartItem.getItemId());
         ProductBundleOptions productBundleOptions = optionalProductBundleOptions
                 .orElseThrow(() -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
         newQuantity = productBundleOptions.getQuantity() + cartItem.getQuantity();

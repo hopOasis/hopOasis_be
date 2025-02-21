@@ -1,0 +1,1 @@
+ALTER TABLE reviews MODIFY content VARCHAR(500) NOT NULL;
