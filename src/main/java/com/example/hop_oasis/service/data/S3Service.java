@@ -25,6 +25,7 @@ public class S3Service {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentType(file.getContentType());
         metadata.setContentLength(file.getSize());
+        metadata.setCacheControl("public, max-age=864000");
         var putObjectResult = s3client.putObject(bucketName, keyName, file.getInputStream(), metadata);
         log.info(String.valueOf(putObjectResult.getMetadata()));
         return keyName;

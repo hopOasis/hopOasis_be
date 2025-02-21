@@ -7,10 +7,8 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.utils.Rounder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.function.Function;
 
@@ -24,7 +22,6 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 @Transactional
 public class CartServiceImpl {
     private static int newQuantity;
@@ -39,51 +36,76 @@ public class CartServiceImpl {
     private final CiderOptionsRepository ciderOptionsRepository;
     private final SnackOptionsRepository snackOptionsRepository;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
-
+    private final UserRepository userRepository;
 
     public CartDto getAllItemsByCartId(Long cartId) {
         List<CartItemDto> items = new ArrayList<>();
         List<CartItem> cartItems = cartItemRepository.findByCartId(cartId);
-        if (cartItems.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } else {
+        Cart cart = cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found", ""));
 
-            for (CartItem cartItem : cartItems) {
-                CartItemDto dto = createCartItemDto(cartItem);
-                items.add(dto);
-            }
-
-            CartDto result = new CartDto();
-            result.setItems(items);
-            result.setPriceForAll(items.stream()
-                    .map(CartItemDto::getTotalCost)
-                    .reduce(BigDecimal.ZERO, BigDecimal::add));
-            log.debug("Return cart with all items: {}", result);
-            return result;
+        for (CartItem cartItem : cartItems) {
+            CartItemDto dto = createCartItemDto(cartItem);
+            items.add(dto);
         }
+        CartDto result = new CartDto();
+        result.setUserId(cart.getUser().getId());
+        result.setItems(items);
+        result.setPriceForAll(items.stream()
+                .map(CartItemDto::getTotalCost)
+                .reduce(BigDecimal.ZERO, BigDecimal::add));
+        return result;
     }
 
+    public CartDto getCartByUserId(Long userId) {
+        if (!userRepository.existsById(userId)) {
+            throw new ResourceNotFoundException("User not found", "");
+        }
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("No carts for user with id + " + userId, ""));
+        List<CartItemDto> items = cart.getCartItems().stream()
+                .map(this::createCartItemDto)
+                .toList();
+        return new CartDto(cart.getUser().getId(),
+                items,
+                items.stream()
+                        .map(CartItemDto::getTotalCost)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add));
 
-    public CartItemDto create(ItemRequestDto itemRequestDto) {
+    }
+
+    public CartItemDto create(ItemRequestDto itemRequestDto, Authentication authentication) {
         updateStockAfterCreating(itemRequestDto);
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
 
-        Cart cart = new Cart();
-        cart = cartRepository.save(cart);
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseGet(() -> {
+                    Cart newCart = new Cart();
+                    newCart.setUser(user);
+                    return cartRepository.save(newCart);
+                });
+        Double measureValue = itemRequestDto.getMeasureValue() != null ? itemRequestDto.getMeasureValue() : null;
 
-        CartItem cartItem = new CartItem();
-        cartItem.setCart(cart);
-        cartItem.setItemId(itemRequestDto.getItemId());
-        cartItem.setItemType(itemRequestDto.getItemType());
-        cartItem.setQuantity(itemRequestDto.getQuantity());
+        List<CartItem> existingCartItem = cartItemRepository.findByCartIdAndItemIdAndItemTypeAndMeasureValue(
+                cart.getId(), itemRequestDto.getItemId(), itemRequestDto.getItemType(), measureValue
+        );
 
-        if (itemRequestDto.getMeasureValue() != null) {
-            cartItem.setMeasureValue(itemRequestDto.getMeasureValue());
+        CartItem cartItem;
+        if (!existingCartItem.isEmpty()) {
+            cartItem = existingCartItem.getFirst();
+            cartItem.setQuantity(cartItem.getQuantity() + itemRequestDto.getQuantity());
         } else {
-            cartItem.setMeasureValue(null);
+            cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setItemId(itemRequestDto.getItemId());
+            cartItem.setItemType(itemRequestDto.getItemType());
+            cartItem.setQuantity(itemRequestDto.getQuantity());
+            cartItem.setMeasureValue(measureValue);
         }
 
         cartItemRepository.save(cartItem);
-
         return createCartItemDto(cartItem);
     }
 
@@ -99,7 +121,7 @@ public class CartServiceImpl {
 
     private void updateBeerStockAfterCreating(ItemRequestDto itemRequestDto) {
         if (itemRequestDto.getMeasureValue() == null) {
-            throw new ResourceNotFoundException("Measure value is required for beer","");
+            throw new ResourceNotFoundException("Measure value is required for beer", "");
         }
         Optional<BeerOptions> optionalBeerOptions = beerOptionsRepository.findByBeerIdAndVolume(
                 itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
@@ -107,7 +129,7 @@ public class CartServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException("Beer options not found for this beer", ""));
 
         if (beerOptions.getQuantity() < itemRequestDto.getQuantity()) {
-            throw new ResourceNotFoundException("Not enough beer in stock","");
+            throw new ResourceNotFoundException("Not enough beer in stock", "");
         }
 
         int newQuantity = beerOptions.getQuantity() - itemRequestDto.getQuantity();
@@ -117,7 +139,7 @@ public class CartServiceImpl {
 
     private void updateCiderStockAfterCreating(ItemRequestDto itemRequestDto) {
         if (itemRequestDto.getMeasureValue() == null) {
-            throw new ResourceNotFoundException("Measure value is required for cider","");
+            throw new ResourceNotFoundException("Measure value is required for cider", "");
         }
         Optional<CiderOptions> optionalCiderOptions = ciderOptionsRepository.findByCiderIdAndVolume(
                 itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
@@ -125,7 +147,7 @@ public class CartServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException("Cider options not found for this cider", ""));
 
         if (ciderOptions.getQuantity() < itemRequestDto.getQuantity()) {
-            throw new ResourceNotFoundException("Not enough cider in stock","");
+            throw new ResourceNotFoundException("Not enough cider in stock", "");
         }
 
         int newQuantity = ciderOptions.getQuantity() - itemRequestDto.getQuantity();
@@ -135,7 +157,7 @@ public class CartServiceImpl {
 
     private void updateSnackStockAfterCreating(ItemRequestDto itemRequestDto) {
         if (itemRequestDto.getMeasureValue() == null) {
-            throw new ResourceNotFoundException("Measure value is required for snacks","");
+            throw new ResourceNotFoundException("Measure value is required for snacks", "");
         }
         Optional<SnackOptions> optionalSnackOptions = snackOptionsRepository.findBySnackIdAndWeight(
                 itemRequestDto.getItemId(), itemRequestDto.getMeasureValue());
@@ -143,7 +165,7 @@ public class CartServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException("Snack options not found for this snack", ""));
 
         if (snackOptions.getQuantity() < itemRequestDto.getQuantity()) {
-            throw new ResourceNotFoundException("Not enough snack in stock","");
+            throw new ResourceNotFoundException("Not enough snack in stock", "");
         }
 
         int newQuantity = snackOptions.getQuantity() - itemRequestDto.getQuantity();
@@ -158,7 +180,7 @@ public class CartServiceImpl {
                 .orElseThrow(() -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
 
         if (productBundleOptions.getQuantity() < itemRequestDto.getQuantity()) {
-            throw new ResourceNotFoundException("Not enough bundle in stock","");
+            throw new ResourceNotFoundException("Not enough bundle in stock", "");
         }
 
         int newQuantity = productBundleOptions.getQuantity() - itemRequestDto.getQuantity();
@@ -233,7 +255,7 @@ public class CartServiceImpl {
         if (newQuantity > currentQuantity) {
             int quantityToDecrease = newQuantity - currentQuantity;
             if (productBundleOptions.getQuantity() < quantityToDecrease) {
-                throw new ResourceNotFoundException("Not enough bundle in stock","");
+                throw new ResourceNotFoundException("Not enough bundle in stock", "");
             }
             productBundleOptions.setQuantity(productBundleOptions.getQuantity() - quantityToDecrease);
         } else if (newQuantity < currentQuantity) {
@@ -249,7 +271,7 @@ public class CartServiceImpl {
         if (newQuantity > currentQuantity) {
             int quantityToDecrease = newQuantity - currentQuantity;
             if (snackOptions.getQuantity() < quantityToDecrease) {
-                throw new ResourceNotFoundException("Not enough snack in stock","");
+                throw new ResourceNotFoundException("Not enough snack in stock", "");
             }
             snackOptions.setQuantity(snackOptions.getQuantity() - quantityToDecrease);
         } else if (newQuantity < currentQuantity) {
@@ -265,7 +287,7 @@ public class CartServiceImpl {
         if (newQuantity > currentQuantity) {
             int quantityToDecrease = newQuantity - currentQuantity;
             if (ciderOptions.getQuantity() < quantityToDecrease) {
-                throw new ResourceNotFoundException("Not enough cider in stock","");
+                throw new ResourceNotFoundException("Not enough cider in stock", "");
             }
             ciderOptions.setQuantity(ciderOptions.getQuantity() - quantityToDecrease);
         } else if (newQuantity < currentQuantity) {
@@ -282,7 +304,7 @@ public class CartServiceImpl {
         if (newQuantity > currentQuantity) {
             int quantityToDecrease = newQuantity - currentQuantity;
             if (beerOptions.getQuantity() < quantityToDecrease) {
-                throw new ResourceNotFoundException("Not enough beer in stock","");
+                throw new ResourceNotFoundException("Not enough beer in stock", "");
             }
             beerOptions.setQuantity(beerOptions.getQuantity() - quantityToDecrease);
         } else if (newQuantity < currentQuantity) {
@@ -293,7 +315,7 @@ public class CartServiceImpl {
     }
 
 
-    public void removeItem(Long cartId, Long itemId, ItemType itemType, double measureValue) {
+    public void removeItem(Long cartId, Long itemId, ItemType itemType, Double measureValue) {
         List<CartItem> cartItems = cartItemRepository.findByCartIdAndItemIdAndItemTypeAndMeasureValue(
                 cartId,
                 itemId,
@@ -366,7 +388,6 @@ public class CartServiceImpl {
 
 
     public void delete(Long cartId) {
-        log.debug("Clear cart");
         if (!cartRepository.existsById(cartId)) {
             throw new ResourceNotFoundException("No cart with id " + cartId, "");
         }

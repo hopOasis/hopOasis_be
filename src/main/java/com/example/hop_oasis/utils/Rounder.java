@@ -8,4 +8,10 @@ public class Rounder {
         BigDecimal bigDecimal = BigDecimal.valueOf(value);
         return bigDecimal.setScale(2, RoundingMode.HALF_UP);
     }
+
+    public static double roundDoubleValue(double value) {
+        return BigDecimal.valueOf(value)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
+    }
 }

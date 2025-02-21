@@ -6,7 +6,6 @@ import com.example.hop_oasis.convertor.SnackMapper;
 import com.example.hop_oasis.convertor.SnackOptionsMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
-import com.example.hop_oasis.model.BeerOptions;
 import com.example.hop_oasis.model.ItemType;
 import com.example.hop_oasis.model.Review;
 import com.example.hop_oasis.model.Snack;
@@ -14,6 +13,7 @@ import com.example.hop_oasis.model.SnackOptions;
 import com.example.hop_oasis.repository.ReviewRepository;
 import com.example.hop_oasis.repository.SnackOptionsRepository;
 import com.example.hop_oasis.repository.SnackRepository;
+import com.example.hop_oasis.utils.RequestValidator;
 import com.example.hop_oasis.utils.SnackSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +26,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
@@ -42,6 +40,7 @@ public class SnackServiceImpl {
     private final SnackOptionsMapper snackOptionsMapper;
     private final ReviewRepository reviewRepository;
     private final ReviewMapper reviewMapper;
+    private final RequestValidator requestValidator;
 
     public Snack saveSnack(SnackDto snackDto) {
         Snack snack = snackMapper.toEntity(snackDto);
@@ -60,8 +59,17 @@ public class SnackServiceImpl {
         return convertToDtoWithRating(snack);
     }
 
-    public Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection) {
+    public Page<SnackInfoDto> getAllSnacksWithFilter(String snackName, Pageable pageable, String sortDirection,
+                                                     Map<String, String> allParams) {
+        List<String> params = List.of("snackName", "sortDirection", "page", "size");
+        String allowedParams = String.join(", ", params);
+        requestValidator.validateParams(allParams, allowedParams);
+        requestValidator.validateSortDirection(sortDirection);
+
         Page<Snack> snacks = snackRepository.findAll(SnackSpecification.filterAndSort(snackName, sortDirection), pageable);
+        if (snacks.isEmpty() && snackName != null) {
+            throw new ResourceNotFoundException("Snack name not found", "");
+        }
         return snacks.map(this::convertToDtoWithRating);
 
     }

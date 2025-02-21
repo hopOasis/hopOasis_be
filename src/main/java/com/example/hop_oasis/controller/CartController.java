@@ -5,6 +5,7 @@ import com.example.hop_oasis.service.data.CartServiceImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +20,15 @@ public class CartController {
         return ResponseEntity.ok().body(cartService.getAllItemsByCartId(cartId));
     }
 
+    @GetMapping("user/{userId}")
+    public ResponseEntity<CartDto> getCartByUserId(@PathVariable Long userId) {
+        return ResponseEntity.ok().body(cartService.getCartByUserId(userId));
+    }
+
     @PostMapping
-    public ResponseEntity<CartItemDto> addItem(@Valid @RequestBody ItemRequestDto itemRequestDto) {
-        CartItemDto dto = cartService.create(itemRequestDto);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<CartItemDto> addItem(@Valid @RequestBody ItemRequestDto itemRequestDto,
+                                               Authentication authentication) {
+        return ResponseEntity.ok(cartService.create(itemRequestDto, authentication));
     }
 
     @PutMapping
@@ -32,7 +38,7 @@ public class CartController {
     }
 
     @DeleteMapping("/remove/{cartId}")
-    public ResponseEntity<String> removeItem(@PathVariable ("cartId") Long cartId,
+    public ResponseEntity<String> removeItem(@PathVariable("cartId") Long cartId,
                                              @RequestBody RemoveItemRequestDto removeItemRequestDto) {
         cartService.removeItem(cartId,
                 removeItemRequestDto.getItemId(),

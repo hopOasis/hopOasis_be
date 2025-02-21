@@ -55,7 +55,9 @@ public class SecurityConfig {
                                 "/assets/icons/**",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**")
+                                "/images/**",
+                                "/swagger-ui/**",
+                                "/api-docs/**")
 
                         .permitAll()
                         .requestMatchers(HttpMethod.POST, "/beers", "/beers/{beerId}/images", "/ciders",
@@ -76,7 +78,6 @@ public class SecurityConfig {
                                 "/special-offers/{offerId}/products-bundle/{productBundleId}"
                         ).hasAuthority(Role.ADMIN.name())
 
-
                         .requestMatchers(HttpMethod.GET, "/special-offers/{offerId}/beers/{beerId}",
                                 "/special-offers/{offerId}/ciders/{ciderId}",
                                 "/special-offers/{offerId}/snacks/{snackId}",
@@ -88,6 +89,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/users/{userId}").hasAuthority(Role.USER.name())
                         .requestMatchers(HttpMethod.DELETE, "/users/{userId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
 
+
                         .requestMatchers(HttpMethod.GET, "/beers", "/beers/{id}", "/ciders", "/ciders/{id}",
                                 "/products-bundle", "/products-bundle/{id}", "/snacks", "/snacks/{id}",
                                 "/special-offers/active", "/carts/{cartId}"
@@ -96,6 +98,17 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/beers/{id}/ratings", "/ciders/{id}/ratings",
                                 "/products-bundle/{id}/ratings", "/snacks/{id}/ratings", "/carts"
                         ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/all-products").permitAll()
+
+                        .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/enums/item-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/delivery-methods").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/delivery-statuses").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/delivery-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/payment-types").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/enums/roles").permitAll()
+
 
                         .requestMatchers(HttpMethod.PUT, "/carts").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/remove/{cartId}").permitAll()
