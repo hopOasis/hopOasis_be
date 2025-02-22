@@ -98,7 +98,7 @@ public class CartServiceImpl {
 
         CartItem cartItem;
         if (!existingCartItem.isEmpty()) {
-            cartItem = existingCartItem.getFirst();
+            cartItem = existingCartItem.get(0);
             cartItem.setQuantity(cartItem.getQuantity() + itemRequestDto.getQuantity());
         } else {
             cartItem = new CartItem();
