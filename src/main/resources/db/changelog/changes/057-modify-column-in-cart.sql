@@ -1,0 +1,2 @@
+ALTER TABLE cart
+ADD CONSTRAINT fk_cart_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

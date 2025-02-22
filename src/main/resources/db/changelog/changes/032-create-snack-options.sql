@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS snack_options (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      snack_id INT NOT NULL,
+      id BIGINT AUTO_INCREMENT PRIMARY KEY,
+      snack_id BIGINT NOT NULL,
       weight DECIMAL(7,2) NOT NULL,
       quantity INT NOT NULL,
       price DECIMAL(7,2) NOT NULL,

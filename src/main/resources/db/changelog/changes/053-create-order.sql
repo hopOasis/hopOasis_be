@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS orders (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
     order_number VARCHAR(50) NOT NULL,
     payment_type VARCHAR(50) NOT NULL,
     customer_phone_number VARCHAR(50) NOT NULL,
