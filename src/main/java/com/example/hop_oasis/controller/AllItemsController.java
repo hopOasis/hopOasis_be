@@ -24,4 +24,5 @@ public class AllItemsController {
         return ResponseEntity.ok().body(allItems);
 
     }
+    
 }
