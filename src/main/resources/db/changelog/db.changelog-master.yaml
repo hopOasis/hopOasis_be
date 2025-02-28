@@ -122,4 +122,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/057-modify-column-in-cart.sql
-
+  - include:
+      relativeToChangelogFile: true
+      file: changes/058-add-column-in-order-items.sql
