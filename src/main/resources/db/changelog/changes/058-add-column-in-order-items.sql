@@ -1,0 +1,1 @@
+ALTER TABLE order_items ADD COLUMN item_title VARCHAR(50) NOT NULL

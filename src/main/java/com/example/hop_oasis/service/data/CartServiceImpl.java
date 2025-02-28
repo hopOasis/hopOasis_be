@@ -61,12 +61,13 @@ public class CartServiceImpl {
         return result;
     }
 
-    public CartDto getCartByUserId(Long userId) {
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User not found", "");
-        }
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("No carts for user with id + " + userId, ""));
+    public CartDto getCartByUser(Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(()-> new ResourceNotFoundException("User not found", ""));
+
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("No carts for user with id + " + user.getId(), ""));
         List<CartItemDto> items = cart.getCartItems().stream()
                 .map(this::createCartItemDto)
                 .toList();
