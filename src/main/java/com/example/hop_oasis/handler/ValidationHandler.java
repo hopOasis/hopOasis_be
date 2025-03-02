@@ -2,6 +2,7 @@ package com.example.hop_oasis.handler;
 
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.handler.exception.SpecialOfferException;
+import com.example.hop_oasis.handler.exception.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -83,9 +84,15 @@ public class ValidationHandler {
 
         return ErrorDetails.getResponseEntityErrorMap(path, errors);
     }
+
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorDetails> handleIllegalArgumentException(HttpServletRequest request ,IllegalArgumentException ex) {
+    public ResponseEntity<ErrorDetails> handleIllegalArgumentException(HttpServletRequest request, IllegalArgumentException ex) {
         Map<String, String> errors = Collections.singletonMap("error", ex.getMessage());
         return ErrorDetails.getResponseEntityErrorMap(request.getRequestURI(), errors);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 }
