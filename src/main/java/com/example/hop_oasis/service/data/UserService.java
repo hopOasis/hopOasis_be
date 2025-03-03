@@ -37,11 +37,22 @@ public class UserService {
 
     public UserResponse getUser(Long userId) {
         User authenticatedUser = userAuthenticated.getAuthenticatedUser();
-        if (authenticatedUser.getId().equals(userId) || authenticatedUser.getRole().equals(Role.ADMIN)) {
+        if (authenticatedUser.getRole().equals(Role.ADMIN)) {
             return userRepository.findUserById(userId).orElseThrow();
         } else {
             throw new RuntimeException("User not found");
         }
+
+    }
+
+    public UserResponse getCurrentUser() {
+        User authenticatedUser = userAuthenticated.getAuthenticatedUser();
+        User curentUser = userRepository.findById(authenticatedUser.getId()).orElseThrow();
+        return UserResponse.builder()
+                .email(curentUser.getEmail())
+                .firstName(curentUser.getFirstName())
+                .lastName(curentUser.getLastName())
+                .build();
 
     }
 

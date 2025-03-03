@@ -5,10 +5,12 @@ import com.example.hop_oasis.dto.UserLoginRequest;
 import com.example.hop_oasis.dto.UserRegisterRequest;
 import com.example.hop_oasis.enums.Role;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
+import com.example.hop_oasis.handler.exception.UnauthorizedException;
 import com.example.hop_oasis.model.User;
 import com.example.hop_oasis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -45,14 +47,20 @@ public class AuthenticationService {
     }
 
     public TokenResponse authenticate(UserLoginRequest loginRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
-        User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() ->
-                new RuntimeException("User not found"));
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
+        } catch (BadCredentialsException ex) {
+            throw new UnauthorizedException("Invalid email or password");
+        }
+
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+                .orElseThrow(() -> new UnauthorizedException("User not found"));
+
         String token = jwtService.generateToken(user);
 
         return TokenResponse.builder()

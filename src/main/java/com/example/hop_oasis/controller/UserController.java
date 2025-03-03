@@ -21,6 +21,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getUser(userId));
     }
 
+    @GetMapping("/user")
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        return ResponseEntity.ok(userService.getCurrentUser());
+    }
+
+
     @GetMapping()
     public ResponseEntity<List<UserForAdminResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
