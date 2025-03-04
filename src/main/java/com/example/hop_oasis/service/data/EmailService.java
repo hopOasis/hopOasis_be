@@ -1,6 +1,7 @@
 package com.example.hop_oasis.service.data;
 
 
+import com.example.hop_oasis.utils.EmailPattern;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
@@ -32,7 +33,7 @@ public class EmailService {
                 return;
             }
 
-            Email from = new Email("service@hoppyoasis.my");
+            Email from = new Email(EmailPattern.EMAIL_SENDER);
             Email to = new Email(toEmail);
             Content content = new Content("text/plain", body);
             Mail mail = new Mail(from, subject, to, content);
@@ -40,13 +41,11 @@ public class EmailService {
             SendGrid sendGrid = new SendGrid(sendGridApiKey);
             Request request = new Request();
             request.setMethod(Method.POST);
-            request.setEndpoint("mail/send");
+            request.setEndpoint(EmailPattern.ENDPOINT);
             request.setBody(mail.build());
 
             Response response = sendGrid.api(request);
             log.info("Email sent! Status code: {}", response.getStatusCode());
-            log.debug("Response body: {}", response.getBody());
-            log.debug("Response headers: {}", response.getHeaders());
 
         } catch (IOException e) {
             log.error("Error sending email: {}", e.getMessage(), e);

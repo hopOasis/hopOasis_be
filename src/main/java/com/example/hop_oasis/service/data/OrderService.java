@@ -91,7 +91,7 @@ public class OrderService {
     }
 
     private void sendConfirmEmail(String email, String orderDetails) {
-        emailService.sendEmail(email, "Дякуємо за замовлення!",
+        emailService.sendEmail(email, EmailPattern.EMAIL_TITLE,
                 orderDetails);
     }
 
