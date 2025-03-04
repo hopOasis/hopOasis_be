@@ -7,6 +7,7 @@ import com.example.hop_oasis.enums.DeliveryType;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
+import com.example.hop_oasis.utils.EmailPattern;
 import com.example.hop_oasis.utils.Rounder;
 import com.example.hop_oasis.utils.UniqueNumberGenerator;
 import jakarta.transaction.Transactional;
@@ -33,6 +34,7 @@ public class OrderService {
     private final SnackServiceImpl snackService;
     private final ProductBundleServiceImpl bundleService;
     private final AuthenticationService authenticationService;
+    private final EmailService emailService;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
 
     @Transactional
@@ -81,7 +83,16 @@ public class OrderService {
         orderRepository.save(order);
         cart.getCartItems().clear();
         cartRepository.save(cart);
+        String orderDetails = EmailPattern
+                .buildOrderConfirmationEmail(order, user.getFirstName(), user.getLastName());
+        sendConfirmEmail(user.getEmail(),
+                orderDetails);
         return orderMapper.toDto(order);
+    }
+
+    private void sendConfirmEmail(String email, String orderDetails) {
+        emailService.sendEmail(email, "Дякуємо за замовлення!",
+                orderDetails);
     }
 
     private Map<Long, String> fetchNamesForItems(List<CartItem> cartItems) {
