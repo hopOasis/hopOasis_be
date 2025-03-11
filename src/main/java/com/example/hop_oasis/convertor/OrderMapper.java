@@ -14,7 +14,7 @@ import java.util.List;
 @Mapper(componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface OrderMapper {
-    @Mapping(target = "items", source = "orderItems")
+
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "orderNumber", source = "orderNumber")
     @Mapping(target = "paymentType", source = "paymentType")
@@ -22,10 +22,10 @@ public interface OrderMapper {
     @Mapping(target = "customerEmail", source = "user.email")
     @Mapping(target = "firstName", source = "user.firstName")
     @Mapping(target = "lastName", source = "user.lastName")
-    @Mapping(target = "deliveryType", source = "deliveryType")
     @Mapping(target = "deliveryMethod", source = "deliveryMethod")
     @Mapping(target = "deliveryAddress", source = "deliveryAddress")
     @Mapping(target = "deliveryStatus", source = "deliveryStatus")
+    @Mapping(target = "items", source = "orderItems")
     OrderResponseDto toDto(Order order);
 
     @Mapping(target = "itemTitle", source = "orderItem.itemTitle")

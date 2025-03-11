@@ -2,7 +2,6 @@ package com.example.hop_oasis.dto;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
 import com.example.hop_oasis.enums.DeliveryStatus;
-import com.example.hop_oasis.enums.DeliveryType;
 import com.example.hop_oasis.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +21,6 @@ public class OrderForProfileDto {
     private String orderNumber;
     private PaymentType paymentType;
     private String customerPhoneNumber;
-    private DeliveryType deliveryType;
     private DeliveryMethod deliveryMethod;
     private String deliveryAddress;
     private LocalDateTime createdAt;

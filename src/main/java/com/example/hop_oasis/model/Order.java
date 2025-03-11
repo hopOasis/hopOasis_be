@@ -2,7 +2,6 @@ package com.example.hop_oasis.model;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
 import com.example.hop_oasis.enums.DeliveryStatus;
-import com.example.hop_oasis.enums.DeliveryType;
 import com.example.hop_oasis.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -32,9 +31,6 @@ public class Order {
     private PaymentType paymentType;
     @Column(name = "customer_phone_number")
     private String customerPhoneNumber;
-    @Enumerated(EnumType.STRING)
-    @Column(name = "delivery_type")
-    private DeliveryType deliveryType;
     @Enumerated(EnumType.STRING)
     @Column(name = "delivery_method")
     private DeliveryMethod deliveryMethod;

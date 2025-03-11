@@ -3,7 +3,6 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.OrderMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.enums.DeliveryStatus;
-import com.example.hop_oasis.enums.DeliveryType;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
@@ -12,15 +11,16 @@ import com.example.hop_oasis.utils.Rounder;
 import com.example.hop_oasis.utils.UniqueNumberGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_DELETED;
-import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.RESOURCE_NOT_FOUND;
+import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.*;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -33,7 +33,6 @@ public class OrderService {
     private final CiderServiceImpl ciderService;
     private final SnackServiceImpl snackService;
     private final ProductBundleServiceImpl bundleService;
-    private final AuthenticationService authenticationService;
     private final EmailService emailService;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
 
@@ -57,7 +56,6 @@ public class OrderService {
         order.setOrderNumber(orderCode);
         order.setPaymentType(requestDto.getPaymentType());
         order.setCustomerPhoneNumber(requestDto.getCustomerPhoneNumber());
-        order.setDeliveryType(requestDto.getDeliveryType());
         validateAndSetDeliveryDetails(order, requestDto);
         order.setCreatedAt(LocalDateTime.now());
         order.setDeliveryStatus(DeliveryStatus.PROCESSING);
@@ -191,67 +189,80 @@ public class OrderService {
         return orderMapper.toDto(orders);
     }
 
-    public OrderResponseDto updateOrderById(OrderRequestDto requestDto, Long id) {
-        Order order = orderRepository.findById(id)
+    @Transactional
+    public OrderResponseDto updateUserOrder(Long orderId, OrderRequestDto requestDto, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
+        Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));
-        boolean isAdmin = authenticationService.isAdmin();
-
-        if (isAdmin || order.getDeliveryStatus() == DeliveryStatus.PROCESSING) {
-            if (Objects.nonNull(requestDto.getCustomerPhoneNumber())) {
-                order.setCustomerPhoneNumber(requestDto.getCustomerPhoneNumber());
-            }
-            if (Objects.nonNull(requestDto.getDeliveryType())) {
-                validateAndSetDeliveryDetails(order, requestDto);
-            }
-
-        } else {
-            throw new ResourceNotFoundException("Only orders with status ACCEPTED can be updated.", "");
+        if (order.getDeliveryStatus() != DeliveryStatus.PROCESSING) {
+            throw new IllegalArgumentException("Only orders with status PROCESSING can be updated.");
         }
+        applyOrderUpdates(order, requestDto);
 
+        return orderMapper.toDto(orderRepository.save(order));
+    }
+
+    @Transactional
+    public OrderResponseDto updateOrderByIdForAdmin(Long orderId, OrderRequestDto requestDto) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found", ""));
+        applyOrderUpdates(order, requestDto);
         if (Objects.nonNull(requestDto.getDeliveryStatus())) {
-            if (isAdmin) {
-                order.setDeliveryStatus(requestDto.getDeliveryStatus());
-            } else {
-                throw new ResourceNotFoundException("Only admin can change status", "");
-            }
+            order.setDeliveryStatus(requestDto.getDeliveryStatus());
         }
 
         return orderMapper.toDto(orderRepository.save(order));
-
     }
 
-    public OrderResponseDto deleteOrderById(Long id) {
-        Order order = orderRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_DELETED, id));
-        orderRepository.deleteById(id);
-        return orderMapper.toDto(order);
-    }
-
-    private void validateAndSetDeliveryDetails(Order order, OrderRequestDto requestDto) {
-        order.setDeliveryType(requestDto.getDeliveryType());
-
-        if (requestDto.getDeliveryType() == DeliveryType.DELIVERY) {
-            if (requestDto.getDeliveryMethod() == null) {
-                throw new ResourceNotFoundException("Delivery method cannot be null or empty", "");
-            }
-            if (requestDto.getDeliveryAddress() == null || requestDto.getDeliveryAddress().isEmpty()) {
-                throw new ResourceNotFoundException("Delivery address cannot be null or empty", "");
-            }
-
+    private void applyOrderUpdates(Order order, OrderRequestDto requestDto) {
+        if (Objects.nonNull(requestDto.getCustomerPhoneNumber())) {
+            order.setCustomerPhoneNumber(requestDto.getCustomerPhoneNumber());
+        }
+        if (Objects.nonNull(requestDto.getPaymentType())) {
+            order.setPaymentType(requestDto.getPaymentType());
+        }
+        if (Objects.nonNull(requestDto.getDeliveryMethod())) {
             order.setDeliveryMethod(requestDto.getDeliveryMethod());
+        }
+        if (Objects.nonNull(requestDto.getDeliveryAddress())) {
             order.setDeliveryAddress(requestDto.getDeliveryAddress());
-        } else if (requestDto.getDeliveryType() == DeliveryType.PICKUP) {
-            if (Objects.nonNull(requestDto.getDeliveryMethod())) {
-                throw new ResourceNotFoundException("No need delivery method for pickup", "");
-            }
-            if (Objects.nonNull(requestDto.getDeliveryAddress()) && !requestDto.getDeliveryAddress().isEmpty()) {
-                throw new ResourceNotFoundException("No need address for pickup", "");
-            }
-
-            order.setDeliveryMethod(null);
-            order.setDeliveryAddress(null);
         }
     }
 
+
+    public void deleteOrderByIdForAdmin(Long orderId) {
+        orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        ORDER_DELETED, orderId));
+        orderRepository.deleteById(orderId);
+    }
+
+    public void deleteUserOrder(Long orderId, Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
+        orderRepository.findByIdAndUserId(orderId, user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException(ORDER_DELETED, orderId));
+        orderRepository.deleteById(orderId);
+    }
+
+    private void validateAndSetDeliveryDetails(Order order, OrderRequestDto requestDto) {
+        if (requestDto.getDeliveryMethod() == null) {
+            throw new ResourceNotFoundException("Delivery method cannot be null or empty", "");
+
+        }
+        order.setDeliveryMethod(requestDto.getDeliveryMethod());
+
+        if (requestDto.getDeliveryAddress() == null || requestDto.getDeliveryAddress().isEmpty()) {
+            throw new ResourceNotFoundException("Delivery address cannot be null or empty", "");
+        }
+        order.setDeliveryAddress(requestDto.getDeliveryAddress());
+
+
+    }
 }
+
+
 
