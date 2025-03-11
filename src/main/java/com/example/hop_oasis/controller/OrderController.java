@@ -18,7 +18,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponseDto> createOrder(@Valid @RequestBody OrderRequestDto requestDto,
+    public ResponseEntity<OrderResponseDto> createOrder(@Valid
+                                                        @RequestBody OrderRequestDto requestDto,
                                                         Authentication authentication) {
         return ResponseEntity.ok(orderService.createOrder(requestDto, authentication));
     }
@@ -42,16 +43,31 @@ public class OrderController {
 
     }
 
+    @PutMapping("/user/{orderId}")
+    public ResponseEntity<OrderResponseDto> updateUserOrder(@PathVariable Long orderId,
+                                                            @RequestBody OrderRequestDto requestDto,
+                                                            Authentication authentication) {
+        OrderResponseDto responseDto = orderService.updateUserOrder(orderId, requestDto, authentication);
+        return ResponseEntity.ok().body(responseDto);
+    }
+
     @PutMapping("/{orderId}")
-    public ResponseEntity<OrderResponseDto> updateOrderById(@Valid @RequestBody OrderRequestDto requestDto,
-                                                            @PathVariable Long orderId) {
-        OrderResponseDto responseDto = orderService.updateOrderById(requestDto, orderId);
+    public ResponseEntity<OrderResponseDto> updateOrderForAdmin(@PathVariable Long orderId,
+                                                                @RequestBody OrderRequestDto requestDto) {
+        OrderResponseDto responseDto = orderService.updateOrderByIdForAdmin(orderId, requestDto);
         return ResponseEntity.ok().body(responseDto);
     }
 
     @DeleteMapping("/{orderId}")
-    public ResponseEntity<OrderResponseDto> deleteOrderById(@PathVariable Long orderId) {
-        OrderResponseDto responseDto = orderService.deleteOrderById(orderId);
-        return ResponseEntity.ok().body(responseDto);
+    public ResponseEntity<Void> deleteOrderByIdForAdmin(@PathVariable Long orderId) {
+        orderService.deleteOrderByIdForAdmin(orderId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/user/{orderId}")
+    public ResponseEntity<Void> deleteUserOrder(@PathVariable Long orderId,
+                                                Authentication authentication) {
+        orderService.deleteUserOrder(orderId, authentication);
+        return ResponseEntity.noContent().build();
     }
 }

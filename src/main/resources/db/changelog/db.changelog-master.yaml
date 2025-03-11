@@ -125,3 +125,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/058-add-column-in-order-items.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/059-delete-column-from-orders.sql

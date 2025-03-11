@@ -37,14 +37,6 @@ public class EnumController {
         return ResponseEntity.ok(deliveryStatuses);
     }
 
-    @GetMapping("/delivery-types")
-    public ResponseEntity<List<String>> getDeliveryTypes() {
-        List<String> deliveryTypes = Arrays.stream(DeliveryType.values())
-                .map(Enum::name)
-                .toList();
-        return ResponseEntity.ok(deliveryTypes);
-    }
-
     @GetMapping("/payment-types")
     public ResponseEntity<List<String>> getPaymentTypes() {
         List<String> paymentTypes = Arrays.stream(PaymentType.values())

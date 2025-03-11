@@ -64,7 +64,7 @@ public class CartServiceImpl {
     public CartDto getCartByUser(Authentication authentication) {
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(()-> new ResourceNotFoundException("User not found", ""));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
 
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("No carts for user with id + " + user.getId(), ""));
@@ -429,6 +429,7 @@ public class CartServiceImpl {
                         dto.setPricePerItem(selectedVolume.getPrice());
                     }
                 }
+                dto.setItemType(cartItem.getItemType());
             }
             case CIDER -> {
                 CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
@@ -440,6 +441,7 @@ public class CartServiceImpl {
                         dto.setPricePerItem(selectedVolume.getPrice());
                     }
                 }
+                dto.setItemType(cartItem.getItemType());
             }
             case SNACK -> {
                 SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
@@ -451,6 +453,7 @@ public class CartServiceImpl {
                         dto.setPricePerItem(selectedWeight.getPrice());
                     }
                 }
+                dto.setItemType(cartItem.getItemType());
             }
             case PRODUCT_BUNDLE -> {
                 ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
@@ -465,6 +468,8 @@ public class CartServiceImpl {
                     dto.setPricePerItem(options.getPrice());
 
                 }
+                dto.setItemType(cartItem.getItemType());
+
             }
 
             default -> throw new ResourceNotFoundException(RESOURCE_NOT_FOUND, "");

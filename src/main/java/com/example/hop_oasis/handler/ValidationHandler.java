@@ -3,6 +3,7 @@ package com.example.hop_oasis.handler;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.handler.exception.SpecialOfferException;
 import com.example.hop_oasis.handler.exception.UnauthorizedException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -95,4 +96,16 @@ public class ValidationHandler {
     public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
+    @ExceptionHandler(InvalidFormatException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidEnumValue(InvalidFormatException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        String fieldName = ex.getPath().get(0).getFieldName();
+        String invalidValue = ex.getValue().toString();
+
+        errorResponse.put("error", "Invalid value for field '" + fieldName + "': " + invalidValue);
+        errorResponse.put("validValues", "Check enum definition");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
 }
+

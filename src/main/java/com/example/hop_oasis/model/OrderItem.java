@@ -19,7 +19,8 @@ public class OrderItem {
     private Order order;
     @Column(name = "item_id", nullable = false)
     private Long itemId;
-     @Column(name = "item_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "item_type", nullable = false)
     private ItemType itemType;
     @Column(name = "quantity", nullable = false)
     private Integer quantity;

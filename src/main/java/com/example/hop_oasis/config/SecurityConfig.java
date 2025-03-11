@@ -92,7 +92,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/beers", "/beers/{id}", "/ciders", "/ciders/{id}",
                                 "/products-bundle", "/products-bundle/{id}", "/snacks", "/snacks/{id}",
-                                "/special-offers/active", "/carts/{cartId}"
+                                "/special-offers/active"
                         ).permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/beers/{id}/ratings", "/ciders/{id}/ratings",
@@ -100,17 +100,19 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/all-products").permitAll()
 
-                        .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/orders").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/orders").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/orders/user/{userId}").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
 
                         .requestMatchers(HttpMethod.GET, "/enums/item-types").permitAll()
                         .requestMatchers(HttpMethod.GET, "/enums/delivery-methods").permitAll()
                         .requestMatchers(HttpMethod.GET, "/enums/delivery-statuses").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/enums/delivery-types").permitAll()
                         .requestMatchers(HttpMethod.GET, "/enums/payment-types").permitAll()
                         .requestMatchers(HttpMethod.GET, "/enums/roles").permitAll()
 
-
+                        .requestMatchers(HttpMethod.GET, "/carts/{cartId}").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/carts").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/remove/{cartId}").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/clear/{cartId}").permitAll()
