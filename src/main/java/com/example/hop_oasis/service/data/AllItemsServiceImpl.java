@@ -13,15 +13,13 @@ import com.example.hop_oasis.repository.SnackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,69 +37,37 @@ public class AllItemsServiceImpl {
     private final SnackRatingServiceImpl snackRatingService;
     private final ProductBundleRatingServiceImpl productBundleRatingService;
 
+    private final ConcurrentHashMap<String, List<ItemInfoDto>> cache = new ConcurrentHashMap<>();
+
     public Page<ItemInfoDto> getAllItems(Pageable pageable) {
-        long beerCount = beerRepository.count();
-        long ciderCount = ciderRepository.count();
-        long snackCount = snackRepository.count();
-        long bundleCount = bundleRepository.count();
-        long totalElements = beerCount + ciderCount + snackCount + bundleCount;
+
+        String cacheKey = "shuffled_items";
+
+        List<ItemInfoDto> allItems = cache.computeIfAbsent(cacheKey, key -> {
+            List<ItemInfoDto> items = new ArrayList<>();
+            items.addAll(mapItemsWithRating(beerRepository.findAll(), beerInfoMapper));
+            items.addAll(mapItemsWithRating(ciderRepository.findAll(), ciderInfoMapper));
+            items.addAll(mapItemsWithRating(snackRepository.findAll(), snackInfoMapper));
+            items.addAll(mapItemsWithRating(bundleRepository.findAll(), bundleInfoMapper));
+
+            Collections.shuffle(items);
+            return items;
+        });
+
+        long totalElements = allItems.size();
 
         if (pageable.getOffset() >= totalElements) {
             return new PageImpl<>(Collections.emptyList(), pageable, totalElements);
         }
-        List<String> repositoriesOrder = Arrays.asList("beer", "cider", "snack", "bundle");
 
-        Collections.shuffle(repositoriesOrder);
+        List<ItemInfoDto> pageItems = allItems.stream()
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .collect(Collectors.toList());
 
-        int remaining = pageable.getPageSize();
-        int offset = (int) pageable.getOffset();
-
-        List<ItemInfoDto> currentPageItems = new ArrayList<>();
-
-        for (String repo : repositoriesOrder) {
-            if (remaining <= 0)
-                break;
-            if ("beer".equals(repo)) {
-                if (offset < beerCount) {
-                    Page<Beer> beerPage = beerRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                            Math.min(remaining, (int) beerCount - offset)));
-                    List<ItemInfoDto> beerItems = mapItemsWithRating(beerPage.getContent(), beerInfoMapper);
-                    currentPageItems.addAll(beerItems);
-                    remaining -= beerItems.size();
-                }
-                offset = Math.max(0, offset - (int) beerCount);
-            } else if ("cider".equals(repo)) {
-                if (offset < ciderCount) {
-                    Page<Cider> ciderPage = ciderRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                            Math.min(remaining, (int) ciderCount - offset)));
-                    List<ItemInfoDto> ciderItems = mapItemsWithRating(ciderPage.getContent(), ciderInfoMapper);
-                    currentPageItems.addAll(ciderItems);
-                    remaining -= ciderItems.size();
-                }
-                offset = Math.max(0, offset - (int) ciderCount);
-            } else if ("snack".equals(repo)) {
-                if (offset < snackCount) {
-                    Page<Snack> snackPage = snackRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                            Math.min(remaining, (int) snackCount - offset)));
-                    List<ItemInfoDto> snackItems = mapItemsWithRating(snackPage.getContent(), snackInfoMapper);
-                    currentPageItems.addAll((snackItems));
-                    remaining -= snackItems.size();
-                }
-                offset = Math.max(0, offset - (int) snackCount);
-            } else if ("bundle".equals(repo)) {
-                if (offset < bundleCount) {
-                    Page<ProductBundle> bundlePage = bundleRepository.findAll(PageRequest.of(offset / pageable.getPageSize(),
-                            Math.min(remaining, (int) bundleCount - offset)));
-                    List<ItemInfoDto> bundleItems = mapItemsWithRating(bundlePage.getContent(), bundleInfoMapper);
-                    currentPageItems.addAll(bundleItems);
-                    remaining -= bundleItems.size();
-                }
-                offset = Math.max(0, offset - (int) bundleCount);
-            }
-            Collections.shuffle(currentPageItems);
-        }
-        return new PageImpl<>(currentPageItems, pageable, totalElements);
+        return new PageImpl<>(pageItems, pageable, totalElements);
     }
+
 
     private <T, M> ItemInfoDto mapToItemInfoDto(M mapper, T item) {
         try {
