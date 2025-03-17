@@ -6,29 +6,24 @@ import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
-import io.github.cdimascio.dotenv.Dotenv;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+
 
 import java.io.IOException;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class EmailService {
-    private String sendGridApiKey;
-
-    public EmailService() {
-        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        this.sendGridApiKey = dotenv.get("SENDGRID_API_KEY");
-
-        if (this.sendGridApiKey == null || this.sendGridApiKey.isBlank()) {
-            this.sendGridApiKey = System.getenv("SENDGRID_API_KEY");
-        }
-    }
+    @Value("${sendgrid.api.key}")
+    private final String sendGridApiKey;
 
     public void sendEmail(String toEmail, String subject, String body) {
         try {
-            if (sendGridApiKey == null || sendGridApiKey.isBlank()) {
+            if (sendGridApiKey.isBlank()) {
                 log.error("SendGrid API Key is missing! Email will not be sent.");
                 return;
             }

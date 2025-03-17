@@ -11,6 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 public final class CartDto {
+    private Long cartId;
     private Long userId;
     private List<CartItemDto> items;
     private BigDecimal priceForAll;

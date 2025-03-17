@@ -53,6 +53,7 @@ public class CartServiceImpl {
             items.add(dto);
         }
         CartDto result = new CartDto();
+        result.setCartId(cartId);
         result.setUserId(cart.getUser().getId());
         result.setItems(items);
         result.setPriceForAll(items.stream()
@@ -71,7 +72,7 @@ public class CartServiceImpl {
         List<CartItemDto> items = cart.getCartItems().stream()
                 .map(this::createCartItemDto)
                 .toList();
-        return new CartDto(cart.getUser().getId(),
+        return new CartDto(cart.getId(), cart.getUser().getId(),
                 items,
                 items.stream()
                         .map(CartItemDto::getTotalCost)
