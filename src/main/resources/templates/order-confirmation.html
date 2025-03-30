@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Підтвердження замовлення</title>
+</head>
+<body>
+<p>Шановний <b th:text="${firstName} + ' ' + ${lastName}"></b>,</p>
+<p>Ваше замовлення прийнято в обробку. Ми повідомимо, коли товар буде доставлено.</p>
+<p><strong>Номер замовлення:</strong> <span th:text="${orderNumber}"></span></p>
+<p>З повагою,<br>команда Hoppy Oasis</p>
+</body>
+</html>

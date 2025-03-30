@@ -24,7 +24,8 @@ public interface OrderMapper {
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "deliveryMethod", source = "deliveryMethod")
     @Mapping(target = "deliveryAddress", source = "deliveryAddress")
-    @Mapping(target = "deliveryStatus", source = "deliveryStatus")
+    @Mapping(target = "orderStatus", source = "orderStatus")
+    @Mapping(target = "cancellationReason", source = "cancellationReason")
     @Mapping(target = "items", source = "orderItems")
     OrderResponseDto toDto(Order order);
 

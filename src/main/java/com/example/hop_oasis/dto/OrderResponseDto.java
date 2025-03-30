@@ -1,7 +1,7 @@
 package com.example.hop_oasis.dto;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
-import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.OrderStatus;
 import com.example.hop_oasis.enums.PaymentType;
 import lombok.*;
 
@@ -26,7 +26,8 @@ public class OrderResponseDto {
     private DeliveryMethod deliveryMethod;
     private String deliveryAddress;
     private LocalDateTime createdAt;
-    private DeliveryStatus deliveryStatus;
+    private OrderStatus orderStatus;
+    private String cancellationReason;
     private BigDecimal totalPrice;
     private List<OrderItemDto> items;
 }

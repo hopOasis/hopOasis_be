@@ -1,7 +1,7 @@
 package com.example.hop_oasis.dto;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
-import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.OrderStatus;
 import com.example.hop_oasis.enums.PaymentType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,5 +23,6 @@ public class OrderRequestDto {
     private DeliveryMethod deliveryMethod;
     @NotBlank(message = "Delivery address is required")
     private String deliveryAddress;
-    private DeliveryStatus deliveryStatus;
+    private OrderStatus orderStatus;
+    private String cancellationReason;
 }

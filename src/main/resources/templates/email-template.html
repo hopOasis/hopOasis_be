@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Status Update</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<p>Шановний/на <strong>[[${firstName}]]</strong>,</p>
+<p>Статус Вашого замовлення <b>№ [[${orderNumber}]]</b> було змінено на: <b>[[${orderStatus}]]</b>.</p>
+
+<table>
+    <thead>
+    <tr>
+        <th>Товар</th>
+        <th>Кількість</th>
+        <th>Ціна</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${orderItems}">
+        <td>[[${item.itemTitle}]]</td>
+        <td>[[${item.quantity}]]</td>
+        <td>[[${item.price}]] [[${currency}]]</td>
+    </tr>
+    </tbody>
+</table>
+
+<p><b>Загальна сума замовлення:</b> [[${totalSum}]] [[${currency}]]</p>
+
+<th:block th:if="${orderStatus == 'Cancelled'}">
+    <p><b>Причина закриття:</b> [[${cancellationReason}]]</p>
+</th:block>
+
+</body>
+</html>
