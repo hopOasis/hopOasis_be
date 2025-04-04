@@ -3,12 +3,14 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.OrderMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.utils.EmailPattern;
 import com.example.hop_oasis.utils.Rounder;
 import com.example.hop_oasis.utils.UniqueNumberGenerator;
+import com.stripe.exception.StripeException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +37,7 @@ public class OrderService {
     private final ProductBundleServiceImpl bundleService;
     private final EmailService emailService;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
+    private final StripeService stripeService;
 
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto requestDto, Authentication authentication) {
@@ -81,12 +84,41 @@ public class OrderService {
         orderRepository.save(order);
         cart.getCartItems().clear();
         cartRepository.save(cart);
-        String orderDetails = EmailPattern
-                .buildOrderConfirmationEmail(order, user.getFirstName(), user.getLastName());
-        sendConfirmEmail(user.getEmail(),
-                orderDetails);
         return orderMapper.toDto(order);
     }
+
+    public String payForTheOrder(Long orderId) throws StripeException {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found", ""));
+        if (order.getPaymentStatus() == PaymentStatus.PAID) {
+            throw new ResourceNotFoundException("Order is paid", "");
+        }
+        return stripeService.createPaymentLink(order.getTotalPrice(), order.getOrderNumber());
+    }
+
+    public OrderResponseDto isOrderPaid(boolean success, Authentication authentication, Long orderId) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found", ""));
+        if (success) {
+            order.setPaymentStatus(PaymentStatus.PAID);
+            order = orderRepository.save(order);
+            String orderDetails = EmailPattern
+                    .buildOrderConfirmationEmail(order, user.getFirstName(), user.getLastName());
+            sendConfirmEmail(user.getEmail(),
+                    orderDetails);
+
+        } else {
+            order = order.setPaymentStatus(PaymentStatus.NOT_PAID);
+            String orderDetails = EmailPattern
+                    .buildOrderNotPaidEmail(order, user.getFirstName(), user.getLastName());
+            sendConfirmEmail(user.getEmail(),
+                    orderDetails);
+
+        }
+        return orderMapper.toDto(order);
+
+    }
+
 
     private void sendConfirmEmail(String email, String orderDetails) {
         emailService.sendEmail(email, EmailPattern.EMAIL_TITLE,

@@ -14,4 +14,12 @@ public class EmailPattern {
                 + "Номер замовлення: " + order.getOrderNumber() + "\n\n"
                 + "З повагою,\nкоманда Hoppy Oasis";
     }
+
+    public static String buildOrderNotPaidEmail(Order order, String firstName, String lastName) {
+        return "Шановний " + firstName + " " + lastName + "\n\n"
+                + "Ваше замовлення не було сплачене." +
+                " Спробуйте ще раз." + "\n\n"
+                + "Номер замовлення: " + order.getOrderNumber() + "\n\n"
+                + "З повагою,\nкоманда Hoppy Oasis";
+    }
 }
