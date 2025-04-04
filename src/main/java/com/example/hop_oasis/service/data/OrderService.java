@@ -3,7 +3,6 @@ package com.example.hop_oasis.service.data;
 import com.example.hop_oasis.convertor.OrderMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.enums.OrderStatus;
-import com.example.hop_oasis.enums.DeliveryStatus;
 import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
