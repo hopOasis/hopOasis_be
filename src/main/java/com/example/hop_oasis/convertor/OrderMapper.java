@@ -26,6 +26,7 @@ public interface OrderMapper {
     @Mapping(target = "deliveryAddress", source = "deliveryAddress")
     @Mapping(target = "deliveryStatus", source = "deliveryStatus")
     @Mapping(target = "items", source = "orderItems")
+    @Mapping(target = "paymentStatus", source = "paymentStatus")
     OrderResponseDto toDto(Order order);
 
     @Mapping(target = "itemTitle", source = "orderItem.itemTitle")

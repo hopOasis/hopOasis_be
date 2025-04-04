@@ -2,6 +2,7 @@ package com.example.hop_oasis.model;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
 import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,5 +46,8 @@ public class Order {
     private List<OrderItem> orderItems = new ArrayList<>();
     @Column(name = "total_price", nullable = false)
     private double totalPrice;
+    @Column(name = "payment_status")
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
 
 }

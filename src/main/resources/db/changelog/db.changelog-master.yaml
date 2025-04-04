@@ -128,3 +128,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/059-delete-column-from-orders.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/062-add-column-payment-status-to-orders.sql
