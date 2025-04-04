@@ -6,6 +6,7 @@ import com.example.hop_oasis.dto.OrderStatusUpdateDto;
 import com.example.hop_oasis.service.data.OrderService;
 import com.example.hop_oasis.utils.EmailPattern;
 import com.example.hop_oasis.utils.OrderApiResponse;
+import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,15 @@ public class OrderController {
                                                         @RequestBody OrderRequestDto requestDto,
                                                         Authentication authentication) {
         return ResponseEntity.ok(orderService.createOrder(requestDto, authentication));
+    }
+    @GetMapping("/pay/{orderId}")
+    public String payOrder(@PathVariable Long orderId) throws StripeException {
+        return  orderService.payForTheOrder(orderId);
+    }
+    @GetMapping("/pay/{status}/{orderId}")
+    public ResponseEntity<OrderResponseDto> payStatus(@PathVariable boolean status, Authentication authentication, @PathVariable Long orderId)  {
+        orderService.isOrderPaid(status,authentication,orderId);
+        return ResponseEntity.ok(orderService.isOrderPaid(status,authentication,orderId));
     }
 
     @GetMapping

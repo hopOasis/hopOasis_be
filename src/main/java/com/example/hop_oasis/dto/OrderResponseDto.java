@@ -2,6 +2,8 @@ package com.example.hop_oasis.dto;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
 import com.example.hop_oasis.enums.OrderStatus;
+import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.enums.PaymentType;
 import lombok.*;
 
@@ -30,4 +32,5 @@ public class OrderResponseDto {
     private String cancellationReason;
     private BigDecimal totalPrice;
     private List<OrderItemDto> items;
+    private PaymentStatus paymentStatus;
 }

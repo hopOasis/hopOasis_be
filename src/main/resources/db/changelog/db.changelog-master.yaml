@@ -140,3 +140,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/063-create-email-settings.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/062-add-column-payment-status-to-orders.sql
