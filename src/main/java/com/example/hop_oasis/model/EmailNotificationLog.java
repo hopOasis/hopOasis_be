@@ -1,5 +1,6 @@
 package com.example.hop_oasis.model;
 
+import com.example.hop_oasis.enums.EmailMessage;
 import com.example.hop_oasis.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -31,15 +32,16 @@ public class EmailNotificationLog {
     private OrderStatus orderStatus;
     @Column(name = "sent_at", nullable = false)
     private LocalDateTime sentAt;
-    @Column(name = "error_message")
-    private String errorMessage;
+    @Column(name = "message")
+    @Enumerated(EnumType.STRING)
+    private EmailMessage message;
 
-    public EmailNotificationLog(Order order, User user, String email, OrderStatus orderStatus, LocalDateTime sentAt, String errorMessage) {
+    public EmailNotificationLog(Order order, User user, String email, OrderStatus orderStatus, LocalDateTime sentAt, EmailMessage message) {
         this.order = order;
         this.user = user;
         this.email = email;
         this.orderStatus = orderStatus;
         this.sentAt = sentAt;
-        this.errorMessage = errorMessage;
+        this.message = message;
     }
 }

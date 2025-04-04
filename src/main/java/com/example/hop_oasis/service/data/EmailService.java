@@ -1,5 +1,6 @@
 package com.example.hop_oasis.service.data;
 
+import com.example.hop_oasis.enums.EmailMessage;
 import com.example.hop_oasis.enums.OrderStatus;
 import com.example.hop_oasis.model.EmailNotificationLog;
 import com.example.hop_oasis.model.Order;
@@ -64,7 +65,7 @@ public class EmailService {
                 toEmail,
                 order.getOrderStatus(),
                 LocalDateTime.now(),
-                sentSuccessfully ? null : "Error sending email"
+                sentSuccessfully ? EmailMessage.SENT : EmailMessage.SENDING_ERROR
         ));
     }
 

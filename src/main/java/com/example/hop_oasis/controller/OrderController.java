@@ -4,7 +4,8 @@ import com.example.hop_oasis.dto.OrderRequestDto;
 import com.example.hop_oasis.dto.OrderResponseDto;
 import com.example.hop_oasis.dto.OrderStatusUpdateDto;
 import com.example.hop_oasis.service.data.OrderService;
-import com.example.hop_oasis.utils.ApiResponse;
+import com.example.hop_oasis.utils.EmailPattern;
+import com.example.hop_oasis.utils.OrderApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -66,13 +67,13 @@ public class OrderController {
     public ResponseEntity<Map<String, Object>> updateOrderStatus(@PathVariable Long orderId,
                                                                  @RequestBody OrderStatusUpdateDto updateDto) {
         orderService.updateOrderStatus(orderId, updateDto.getNewStatus(), updateDto.getCancellationReason());
-        return ApiResponse.success("Order status updated and email notification sent.");
+        return OrderApiResponse.success(EmailPattern.ORDER_UPDATE_SUCCESS);
     }
 
     @PostMapping("/{orderId}/resend-email")
     public ResponseEntity<Map<String, Object>> resendOrderStatusEmail(@PathVariable Long orderId) {
         boolean emailSent = orderService.resendOrderStatusEmail(orderId);
-        return ApiResponse.orderEmailResponse(orderId, emailSent);
+        return OrderApiResponse.orderEmailResponse(orderId, emailSent);
     }
 
     @DeleteMapping("/{orderId}")

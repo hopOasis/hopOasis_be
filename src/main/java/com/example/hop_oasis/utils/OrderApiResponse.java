@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDateTime;
 import java.util.Map;
 
-public class ApiResponse {
+public class OrderApiResponse {
     public static ResponseEntity<Map<String, Object>> success(String message) {
         return ResponseEntity.ok(Map.of(
                 "success", true,
