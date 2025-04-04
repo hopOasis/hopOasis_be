@@ -2,7 +2,7 @@ package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.convertor.OrderMapper;
 import com.example.hop_oasis.dto.*;
-import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.OrderStatus;
 import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
@@ -37,6 +37,7 @@ public class OrderService {
     private final ProductBundleServiceImpl bundleService;
     private final EmailService emailService;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
+    private final EmailNotificationLogRepository emailLogRepository;
     private final StripeService stripeService;
 
     @Transactional
@@ -61,7 +62,7 @@ public class OrderService {
         order.setCustomerPhoneNumber(requestDto.getCustomerPhoneNumber());
         validateAndSetDeliveryDetails(order, requestDto);
         order.setCreatedAt(LocalDateTime.now());
-        order.setDeliveryStatus(DeliveryStatus.PROCESSING);
+        order.setOrderStatus(OrderStatus.PROCESSING);
 
         double totalPrice = 0.0;
 
@@ -74,6 +75,8 @@ public class OrderService {
 
             double pricePerItem = prices.getOrDefault(cartItem.getItemId(), 0.0);
             orderItem.setPrice(pricePerItem);
+            double totalPriceForItem = pricePerItem * cartItem.getQuantity();
+            orderItem.setPrice(totalPriceForItem);
             String itemTitle = names.getOrDefault(cartItem.getItemId(), null);
             orderItem.setItemTitle(itemTitle);
 
@@ -84,6 +87,9 @@ public class OrderService {
         orderRepository.save(order);
         cart.getCartItems().clear();
         cartRepository.save(cart);
+        String orderDetails = emailService.buildOrderConfirmationEmail(order);
+        sendConfirmEmail(user.getEmail(),
+                orderDetails);
         return orderMapper.toDto(order);
     }
 
@@ -222,13 +228,13 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponseDto updateUserOrder(Long orderId, OrderRequestDto requestDto, Authentication authentication) {
+    public OrderResponseDto updateUserOrderDetails(Long orderId, OrderRequestDto requestDto, Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> new ResourceNotFoundException(RESOURCE_NOT_FOUND, ""));
-        if (order.getDeliveryStatus() != DeliveryStatus.PROCESSING) {
+        if (order.getOrderStatus() != OrderStatus.PROCESSING) {
             throw new IllegalArgumentException("Only orders with status PROCESSING can be updated.");
         }
         applyOrderUpdates(order, requestDto);
@@ -237,12 +243,46 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponseDto updateOrderByIdForAdmin(Long orderId, OrderRequestDto requestDto) {
+    public void updateOrderStatus(Long orderId, OrderStatus newStatus, String cancellationReason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found", ""));
+
+
+        if (order.getOrderStatus() == newStatus) {
+            throw new IllegalArgumentException("Order already has status " + newStatus);
+        }
+
+        order.setOrderStatus(newStatus);
+
+        if (newStatus == OrderStatus.CANCELLED) {
+            if (cancellationReason == null || cancellationReason.isBlank()) {
+                throw new IllegalArgumentException("Cancellation reason is required when order is cancelled.");
+            }
+            order.setCancellationReason(cancellationReason);
+        }
+
+        Order updatedOrder = orderRepository.save(order);
+
+        try {
+            emailService.sendOrderStatusUpdateEmail(updatedOrder);
+        } catch (Exception e) {
+            log.error("Failed to send order status update email for order {}: {}", orderId, e.getMessage());
+        }
+
+        orderMapper.toDto(updatedOrder);
+    }
+
+    @Transactional
+    public OrderResponseDto updateOrderDetailsByIdForAdmin(Long orderId, OrderRequestDto requestDto) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found", ""));
+        if (order.getOrderStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalArgumentException("Order is cancelled, you can't change it");
+        }
         applyOrderUpdates(order, requestDto);
-        if (Objects.nonNull(requestDto.getDeliveryStatus())) {
-            order.setDeliveryStatus(requestDto.getDeliveryStatus());
+
+        if (Objects.nonNull(requestDto.getOrderStatus())) {
+            order.setOrderStatus(requestDto.getOrderStatus());
         }
 
         return orderMapper.toDto(orderRepository.save(order));
@@ -293,6 +333,18 @@ public class OrderService {
         order.setDeliveryAddress(requestDto.getDeliveryAddress());
 
 
+    }
+
+    public boolean resendOrderStatusEmail(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: ", orderId));
+        try {
+            emailService.sendOrderStatusUpdateEmail(order);
+            return true;
+        } catch (Exception e) {
+            log.error("Failed to resend order status email for order {}: {}", order.getId(), e.getMessage());
+            return false;
+        }
     }
 }
 

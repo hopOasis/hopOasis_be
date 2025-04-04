@@ -29,9 +29,9 @@ public class EnumController {
         return ResponseEntity.ok(deliveryMethods);
     }
 
-    @GetMapping("/delivery-statuses")
+    @GetMapping("/order-statuses")
     public ResponseEntity<List<String>> getDeliveryStatuses() {
-        List<String> deliveryStatuses = Arrays.stream(DeliveryStatus.values())
+        List<String> deliveryStatuses = Arrays.stream(OrderStatus.values())
                 .map(Enum::name)
                 .toList();
         return ResponseEntity.ok(deliveryStatuses);

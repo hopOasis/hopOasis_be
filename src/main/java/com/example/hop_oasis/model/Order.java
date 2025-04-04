@@ -1,7 +1,7 @@
 package com.example.hop_oasis.model;
 
 import com.example.hop_oasis.enums.DeliveryMethod;
-import com.example.hop_oasis.enums.DeliveryStatus;
+import com.example.hop_oasis.enums.OrderStatus;
 import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.enums.PaymentType;
 import jakarta.persistence.*;
@@ -39,9 +39,11 @@ public class Order {
     private String deliveryAddress;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-    @Column(name = "delivery_status")
+    @Column(name = "order_status")
     @Enumerated(EnumType.STRING)
-    private DeliveryStatus deliveryStatus;
+    private OrderStatus orderStatus;
+    @Column(name = "cancellation_reason")
+    private String cancellationReason;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
     @Column(name = "total_price", nullable = false)
