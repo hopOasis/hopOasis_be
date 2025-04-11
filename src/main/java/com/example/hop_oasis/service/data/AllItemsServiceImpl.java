@@ -10,6 +10,10 @@ import com.example.hop_oasis.repository.BeerRepository;
 import com.example.hop_oasis.repository.CiderRepository;
 import com.example.hop_oasis.repository.ProductBundleRepository;
 import com.example.hop_oasis.repository.SnackRepository;
+import com.example.hop_oasis.utils.BeerSpecification;
+import com.example.hop_oasis.utils.CiderSpecification;
+import com.example.hop_oasis.utils.ProductBundleSpecification;
+import com.example.hop_oasis.utils.SnackSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -39,16 +43,16 @@ public class AllItemsServiceImpl {
 
     private final ConcurrentHashMap<String, List<ItemInfoDto>> cache = new ConcurrentHashMap<>();
 
-    public Page<ItemInfoDto> getAllItems(Pageable pageable) {
+    public Page<ItemInfoDto> getAllItems(Pageable pageable, String name) {
 
-        String cacheKey = "shuffled_items";
+        String cacheKey = "shuffled_items_" + name;
 
         List<ItemInfoDto> allItems = cache.computeIfAbsent(cacheKey, key -> {
             List<ItemInfoDto> items = new ArrayList<>();
-            items.addAll(mapItemsWithRating(beerRepository.findAll(), beerInfoMapper));
-            items.addAll(mapItemsWithRating(ciderRepository.findAll(), ciderInfoMapper));
-            items.addAll(mapItemsWithRating(snackRepository.findAll(), snackInfoMapper));
-            items.addAll(mapItemsWithRating(bundleRepository.findAll(), bundleInfoMapper));
+            items.addAll(mapItemsWithRating(beerRepository.findAll(BeerSpecification.findByName(name)), beerInfoMapper));
+            items.addAll(mapItemsWithRating(ciderRepository.findAll(CiderSpecification.findByName(name)), ciderInfoMapper));
+            items.addAll(mapItemsWithRating(snackRepository.findAll(SnackSpecification.findByName(name)), snackInfoMapper));
+            items.addAll(mapItemsWithRating(bundleRepository.findAll(ProductBundleSpecification.findByName(name)), bundleInfoMapper));
 
             Collections.shuffle(items);
             return items;
