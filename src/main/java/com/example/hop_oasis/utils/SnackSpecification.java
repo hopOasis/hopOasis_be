@@ -15,9 +15,16 @@ public class SnackSpecification {
 
     }
 
-    private static Specification<Snack> findByName(String snackName) {
-        return (root, query, criteriaBuilder) ->
-                snackName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("snackName"), snackName);
+    public static Specification<Snack> findByName(String snackName) {
+        return (root, query, criteriaBuilder) -> {
+            if (snackName == null || snackName.isBlank()) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("snackName")),
+                    "%" + snackName.toLowerCase() + "%"
+            );
+        };
     }
 
     private static Specification<Snack> sortByPrice(String sortDirection) {

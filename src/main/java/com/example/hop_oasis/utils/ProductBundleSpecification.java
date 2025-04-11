@@ -16,9 +16,16 @@ public class ProductBundleSpecification {
 
     }
 
-    private static Specification<ProductBundle> findByName(String bundleName) {
-        return (root, query, criteriaBuilder) ->
-                bundleName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("name"), bundleName);
+    public static Specification<ProductBundle> findByName(String bundleName) {
+        return (root, query, criteriaBuilder) -> {
+            if (bundleName == null || bundleName.isBlank()) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("name")),
+                    "%" + bundleName.toLowerCase() + "%"
+            );
+        };
     }
 
     private static Specification<ProductBundle> sortByPrice(String sortDirection) {

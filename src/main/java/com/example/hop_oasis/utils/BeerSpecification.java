@@ -14,9 +14,16 @@ public class BeerSpecification {
         return BeerSpecification.findByName(name).and(BeerSpecification.sortByPrice(sortDirection));
     }
 
-    private static Specification<Beer> findByName(String beerName) {
-        return (root, query, criteriaBuilder) ->
-                beerName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("beerName"), beerName);
+    public static Specification<Beer> findByName(String beerName) {
+        return (root, query, criteriaBuilder) -> {
+            if (beerName == null || beerName.isBlank()) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("beerName")),
+                    "%" + beerName.toLowerCase() + "%"
+            );
+        };
     }
 
     private static Specification<Beer> sortByPrice(String sortDirection) {

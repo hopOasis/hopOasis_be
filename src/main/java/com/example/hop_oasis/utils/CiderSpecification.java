@@ -16,9 +16,16 @@ public class CiderSpecification {
     }
 
 
-    private static Specification<Cider> findByName(String ciderName) {
-        return (root, query, criteriaBuilder) ->
-                ciderName == null ? criteriaBuilder.conjunction() : criteriaBuilder.equal(root.get("ciderName"), ciderName);
+    public static Specification<Cider> findByName(String ciderName) {
+        return (root, query, criteriaBuilder) -> {
+            if (ciderName == null || ciderName.isBlank()) {
+                return criteriaBuilder.conjunction();
+            }
+            return criteriaBuilder.like(
+                    criteriaBuilder.lower(root.get("ciderName")),
+                    "%" + ciderName.toLowerCase() + "%"
+            );
+        };
     }
     private static Specification<Cider> sortByPrice(String sortDirection) {
         return (root, query, criteriaBuilder) -> {
