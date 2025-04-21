@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>Товарна накладна / Рахунок-фактура</title>
+    <style>
+        body {
+            font-family: DejaVu Sans, Arial, sans-serif;
+            padding: 40px;
+            font-size: 14px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .header, .info {
+            margin-bottom: 20px;
+        }
+
+        .header p, .info p {
+            margin: 4px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 8px;
+            border: 1px solid #000;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .total {
+            margin-top: 10px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Товарна накладна / Рахунок-фактура</h1>
+
+<div class="header">
+    <p><strong>Продавець:</strong> ТОВ "Хмельна Оаза"</p>
+    <p><strong>ЄДРПОУ:</strong> 12345678</p>
+    <p><strong>Адреса:</strong> м. Харків, Пл. Павловська, 8</p>
+    <p><strong>Тел.:</strong> +38 (044) 123-45-67</p>
+    <p><strong>Ліцензія на торгівлю алкоголем:</strong> АБ №123456 від 01.01.2024</p>
+</div>
+
+<div class="info">
+    <p><strong>Покупець:</strong> Фізична особа</p>
+    <p><strong>Адреса доставки:</strong> <span th:text="${deliveryAddress}"></span></p>
+    <p><strong>Дата:</strong> <span th:text="${invoiceDate}"></span></p>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>№</th>
+        <th>Найменування товару</th>
+        <th>Кількість</th>
+        <th>Од. виміру</th>
+        <th>Ціна за од., грн</th>
+        <th>Сума, грн</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item, stat : ${orderItems}">
+        <td th:text="${stat.index + 1}">1</td>
+        <td th:text="${item.itemTitle}">Назва</td>
+        <td th:text="${item.quantity}">1</td>
+        <td>шт</td>
+        <td th:text="${item.price}">70.00</td>
+        <td th:text="${item.price * item.quantity}">70.00</td>
+    </tr>
+    </tbody>
+</table>
+
+<div class="total">
+    Разом до сплати: <span th:text="${totalSum} + ' грн (з ПДВ)'"></span>
+</div>
+
+<div class="footer">
+    <p>Фактуру сформовано автоматично.</p>
+    <p>Дякуємо за покупку!</p>
+</div>
+
+</body>
+</html>

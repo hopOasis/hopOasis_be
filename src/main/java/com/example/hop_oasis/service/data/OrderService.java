@@ -8,6 +8,7 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
 import com.example.hop_oasis.utils.EmailPattern;
+import com.example.hop_oasis.utils.PdfGenerator;
 import com.example.hop_oasis.utils.Rounder;
 import com.example.hop_oasis.utils.UniqueNumberGenerator;
 import com.stripe.exception.StripeException;
@@ -38,7 +39,9 @@ public class OrderService {
     private final EmailService emailService;
     private final ProductBundleOptionsRepository productBundleOptionsRepository;
     private final EmailNotificationLogRepository emailLogRepository;
+    private final PdfGenerator pdfGenerator;
     private final StripeService stripeService;
+    private final TemplateService templateService;
 
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto requestDto, Authentication authentication) {
@@ -75,8 +78,6 @@ public class OrderService {
 
             double pricePerItem = prices.getOrDefault(cartItem.getItemId(), 0.0);
             orderItem.setPrice(pricePerItem);
-            double totalPriceForItem = pricePerItem * cartItem.getQuantity();
-            orderItem.setPrice(totalPriceForItem);
             String itemTitle = names.getOrDefault(cartItem.getItemId(), null);
             orderItem.setItemTitle(itemTitle);
 
@@ -87,8 +88,8 @@ public class OrderService {
         orderRepository.save(order);
         cart.getCartItems().clear();
         cartRepository.save(cart);
-        String orderDetails = emailService.buildOrderConfirmationEmail(order);
-        sendConfirmEmail(user.getEmail(),
+        String orderDetails = templateService.buildOrderConfirmationEmailHtml(order);
+        sendConfirmEmailWithoutInvoice(user.getEmail(),
                 orderDetails);
         return orderMapper.toDto(order);
     }
@@ -110,14 +111,16 @@ public class OrderService {
             order = orderRepository.save(order);
             String orderDetails = EmailPattern
                     .buildOrderConfirmationEmail(order, user.getFirstName(), user.getLastName());
-            sendConfirmEmail(user.getEmail(),
-                    orderDetails);
+            String invoiceHtml = templateService.buildInvoiceHtml(order);
+            byte[] invoicePdf = pdfGenerator.generateFromHtml(invoiceHtml);
+            emailService.sendEmail(user.getEmail(), EmailPattern.EMAIL_TITLE,
+                    orderDetails, invoicePdf);
 
         } else {
             order = order.setPaymentStatus(PaymentStatus.NOT_PAID);
             String orderDetails = EmailPattern
                     .buildOrderNotPaidEmail(order, user.getFirstName(), user.getLastName());
-            sendConfirmEmail(user.getEmail(),
+            sendConfirmEmailWithoutInvoice(user.getEmail(),
                     orderDetails);
 
         }
@@ -126,7 +129,7 @@ public class OrderService {
     }
 
 
-    private void sendConfirmEmail(String email, String orderDetails) {
+    private void sendConfirmEmailWithoutInvoice(String email, String orderDetails) {
         emailService.sendEmail(email, EmailPattern.EMAIL_TITLE,
                 orderDetails);
     }
