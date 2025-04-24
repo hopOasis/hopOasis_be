@@ -20,7 +20,7 @@ public class PdfGenerator {
             renderer.createPDF(outputStream);
             return outputStream.toByteArray();
         } catch (Exception e) {
-            throw new IllegalArgumentException("Failed to generate PDF");
+            throw new IllegalArgumentException("Failed to generate PDF: " + e.getMessage(), e);
         }
     }
 }

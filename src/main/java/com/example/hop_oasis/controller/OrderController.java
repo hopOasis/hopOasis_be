@@ -35,7 +35,6 @@ public class OrderController {
     }
     @GetMapping("/pay/{status}/{orderId}")
     public ResponseEntity<OrderResponseDto> payStatus(@PathVariable boolean status, Authentication authentication, @PathVariable Long orderId)  {
-        orderService.isOrderPaid(status,authentication,orderId);
         return ResponseEntity.ok(orderService.isOrderPaid(status,authentication,orderId));
     }
 
