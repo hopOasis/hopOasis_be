@@ -1,14 +1,13 @@
 package com.example.hop_oasis.service.data;
 
 import com.example.hop_oasis.enums.EmailMessage;
-import com.example.hop_oasis.enums.OrderStatus;
 import com.example.hop_oasis.model.EmailNotificationLog;
 import com.example.hop_oasis.model.Order;
 import com.example.hop_oasis.repository.EmailNotificationLogRepository;
 import com.example.hop_oasis.utils.EmailPattern;
-import com.example.hop_oasis.utils.OrderStatusTranslate;
 import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Attachments;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Email;
 import lombok.RequiredArgsConstructor;
@@ -16,11 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
@@ -33,25 +31,17 @@ public class EmailService {
     private final TemplateEngine templateEngine;
     private final EmailNotificationLogRepository emailLogRepository;
     private final EmailSettingsService settingsService;
+    private final TemplateService templateService;
 
     public void sendOrderStatusUpdateEmail(Order order) {
         if (!settingsService.isEmailNotificationsEnabled()) {
             log.info("Email notifications are disabled. Skipping email for order {}", order.getId());
             return;
         }
+
         String toEmail = order.getUser().getEmail();
-        String userName = order.getUser().getFirstName();
-        String status = order.getOrderStatus().name();
 
-        Context context = new Context();
-        context.setVariable("firstName", userName);
-        context.setVariable("orderNumber", order.getOrderNumber());
-        context.setVariable("orderStatus", OrderStatusTranslate.translateStatus(OrderStatus.valueOf(status)));
-        context.setVariable("orderItems", order.getOrderItems() != null ? order.getOrderItems() : List.of());
-        context.setVariable("totalSum", order.getTotalPrice());
-        context.setVariable("currency", "ГРН");
-
-        String emailContent = templateEngine.process("email-template", context);
+        String emailContent = templateEngine.process("email-template", templateService.buildOrderStatusContext(order));
 
         boolean sentSuccessfully = sendEmail(toEmail, "Order Status Update", emailContent);
 
@@ -70,6 +60,10 @@ public class EmailService {
     }
 
     public boolean sendEmail(String toEmail, String subject, String body) {
+        return sendEmail(toEmail, subject, body, null);
+    }
+
+    public boolean sendEmail(String toEmail, String subject, String body, byte[] pdfContent) {
         try {
             if (sendGridApiKey.isBlank()) {
                 log.error("SendGrid API Key is missing! Email will not be sent.");
@@ -80,6 +74,15 @@ public class EmailService {
             Email to = new Email(toEmail);
             Content content = new Content("text/html", body);
             Mail mail = new Mail(from, subject, to, content);
+
+            if (pdfContent != null) {
+                Attachments attachment = new Attachments();
+                attachment.setContent(Base64.getEncoder().encodeToString(pdfContent));
+                attachment.setType("application/pdf");
+                attachment.setFilename("invoice.pdf");
+                attachment.setDisposition("attachment");
+                mail.addAttachments(attachment);
+            }
 
             SendGrid sendGrid = new SendGrid(sendGridApiKey);
             Request request = new Request();
@@ -96,14 +99,5 @@ public class EmailService {
             log.error("Error sending email: {}", e.getMessage(), e);
             return false;
         }
-    }
-
-    public String buildOrderConfirmationEmail(Order order) {
-        Context context = new Context();
-        context.setVariable("firstName", order.getUser().getFirstName());
-        context.setVariable("lastName", order.getUser().getLastName());
-        context.setVariable("orderNumber", order.getOrderNumber());
-
-        return templateEngine.process("order-confirmation", context);
     }
 }
