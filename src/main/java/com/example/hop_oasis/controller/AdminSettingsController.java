@@ -2,7 +2,7 @@ package com.example.hop_oasis.controller;
 
 import com.example.hop_oasis.service.data.EmailSettingsService;
 import com.example.hop_oasis.utils.EmailPattern;
-import com.example.hop_oasis.utils.OrderApiResponse;
+import com.example.hop_oasis.utils.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,7 +23,7 @@ public class AdminSettingsController {
             @RequestBody Map<String, Boolean> request) {
         boolean enabled = request.getOrDefault("enabled", true);
         settingsService.updateEmailNotifications(enabled);
-        return OrderApiResponse
+        return ApiResponse
                 .success(enabled ? EmailPattern.ENABLED_NOTIFICATIONS : EmailPattern.DISABLED_NOTIFICATIONS);
 
     }

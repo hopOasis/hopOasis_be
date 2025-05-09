@@ -143,3 +143,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/062-add-column-payment-status-to-orders.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/064-create-password-reset-tokens.sql
