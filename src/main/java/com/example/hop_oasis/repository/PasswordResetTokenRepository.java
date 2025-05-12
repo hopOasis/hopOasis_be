@@ -5,6 +5,7 @@ import com.example.hop_oasis.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -12,4 +13,5 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     Optional<PasswordResetToken> findByToken(String token);
 
     void deleteByUser(User user);
+    void deleteAllByExpiryDateBefore(LocalDateTime dateTime);
 }

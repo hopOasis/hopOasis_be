@@ -9,6 +9,7 @@ import com.example.hop_oasis.utils.EmailPattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class PasswordResetService {
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public void sendResetPasswordEmail(String email) {
         userRepository.findByEmail(email).ifPresent(user -> {
             tokenRepository.deleteByUser(user);
@@ -37,6 +39,8 @@ public class PasswordResetService {
             emailService.sendEmail(user.getEmail(), "Відновлення паролю", emailContent);
         });
     }
+
+    @Transactional
     public void resetPassword(String token, String newPassword) {
         PasswordResetToken resetToken = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid token", ""));

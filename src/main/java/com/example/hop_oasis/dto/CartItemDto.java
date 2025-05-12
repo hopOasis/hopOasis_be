@@ -4,6 +4,7 @@ import com.example.hop_oasis.model.ItemType;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @AllArgsConstructor
@@ -19,4 +20,6 @@ public final class CartItemDto {
     private double pricePerItem;
     private int quantity;
     private BigDecimal totalCost;
+    private double measureValue;
+    private List<String> imageName;
 }
