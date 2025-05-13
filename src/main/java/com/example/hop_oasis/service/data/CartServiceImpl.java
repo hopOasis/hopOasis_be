@@ -428,6 +428,8 @@ public class CartServiceImpl {
                         BeerOptionsDto selectedVolume = chooseOptionByMeasureValue(
                                 beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
                         dto.setPricePerItem(selectedVolume.getPrice());
+                        dto.setMeasureValue(selectedVolume.getVolume());
+                        dto.setImageName(beerInfo.getImageName());
                     }
                 }
                 dto.setItemType(cartItem.getItemType());
@@ -440,6 +442,8 @@ public class CartServiceImpl {
                         CiderOptionsDto selectedVolume = chooseOptionByMeasureValue(
                                 ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
                         dto.setPricePerItem(selectedVolume.getPrice());
+                        dto.setMeasureValue(selectedVolume.getVolume());
+                        dto.setImageName(ciderInfo.getCiderImageName());
                     }
                 }
                 dto.setItemType(cartItem.getItemType());
@@ -452,6 +456,8 @@ public class CartServiceImpl {
                         SnackOptionsDto selectedWeight = chooseOptionByMeasureValue(
                                 snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
                         dto.setPricePerItem(selectedWeight.getPrice());
+                        dto.setMeasureValue(selectedWeight.getWeight());
+                        dto.setImageName(snackInfo.getSnackImageName());
                     }
                 }
                 dto.setItemType(cartItem.getItemType());
@@ -467,6 +473,7 @@ public class CartServiceImpl {
                                     -> new ResourceNotFoundException("Bundle options not found for this bundle", ""));
 
                     dto.setPricePerItem(options.getPrice());
+                    dto.setImageName(bundleInfo.getProductImageName());
 
                 }
                 dto.setItemType(cartItem.getItemType());

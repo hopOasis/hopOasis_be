@@ -5,7 +5,7 @@ import com.example.hop_oasis.dto.OrderResponseDto;
 import com.example.hop_oasis.dto.OrderStatusUpdateDto;
 import com.example.hop_oasis.service.data.OrderService;
 import com.example.hop_oasis.utils.EmailPattern;
-import com.example.hop_oasis.utils.OrderApiResponse;
+import com.example.hop_oasis.utils.ApiResponse;
 import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +29,15 @@ public class OrderController {
                                                         Authentication authentication) {
         return ResponseEntity.ok(orderService.createOrder(requestDto, authentication));
     }
+
     @GetMapping("/pay/{orderId}")
     public String payOrder(@PathVariable Long orderId) throws StripeException {
-        return  orderService.payForTheOrder(orderId);
+        return orderService.payForTheOrder(orderId);
     }
+
     @GetMapping("/pay/{status}/{orderId}")
-    public ResponseEntity<OrderResponseDto> payStatus(@PathVariable boolean status, Authentication authentication, @PathVariable Long orderId)  {
-        return ResponseEntity.ok(orderService.isOrderPaid(status,authentication,orderId));
+    public ResponseEntity<OrderResponseDto> payStatus(@PathVariable boolean status, Authentication authentication, @PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.isOrderPaid(status, authentication, orderId));
     }
 
     @GetMapping
@@ -76,13 +78,13 @@ public class OrderController {
     public ResponseEntity<Map<String, Object>> updateOrderStatus(@PathVariable Long orderId,
                                                                  @RequestBody OrderStatusUpdateDto updateDto) {
         orderService.updateOrderStatus(orderId, updateDto.getNewStatus(), updateDto.getCancellationReason());
-        return OrderApiResponse.success(EmailPattern.ORDER_UPDATE_SUCCESS);
+        return ApiResponse.success(EmailPattern.ORDER_UPDATE_SUCCESS);
     }
 
     @PostMapping("/{orderId}/resend-email")
     public ResponseEntity<Map<String, Object>> resendOrderStatusEmail(@PathVariable Long orderId) {
         boolean emailSent = orderService.resendOrderStatusEmail(orderId);
-        return OrderApiResponse.orderEmailResponse(orderId, emailSent);
+        return ApiResponse.orderEmailResponse(orderId, emailSent);
     }
 
     @DeleteMapping("/{orderId}")
