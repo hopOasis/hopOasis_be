@@ -30,9 +30,8 @@ public class ReviewController {
     }
 
     @PostMapping("/{id}/reaction")
-    public ResponseEntity<String> reactToReview(@PathVariable("id") Long id, @RequestBody ReactionDto reactionDto,
-                                                Authentication authentication) {
-        reviewReactionService.addReaction(id, reactionDto.getReaction(), authentication);
+    public ResponseEntity<String> reactToReview(@PathVariable("id") Long id, @RequestBody ReactionDto reactionDto) {
+        reviewReactionService.addReaction(id, reactionDto.getReaction());
         return ResponseEntity.ok().body(reactionDto.getReaction() + " added");
 
     }
