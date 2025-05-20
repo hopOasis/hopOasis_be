@@ -19,4 +19,6 @@ public class ReviewInfoDto {
     private ItemType itemType;
     private LocalDateTime createdAt;
     private String content;
+    private int likes;
+    private int dislikes;
 }
