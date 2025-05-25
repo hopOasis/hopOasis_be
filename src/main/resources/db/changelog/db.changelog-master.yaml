@@ -146,3 +146,6 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/064-create-password-reset-tokens.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/065-create-reactions-for-review.sql

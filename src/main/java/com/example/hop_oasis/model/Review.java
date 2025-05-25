@@ -2,9 +2,10 @@ package com.example.hop_oasis.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -30,6 +31,8 @@ public class Review {
     private LocalDateTime createdAt;
     @Column(name = "content")
     private String content;
+    @OneToMany(mappedBy = "review", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<ReviewReaction> reactions = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

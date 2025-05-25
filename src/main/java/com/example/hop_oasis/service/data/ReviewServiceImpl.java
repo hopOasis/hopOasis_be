@@ -23,6 +23,7 @@ public class ReviewServiceImpl {
     private final SnackRepository snackRepository;
     private final ProductBundleRepository bundleRepository;
     private final UserRepository userRepository;
+    private final ReviewReactionService reactionService;
 
     public Review createReview(ReviewDto reviewDto) {
         if (reviewDto.getItemId() == null || reviewDto.getItemType() == null) {
@@ -43,13 +44,22 @@ public class ReviewServiceImpl {
 
     public List<ReviewInfoDto> getAllReviews() {
         List<Review> reviews = reviewRepository.findAll();
-        return reviewMapper.toDtos(reviews);
+        return reviews.stream()
+                .map(this::countReactions).toList();
     }
 
     public ReviewInfoDto getReviewById(Long id) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with id: " + id, ""));
-        return reviewMapper.toReviewInfoDto(review);
+        return countReactions(review);
+
+    }
+
+    private ReviewInfoDto countReactions(Review review) {
+        ReviewInfoDto dto = reviewMapper.toReviewInfoDto(review);
+        dto.setLikes(reactionService.getLikesCount(review));
+        dto.setDislikes(reactionService.getDislikesCount(review));
+        return dto;
 
     }
 
