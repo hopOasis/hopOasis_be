@@ -7,6 +7,7 @@ import com.example.hop_oasis.enums.PaymentType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +49,10 @@ public class Order {
     private List<OrderItem> orderItems = new ArrayList<>();
     @Column(name = "total_price", nullable = false)
     private double totalPrice;
+    @Column(name = "total_weight", nullable = false)
+    private BigDecimal totalWeight;
+    @Column(name = "shipping_price", nullable = false)
+    private BigDecimal shippingPrice;
     @Column(name = "payment_status")
     @Enumerated(EnumType.STRING)
     private PaymentStatus paymentStatus;

@@ -1,5 +1,7 @@
 package com.example.hop_oasis.service.data;
 
+import com.example.hop_oasis.client.FedExRateClient;
+import com.example.hop_oasis.convertor.FedExRateMapper;
 import com.example.hop_oasis.convertor.OrderMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.enums.OrderStatus;
@@ -7,10 +9,7 @@ import com.example.hop_oasis.enums.PaymentStatus;
 import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.model.*;
 import com.example.hop_oasis.repository.*;
-import com.example.hop_oasis.utils.EmailPattern;
-import com.example.hop_oasis.utils.PdfGenerator;
-import com.example.hop_oasis.utils.Rounder;
-import com.example.hop_oasis.utils.UniqueNumberGenerator;
+import com.example.hop_oasis.utils.*;
 import com.stripe.exception.StripeException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -42,6 +42,9 @@ public class OrderService {
     private final PdfGenerator pdfGenerator;
     private final StripeService stripeService;
     private final TemplateService templateService;
+    private final FedExRateMapper rateMapper;
+    private final FedExRateClient rateClient;
+    private final WeightCalculatorService weightCalculatorService;
 
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto requestDto, Authentication authentication) {
@@ -53,7 +56,6 @@ public class OrderService {
         if (cart.getCartItems().isEmpty()) {
             throw new ResourceNotFoundException("Cart is empty", "");
         }
-        Map<Long, Double> prices = fetchPricesForItems(cart.getCartItems());
         Map<Long, String> names = fetchNamesForItems(cart.getCartItems());
 
 
@@ -64,6 +66,17 @@ public class OrderService {
         order.setPaymentType(requestDto.getPaymentType());
         order.setCustomerPhoneNumber(requestDto.getCustomerPhoneNumber());
         validateAndSetDeliveryDetails(order, requestDto);
+        List<CartItemDto> cartItemDtos = cart.getCartItems()
+                .stream().map(cartService::createCartItemDto).toList();
+
+        BigDecimal totalWeight = weightCalculatorService.calculateTotalWeight(cartItemDtos);
+        order.setTotalWeight(totalWeight);
+        FedExRateRequestDto rateRequest = rateMapper.toRateRequestDto(
+                totalWeight.doubleValue(),
+                requestDto.getDeliveryAddress()
+        );
+        BigDecimal deliveryCost = rateClient.getRate(rateRequest);
+        order.setShippingPrice(deliveryCost);
         order.setCreatedAt(LocalDateTime.now());
         order.setOrderStatus(OrderStatus.PROCESSING);
 
@@ -75,8 +88,9 @@ public class OrderService {
             orderItem.setItemId(cartItem.getItemId());
             orderItem.setItemType(cartItem.getItemType());
             orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setMeasureValue(cartItem.getMeasureValue());
 
-            double pricePerItem = prices.getOrDefault(cartItem.getItemId(), 0.0);
+            double pricePerItem = getPriceForCartItem(cartItem);
             orderItem.setPrice(pricePerItem);
             String itemTitle = names.getOrDefault(cartItem.getItemId(), null);
             orderItem.setItemTitle(itemTitle);
@@ -159,52 +173,50 @@ public class OrderService {
         return names;
     }
 
-    private Map<Long, Double> fetchPricesForItems(List<CartItem> cartItems) {
-        Map<Long, Double> prices = new HashMap<>();
-        for (CartItem cartItem : cartItems) {
-            switch (cartItem.getItemType()) {
-                case BEER -> {
-                    BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
-                    if (beerInfo != null && cartItem.getMeasureValue() != null) {
-                        BeerOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
-                                beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
-                        prices.put(cartItem.getItemId(), selectedVolume.getPrice());
-
-                    }
+    private double getPriceForCartItem(CartItem cartItem) {
+        return switch (cartItem.getItemType()) {
+            case BEER -> {
+                BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
+                if (beerInfo != null && cartItem.getMeasureValue() != null) {
+                    BeerOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
+                            beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
+                    yield selectedVolume.getPrice();
                 }
-                case CIDER -> {
-                    CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
-                    if (ciderInfo != null && cartItem.getMeasureValue() != null) {
-                        CiderOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
-                                ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
-                        prices.put(cartItem.getItemId(), selectedVolume.getPrice());
-
-                    }
-                }
-                case SNACK -> {
-                    SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
-                    if (snackInfo != null && cartItem.getMeasureValue() != null) {
-                        SnackOptionsDto selectedWeight = cartService.chooseOptionByMeasureValue(
-                                snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
-                        prices.put(cartItem.getItemId(), selectedWeight.getPrice());
-                    }
-                }
-                case PRODUCT_BUNDLE -> {
-                    ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
-                    if (bundleInfo != null) {
-                        Optional<ProductBundleOptions> optionalProductBundleOptions = productBundleOptionsRepository
-                                .findByProductBundleId(cartItem.getItemId());
-                        ProductBundleOptions options = optionalProductBundleOptions
-                                .orElseThrow(() -> new ResourceNotFoundException("Bundle options not found", ""));
-                        prices.put(cartItem.getItemId(), options.getPrice());
-                    }
-                }
-                default -> throw new ResourceNotFoundException("Unsupported item type: " + cartItem.getItemType(), "");
-
+                yield 0.0;
             }
-        }
-        return prices;
+            case CIDER -> {
+                CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
+                if (ciderInfo != null && cartItem.getMeasureValue() != null) {
+                    CiderOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
+                            ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
+                    yield selectedVolume.getPrice();
+                }
+                yield 0.0;
+            }
+            case SNACK -> {
+                SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
+                if (snackInfo != null && cartItem.getMeasureValue() != null) {
+                    SnackOptionsDto selectedWeight = cartService.chooseOptionByMeasureValue(
+                            snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
+                    yield selectedWeight.getPrice();
+                }
+                yield 0.0;
+            }
+            case PRODUCT_BUNDLE -> {
+                ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
+                if (bundleInfo != null) {
+                    Optional<ProductBundleOptions> optionalProductBundleOptions =
+                            productBundleOptionsRepository.findByProductBundleId(cartItem.getItemId());
+                    ProductBundleOptions options = optionalProductBundleOptions.orElseThrow(() ->
+                            new ResourceNotFoundException("Bundle options not found", ""));
+                    yield options.getPrice();
+                }
+                yield 0.0;
+            }
+            default -> throw new ResourceNotFoundException("Unsupported item type: " + cartItem.getItemType(), "");
+        };
     }
+
 
     public List<OrderResponseDto> getAllOrders() {
         List<Order> orders = orderRepository.findAll();

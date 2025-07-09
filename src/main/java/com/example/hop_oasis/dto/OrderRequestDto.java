@@ -23,6 +23,7 @@ public class OrderRequestDto {
     private DeliveryMethod deliveryMethod;
     @NotBlank(message = "Delivery address is required")
     private String deliveryAddress;
+    private String deliveryPostalCode;
     private OrderStatus orderStatus;
     private String cancellationReason;
 }

@@ -14,6 +14,7 @@ public class OrderItemDto {
     private String itemTitle;
     private ItemType itemType;
     private Integer quantity;
+    private Double measureValue;
     private double price;
 
 }
