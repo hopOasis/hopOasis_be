@@ -149,3 +149,9 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changes/065-create-reactions-for-review.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/066-add-columns-in-order.sql
+  - include:
+      relativeToChangelogFile: true
+      file: changes/067-add-column-in-order-items.sql

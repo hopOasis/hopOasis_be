@@ -1,0 +1,1 @@
+ALTER TABLE order_items ADD COLUMN measure_value DOUBLE NOT NULL DEFAULT 0.0;

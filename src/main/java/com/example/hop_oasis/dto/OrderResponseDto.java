@@ -30,6 +30,8 @@ public class OrderResponseDto {
     private OrderStatus orderStatus;
     private String cancellationReason;
     private BigDecimal totalPrice;
+    private BigDecimal totalWeight;
+    private BigDecimal shippingPrice;
     private List<OrderItemDto> items;
     private PaymentStatus paymentStatus;
 }

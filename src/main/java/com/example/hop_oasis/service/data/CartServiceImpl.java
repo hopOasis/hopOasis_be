@@ -413,7 +413,7 @@ public class CartServiceImpl {
 
     }
 
-    private CartItemDto createCartItemDto(CartItem cartItem) {
+    public CartItemDto createCartItemDto(CartItem cartItem) {
         CartItemDto dto = new CartItemDto();
         dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
