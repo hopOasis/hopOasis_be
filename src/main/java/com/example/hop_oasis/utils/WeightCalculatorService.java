@@ -11,6 +11,9 @@ import java.util.List;
 public class WeightCalculatorService {
 
     public BigDecimal calculateTotalWeight(List<CartItemDto> items) {
+        if (items == null || items.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
         BigDecimal totalWeightKg = BigDecimal.ZERO;
 
         for (CartItemDto item : items) {

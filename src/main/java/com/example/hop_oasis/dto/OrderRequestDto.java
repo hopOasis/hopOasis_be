@@ -23,6 +23,7 @@ public class OrderRequestDto {
     private DeliveryMethod deliveryMethod;
     @NotBlank(message = "Delivery address is required")
     private String deliveryAddress;
+    @Pattern(regexp = "^\\d{5}(-\\d{4})?$", message = "Invalid postal code format")
     private String deliveryPostalCode;
     private OrderStatus orderStatus;
     private String cancellationReason;

@@ -177,43 +177,53 @@ public class OrderService {
         return switch (cartItem.getItemType()) {
             case BEER -> {
                 BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
-                if (beerInfo != null && cartItem.getMeasureValue() != null) {
-                    BeerOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
-                            beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
-                    yield selectedVolume.getPrice();
+                if (beerInfo == null) {
+                    throw new ResourceNotFoundException("Beer not found with id: " + cartItem.getItemId(), "");
                 }
-                yield 0.0;
+                if (cartItem.getMeasureValue() == null) {
+                    throw new ResourceNotFoundException("Measure value is required for beer item", "");
+                }
+                BeerOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
+                        beerInfo.getOptions(), cartItem.getMeasureValue(), BeerOptionsDto::getVolume);
+                yield selectedVolume.getPrice();
             }
             case CIDER -> {
                 CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
-                if (ciderInfo != null && cartItem.getMeasureValue() != null) {
-                    CiderOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
-                            ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
-                    yield selectedVolume.getPrice();
+                if (ciderInfo == null) {
+                    throw new ResourceNotFoundException("Cider not found with id: " + cartItem.getItemId(), "");
                 }
-                yield 0.0;
+                if (cartItem.getMeasureValue() == null) {
+                    throw new ResourceNotFoundException("Measure value is required for cider item", "");
+                }
+                CiderOptionsDto selectedVolume = cartService.chooseOptionByMeasureValue(
+                        ciderInfo.getOptions(), cartItem.getMeasureValue(), CiderOptionsDto::getVolume);
+                yield selectedVolume.getPrice();
             }
             case SNACK -> {
                 SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
-                if (snackInfo != null && cartItem.getMeasureValue() != null) {
-                    SnackOptionsDto selectedWeight = cartService.chooseOptionByMeasureValue(
-                            snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
-                    yield selectedWeight.getPrice();
+                if (snackInfo == null) {
+                    throw new ResourceNotFoundException("Snack not found with id: " + cartItem.getItemId(), "");
                 }
-                yield 0.0;
+                if (cartItem.getMeasureValue() == null) {
+                    throw new ResourceNotFoundException("Measure value is required for snack item", "");
+                }
+                SnackOptionsDto selectedWeight = cartService.chooseOptionByMeasureValue(
+                        snackInfo.getOptions(), cartItem.getMeasureValue(), SnackOptionsDto::getWeight);
+                yield selectedWeight.getPrice();
             }
             case PRODUCT_BUNDLE -> {
                 ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
-                if (bundleInfo != null) {
-                    Optional<ProductBundleOptions> optionalProductBundleOptions =
-                            productBundleOptionsRepository.findByProductBundleId(cartItem.getItemId());
-                    ProductBundleOptions options = optionalProductBundleOptions.orElseThrow(() ->
-                            new ResourceNotFoundException("Bundle options not found", ""));
-                    yield options.getPrice();
+                if (bundleInfo == null) {
+                    throw new ResourceNotFoundException("Bundle not found with id: " + cartItem.getItemId(), "");
                 }
-                yield 0.0;
+                Optional<ProductBundleOptions> optionalProductBundleOptions =
+                        productBundleOptionsRepository.findByProductBundleId(cartItem.getItemId());
+                ProductBundleOptions options = optionalProductBundleOptions.orElseThrow(() ->
+                        new ResourceNotFoundException("Bundle options not found", ""));
+                yield options.getPrice();
             }
             default -> throw new ResourceNotFoundException("Unsupported item type: " + cartItem.getItemType(), "");
+
         };
     }
 

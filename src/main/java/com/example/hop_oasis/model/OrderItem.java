@@ -25,7 +25,7 @@ public class OrderItem {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
     @Column(name = "measure_value", nullable = false)
-    private Double measureValue;
+    private double measureValue;
     @Column(name = "price", nullable = false)
     private double price;
     @Column(name = "item_title", nullable = false)

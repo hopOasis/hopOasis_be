@@ -5,6 +5,7 @@ import com.example.hop_oasis.dto.FedExRateApiResponse;
 import com.example.hop_oasis.dto.FedExRateRequestDto;
 import com.example.hop_oasis.service.data.FedExAuthService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,6 +16,7 @@ import java.math.BigDecimal;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class FedExRateClient {
     private final FedExAuthService authService;
     private final WebClient.Builder webClientBuilder;
@@ -43,7 +45,7 @@ public class FedExRateClient {
             return extractAmount(response);
 
         } catch (Exception e) {
-            System.err.println("Помилка при отриманні ставки від FedEx: " + e.getMessage());
+            log.error("Error getting rate from FedEx: {}", e.getMessage());
             return BigDecimal.valueOf(75.00);
         }
     }
@@ -90,7 +92,7 @@ public class FedExRateClient {
                     .get(0)
                     .getTotalNetCharge();
         } catch (Exception e) {
-            throw new RuntimeException("Не вдалося вилучити суму із відповіді FedEx", e);
+            throw new RuntimeException("Failed to extract amount from FedEx response", e);
         }
     }
 }
