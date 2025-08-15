@@ -8,6 +8,7 @@ import com.example.hop_oasis.handler.exception.ResourceNotFoundException;
 import com.example.hop_oasis.handler.exception.UnauthorizedException;
 import com.example.hop_oasis.model.User;
 import com.example.hop_oasis.repository.UserRepository;
+import com.example.hop_oasis.utils.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -27,12 +28,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserAuthenticated userAuthenticated;
+    private final EmailValidator emailValidator;
 
     public TokenResponse register(UserRegisterRequest registerRequest) {
         User user = User.builder()
                 .firstName(registerRequest.getFirstName())
                 .lastName(registerRequest.getLastName())
-                .email(registerRequest.getEmail())
+                .email(emailValidator.validateExistingEmail(registerRequest.getEmail()))
                 .password(passwordEncoder.encode(registerRequest.getPassword()))
                 .role(Role.USER)
                 .build();
@@ -77,16 +79,6 @@ public class AuthenticationService {
                 .accessToken(newAccessToken)
                 .build();
 
-    }
-
-    public boolean isAdmin() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails userDetails) {
-            User user = userRepository.findByEmail(userDetails.getUsername())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
-            return user.getRole() == Role.ADMIN;
-        }
-        return false;
     }
 
 }
