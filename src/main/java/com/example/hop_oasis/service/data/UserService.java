@@ -6,6 +6,7 @@ import com.example.hop_oasis.dto.UserResponse;
 import com.example.hop_oasis.enums.Role;
 import com.example.hop_oasis.model.User;
 import com.example.hop_oasis.repository.UserRepository;
+import com.example.hop_oasis.utils.EmailValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final UserAuthenticated userAuthenticated;
+    private final EmailValidator emailValidator;
 
     @Value("${spring.security.oauth2.client.registration.google.clientId}")
     private String googleClientId;
@@ -75,7 +77,7 @@ public class UserService {
             curentUser.setLastName(user.getLastName());
             userRepository.save(curentUser);
             return UserResponse.builder()
-                    .email(curentUser.getEmail())
+                    .email(emailValidator.validateExistingEmail(curentUser.getEmail()))
                     .firstName(curentUser.getFirstName())
                     .lastName(curentUser.getLastName())
                     .build();
