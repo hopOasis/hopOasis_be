@@ -3,6 +3,7 @@ package com.example.hop_oasis.controller;
 import com.example.hop_oasis.dto.RecommendationRequestDto;
 import com.example.hop_oasis.dto.RecommendationResponseDto;
 import com.example.hop_oasis.service.data.TeamRecommendationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,7 @@ public class TeamRecommendationController {
     private final TeamRecommendationService recommendationService;
 
     @PostMapping
-    public ResponseEntity<RecommendationResponseDto> createRecommendation(@RequestBody RecommendationRequestDto recommendationRequestDto) {
+    public ResponseEntity<RecommendationResponseDto> createRecommendation(@Valid @RequestBody RecommendationRequestDto recommendationRequestDto) {
         RecommendationResponseDto recommendationResponseDto = recommendationService.addRecommendation(recommendationRequestDto);
         return ResponseEntity.ok().body(recommendationResponseDto);
     }
