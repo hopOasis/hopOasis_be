@@ -17,6 +17,7 @@ import static com.example.hop_oasis.handler.exception.message.ExceptionMessage.R
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -80,8 +81,14 @@ public class TeamRecommendationService {
 
     private String resolveImageUrl(ItemType itemType, Long itemId) {
         return switch (itemType) {
-            case BEER -> beerService.getBeerById(itemId).getImageName().stream().findFirst().orElse(null);
-            case CIDER -> ciderService.getCiderById(itemId).getCiderImageName().stream().findFirst().orElse(null);
+            case BEER -> Optional.ofNullable(beerService.getBeerById(itemId).getImageName())
+                    .filter(list -> !list.isEmpty())
+                    .map(list -> list.get(0))
+                    .orElse(null);
+            case CIDER -> Optional.ofNullable(ciderService.getCiderById(itemId).getCiderImageName())
+                    .filter(list -> !list.isEmpty())
+                    .map(list -> list.get(0))
+                    .orElse(null);
             default -> throw new IllegalStateException("Unexpected value: " + itemType);
         };
 

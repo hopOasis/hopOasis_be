@@ -111,7 +111,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/orders/user/{userId}").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT, "/admin/settings//email-notifications").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/admin/settings/email-notifications").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/orders/{orderId}/status").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/orders/{orderId}/resend-email").hasAuthority(Role.ADMIN.name())
 
