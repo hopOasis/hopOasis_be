@@ -54,24 +54,24 @@ public class SpecialOfferAllProductController {
         return ResponseEntity.ok().body(specialOfferService.getAllSpecialOffers());
     }
 
-    @GetMapping("/{offerId}/beers/{beerId}")
+    @PostMapping ("/{offerId}/beers/{beerId}")
     public ResponseEntity<String> addBeerToSpecialOffer(
             @PathVariable("beerId") Long beerId, @PathVariable("offerId") Long offerId) {
         specialOfferService.addBeerToSpecialOffer(beerId, offerId);
         return ResponseEntity.ok().body("Added beer to special offer");
     }
 
-    @GetMapping("/{offerId}/ciders/{ciderId}")
+    @PostMapping("/{offerId}/ciders/{ciderId}")
     public void addCiderToSpecialOffer(@PathVariable("ciderId") Long ciderId, @PathVariable("offerId") Long offerId) {
         specialOfferService.addCiderToSpecialOffer(ciderId, offerId);
     }
 
-    @GetMapping("/{offerId}/snacks/{snackId}")
+    @PostMapping("/{offerId}/snacks/{snackId}")
     public void addSnackToSpecialOffer(@PathVariable("snackId") Long snackId, @PathVariable("offerId") Long offerId) {
         specialOfferService.addSnackToSpecialOffer(snackId, offerId);
     }
 
-    @GetMapping("/{offerId}/products-bundle/{productBundleId}")
+    @PostMapping("/{offerId}/products-bundle/{productBundleId}")
     public void addProductBundleToSpecialOffer(@PathVariable("productBundleId") Long productBundleId,
                                                @PathVariable("offerId") Long offerId) {
         specialOfferService.addProductBundleToSpecialOffer(productBundleId, offerId);
