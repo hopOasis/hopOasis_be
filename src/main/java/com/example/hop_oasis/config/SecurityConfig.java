@@ -77,13 +77,18 @@ public class SecurityConfig {
                                 "/special-offers/{offerId}/snacks/{snackId}",
                                 "/special-offers/{offerId}/products-bundle/{productBundleId}"
                         ).hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/special-offers/{offerId}/beers/{beerId}",
+                                "/special-offers/{offerId}/ciders/{ciderId}",
+                                "/special-offers/{offerId}/snacks/{snackId}",
+                                "/special-offers/{offerId}/products-bundle/{productBundleId}").hasAuthority(Role.ADMIN.name())
 
                         .requestMatchers(HttpMethod.GET, "/special-offers/{offerId}/beers/{beerId}",
                                 "/special-offers/{offerId}/ciders/{ciderId}",
                                 "/special-offers/{offerId}/snacks/{snackId}",
                                 "/special-offers/{offerId}/products-bundle/{productBundleId}",
-                                "/special-offers/{offerId}", "/special-offers", "/users"
+                                "/special-offers/{offerId}", "/users"
                         ).hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/special-offers").permitAll()
 
                         .requestMatchers(HttpMethod.GET, "/users/{userId}").hasAnyAuthority(Role.ADMIN.name(), Role.USER.name())
                         .requestMatchers(HttpMethod.PUT, "/users/{userId}").hasAuthority(Role.USER.name())
@@ -106,7 +111,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/orders/user/{userId}").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.DELETE, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT,"/admin/settings//email-notifications").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/admin/settings//email-notifications").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/orders/{orderId}/status").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/orders/{orderId}/resend-email").hasAuthority(Role.ADMIN.name())
 
@@ -120,6 +125,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/carts").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/remove/{cartId}").permitAll()
                         .requestMatchers(HttpMethod.DELETE, "/carts/clear/{cartId}").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/team-recommendations").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/team-recommendations/{id}").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/team-recommendations/{id}").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/team-recommendations").hasAuthority(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/team-recommendations/{id}").hasAuthority(Role.ADMIN.name())
 
 
                         .anyRequest()
