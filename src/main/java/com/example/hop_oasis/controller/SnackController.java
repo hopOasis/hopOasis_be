@@ -4,6 +4,7 @@ import com.example.hop_oasis.convertor.SnackInfoMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.service.data.SnackImageServiceImpl;
 import com.example.hop_oasis.service.data.SnackServiceImpl;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -37,7 +38,7 @@ public class SnackController {
                                                            @RequestParam(value = "size", defaultValue = "10") @Positive int size,
                                                            @RequestParam(value = "snackName", required = false) String snackName,
                                                            @RequestParam(value = "sortDirection", required = false) String sortDirection,
-                                                           @RequestParam Map<String, String> allParams) {
+                                                           @Parameter(hidden = true) @RequestParam Map<String, String> allParams) {
         Pageable pageable = PageRequest.of(page, size);
         Page<SnackInfoDto> snackPage = snackService.getAllSnacksWithFilter(snackName, pageable, sortDirection, allParams);
         return ResponseEntity.ok().body(snackPage);

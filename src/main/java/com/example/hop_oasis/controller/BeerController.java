@@ -4,6 +4,7 @@ import com.example.hop_oasis.convertor.BeerInfoMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.service.data.BeerServiceImpl;
 import com.example.hop_oasis.service.data.ImageServiceImpl;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -36,7 +37,7 @@ public class BeerController {
                                                          @RequestParam(value = "size", defaultValue = "10") @Positive int size,
                                                          @RequestParam(value = "beerName", required = false) String beerName,
                                                          @RequestParam(value = "sortDirection", required = false) String sortDirection,
-                                                         @RequestParam Map<String, String> allParams) {
+                                                         @Parameter(hidden = true) @RequestParam Map<String, String> allParams) {
         Pageable pageable = PageRequest.of(page, size);
         Page<BeerInfoDto> beerPage = beerService.getAllBeersWithFilter(beerName, pageable, sortDirection, allParams);
         return ResponseEntity.ok().body(beerPage);
