@@ -4,6 +4,7 @@ import com.example.hop_oasis.convertor.ProductBundleInfoMapper;
 import com.example.hop_oasis.dto.*;
 import com.example.hop_oasis.service.data.ProductBundleImageServiceImpl;
 import com.example.hop_oasis.service.data.ProductBundleServiceImpl;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -37,7 +38,7 @@ public class ProductBundleController {
             @RequestParam(value = "size", defaultValue = "10") @Positive int size,
             @RequestParam(value = "name", required = false) String bundleName,
             @RequestParam(value = "sortDirection", required = false) String sortDirection,
-            @RequestParam Map<String, String> allParams) {
+            @Parameter(hidden = true) @RequestParam Map<String, String> allParams) {
         Pageable pageable = PageRequest.of(page, size);
         Page<ProductBundleInfoDto> productBundlePage =
                 productBundleService.getAllProductBundleWithFilter(bundleName, pageable, sortDirection, allParams);
