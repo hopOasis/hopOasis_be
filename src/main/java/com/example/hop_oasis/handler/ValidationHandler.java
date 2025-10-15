@@ -28,16 +28,17 @@ import static com.example.hop_oasis.handler.ErrorDetails.getResponseEntityErrorM
 
 @RestControllerAdvice
 public class ValidationHandler {
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorDetails> handleValidationExceptions(HttpServletRequest request,
                                                                    MethodArgumentNotValidException ex) {
-        Map<String, String> errorMap = ex.getBindingResult().getFieldErrors().stream()
+        Map<String, String> errors = ex.getBindingResult().getFieldErrors().stream()
                 .collect(Collectors.toMap(
                         FieldError::getField,
-                        field -> field.getDefaultMessage() != null ? field.getDefaultMessage() : ""
+                        FieldError::getDefaultMessage,
+                        (existing, replacement) -> existing + ", " + replacement
                 ));
-        return getResponseEntityErrorMap(request.getRequestURI(), errorMap);
+
+        return ErrorDetails.getResponseEntityErrorMap(request.getRequestURI(), errors);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
