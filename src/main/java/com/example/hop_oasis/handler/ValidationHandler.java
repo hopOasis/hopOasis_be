@@ -41,13 +41,6 @@ public class ValidationHandler {
         return ErrorDetails.getResponseEntityErrorMap(request.getRequestURI(), errors);
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleNotFoundExceptions(HttpServletRequest request,
-                                                                 Exception ex) {
-        return getResponseEntityErrorMap(request.getRequestURI(), makeMapFromException(ex));
-    }
-
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(SpecialOfferException.class)
     public ResponseEntity<?> handleSpecialOfferExceptions() {
@@ -98,6 +91,7 @@ public class ValidationHandler {
     public ResponseEntity<String> handleUnauthorizedException(UnauthorizedException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
+
     @ExceptionHandler(InvalidFormatException.class)
     public ResponseEntity<Map<String, String>> handleInvalidEnumValue(InvalidFormatException ex) {
         Map<String, String> errorResponse = new HashMap<>();
@@ -109,9 +103,16 @@ public class ValidationHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
+
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<String> handleResponseStatusException(ResponseStatusException ex) {
         return ResponseEntity.status(ex.getStatusCode()).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleResourceNotFound(ResourceNotFoundException ex) {
+        Map<String, String> error = Map.of("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 }
 
