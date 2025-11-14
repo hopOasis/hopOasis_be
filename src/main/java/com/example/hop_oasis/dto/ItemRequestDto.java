@@ -12,7 +12,7 @@ import lombok.*;
 @Setter
 public final class ItemRequestDto {
     private Long itemId;
-    @Min(1)
+    @Min(-1)
     private int quantity;
     private Double measureValue;
     private ItemType itemType;

@@ -417,7 +417,9 @@ public class CartServiceImpl {
         CartItemDto dto = new CartItemDto();
         dto.setCartId(cartItem.getCart().getId());
         dto.setItemId(cartItem.getItemId());
-        dto.setQuantity(cartItem.getQuantity());
+        if (cartItem.getQuantity() >= 0) {
+            dto.setQuantity(cartItem.getQuantity());
+        } else throw new IllegalArgumentException("Quantity must be 0 or bigger");
 
         switch (cartItem.getItemType()) {
             case BEER -> {
