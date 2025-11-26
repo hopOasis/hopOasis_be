@@ -105,6 +105,7 @@ public class SecurityConfig {
                         ).permitAll()
                         .requestMatchers(HttpMethod.GET, "/all-products").permitAll()
 
+                        .requestMatchers(HttpMethod.GET, "/orders/user").permitAll()
                         .requestMatchers(HttpMethod.GET, "/orders/pay/**").hasAuthority(Role.USER.name())
                         .requestMatchers(HttpMethod.PUT, "/orders/{orderId}").hasAuthority(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.GET, "/orders").hasAuthority(Role.ADMIN.name())
