@@ -241,7 +241,18 @@ public class OrderService {
         return orderMapper.toDto(order);
     }
 
-    public List<OrderResponseDto> getAllOrdersByUserId(Long userId) {
+    public List<OrderResponseDto> getAllOrdersForUser(Authentication authentication) {
+        String userEmail = authentication.getName();
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found", ""));
+        List<Order> orders = orderRepository.findByUserId(user.getId());
+        if (orders.isEmpty()) {
+            throw new ResourceNotFoundException("No orders found for user with id: " + user.getId(), "");
+        }
+        return orderMapper.toDto(orders);
+    }
+
+    public List<OrderResponseDto> getAllOrdersByUserIdForAdmin(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found", "");
         }

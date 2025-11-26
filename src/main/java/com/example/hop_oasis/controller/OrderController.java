@@ -54,9 +54,14 @@ public class OrderController {
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponseDto>> getAllOrdersByUserId(@PathVariable Long userId) {
-        List<OrderResponseDto> responseDtos = orderService.getAllOrdersByUserId(userId);
+        List<OrderResponseDto> responseDtos = orderService.getAllOrdersByUserIdForAdmin(userId);
         return ResponseEntity.ok().body(responseDtos);
 
+    }
+    @GetMapping("/user")
+    public ResponseEntity<List<OrderResponseDto>> getAllOrdersByUser(Authentication authentication){
+        List<OrderResponseDto> responseDtos = orderService.getAllOrdersForUser(authentication);
+        return ResponseEntity.ok().body(responseDtos);
     }
 
     @PutMapping("/user/{orderId}")
