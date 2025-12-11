@@ -56,7 +56,7 @@ public class OrderService {
         if (cart.getCartItems().isEmpty()) {
             throw new ResourceNotFoundException("Cart is empty", "");
         }
-        Map<Long, String> names = fetchNamesForItems(cart.getCartItems());
+        Map<String, String> names = fetchNamesForItems(cart.getCartItems());
 
 
         Order order = new Order();
@@ -92,7 +92,8 @@ public class OrderService {
 
             double pricePerItem = getPriceForCartItem(cartItem);
             orderItem.setPrice(pricePerItem);
-            String itemTitle = names.getOrDefault(cartItem.getItemId(), null);
+            String key = cartItem.getItemId() + "_" + cartItem.getItemType().name();
+            String itemTitle = names.getOrDefault(key, null);
             orderItem.setItemTitle(itemTitle);
 
             order.getOrderItems().add(orderItem);
@@ -148,25 +149,26 @@ public class OrderService {
                 orderDetails);
     }
 
-    private Map<Long, String> fetchNamesForItems(List<CartItem> cartItems) {
-        Map<Long, String> names = new HashMap<>();
+    private Map<String, String> fetchNamesForItems(List<CartItem> cartItems) {
+        Map<String, String> names = new HashMap<>();
         for (CartItem cartItem : cartItems) {
+            String key = cartItem.getItemId() + "_" + cartItem.getItemType().name();
             switch (cartItem.getItemType()) {
                 case BEER -> {
                     BeerInfoDto beerInfo = beerService.getBeerById(cartItem.getItemId());
-                    names.put(cartItem.getItemId(), beerInfo.getBeerName());
+                    names.put(key, beerInfo.getBeerName());
                 }
                 case CIDER -> {
                     CiderInfoDto ciderInfo = ciderService.getCiderById(cartItem.getItemId());
-                    names.put(cartItem.getItemId(), ciderInfo.getCiderName());
+                    names.put(key, ciderInfo.getCiderName());
                 }
                 case SNACK -> {
                     SnackInfoDto snackInfo = snackService.getSnackById(cartItem.getItemId());
-                    names.put(cartItem.getItemId(), snackInfo.getSnackName());
+                    names.put(key, snackInfo.getSnackName());
                 }
                 case PRODUCT_BUNDLE -> {
                     ProductBundleInfoDto bundleInfo = bundleService.getProductBundleById(cartItem.getItemId());
-                    names.put(cartItem.getItemId(), bundleInfo.getName());
+                    names.put(key, bundleInfo.getName());
                 }
             }
         }
@@ -249,7 +251,22 @@ public class OrderService {
         if (orders.isEmpty()) {
             throw new ResourceNotFoundException("No orders found for user with id: " + user.getId(), "");
         }
-        return orderMapper.toDto(orders);
+        List<OrderResponseDto> response = orderMapper.toDto(orders);
+        response.forEach(orderDto ->
+                orderDto.getItems().forEach(item -> item.setImageName(resolveItemImage(item))));
+        return response;
+    }
+
+    private String resolveItemImage(OrderItemDto item) {
+        return switch (item.getItemType()) {
+            case BEER -> beerService.getBeerById(item.getItemId()).getImageName().stream().findFirst().orElse(null);
+            case CIDER ->
+                    ciderService.getCiderById(item.getItemId()).getCiderImageName().stream().findFirst().orElse(null);
+            case SNACK ->
+                    snackService.getSnackById(item.getItemId()).getSnackImageName().stream().findFirst().orElse(null);
+            case PRODUCT_BUNDLE ->
+                    bundleService.getProductBundleById(item.getItemId()).getProductImageName().stream().findFirst().orElse(null);
+        };
     }
 
     public List<OrderResponseDto> getAllOrdersByUserIdForAdmin(Long userId) {
