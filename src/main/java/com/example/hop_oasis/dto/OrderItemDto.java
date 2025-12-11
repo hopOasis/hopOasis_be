@@ -10,11 +10,12 @@ import lombok.*;
 @Setter
 @Builder
 public class OrderItemDto {
-    private Long id;
+    private Long itemId;
     private String itemTitle;
     private ItemType itemType;
     private Integer quantity;
     private double measureValue;
+    private String imageName;
     private double price;
 
 }
