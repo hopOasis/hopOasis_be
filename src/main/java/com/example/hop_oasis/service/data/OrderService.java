@@ -258,15 +258,24 @@ public class OrderService {
     }
 
     private String resolveItemImage(OrderItemDto item) {
-        return switch (item.getItemType()) {
-            case BEER -> beerService.getBeerById(item.getItemId()).getImageName().stream().findFirst().orElse(null);
-            case CIDER ->
-                    ciderService.getCiderById(item.getItemId()).getCiderImageName().stream().findFirst().orElse(null);
-            case SNACK ->
-                    snackService.getSnackById(item.getItemId()).getSnackImageName().stream().findFirst().orElse(null);
-            case PRODUCT_BUNDLE ->
-                    bundleService.getProductBundleById(item.getItemId()).getProductImageName().stream().findFirst().orElse(null);
-        };
+        try {
+            return switch (item.getItemType()) {
+                case BEER -> beerService.getBeerById(item.getItemId()).getImageName().stream().findFirst().orElse(null);
+                case CIDER ->
+                        ciderService.getCiderById(item.getItemId()).getCiderImageName().stream().findFirst().orElse(null);
+                case SNACK ->
+                        snackService.getSnackById(item.getItemId()).getSnackImageName().stream().findFirst().orElse(null);
+                case PRODUCT_BUNDLE ->
+                        bundleService.getProductBundleById(item.getItemId()).getProductImageName().stream().findFirst().orElse(null);
+                default -> {
+                    log.warn("Unknown item type {} for item {}", item.getItemType(), item.getItemId());
+                    yield null;
+                }
+            };
+        } catch (ResourceNotFoundException ex) {
+            log.warn("Item not found: type={}, id={}", item.getItemType(), item.getItemId());
+            return null;
+        }
     }
 
     public List<OrderResponseDto> getAllOrdersByUserIdForAdmin(Long userId) {
